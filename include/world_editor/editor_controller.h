@@ -87,7 +87,7 @@ class EditorController {
   const mathfu::vec3& GetFacing() const { return facing_current_; }
 
   // Set the current facing to a specific value.
-  const void SetFacing(const mathfu::vec3& facing) {
+  void SetFacing(const mathfu::vec3& facing) {
     facing_current_ = facing_previous_ = facing;
   }
 
