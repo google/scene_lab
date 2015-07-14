@@ -14,6 +14,7 @@
 
 #include <string.h>
 #include "library_components_generated.h"
+#include "component_library/physics.h"
 #include "component_library/rendermesh.h"
 #include "component_library/common_services.h"
 #include "mathfu/utilities.h"
@@ -26,6 +27,8 @@ FPL_ENTITY_DEFINE_COMPONENT(fpl::editor::EditOptionsComponent,
 namespace fpl {
 namespace editor {
 
+using fpl::component_library::PhysicsComponent;
+using fpl::component_library::PhysicsData;
 using fpl::component_library::RenderMeshComponent;
 using fpl::component_library::RenderMeshData;
 
@@ -71,6 +74,8 @@ void EditOptionsComponent::OnEvent(const event::EventPayload& event_payload) {
     case kEventSinkUnion_EditorEvent: {
       auto render_mesh_component =
           entity_manager_->GetComponent<RenderMeshComponent>();
+      auto physics_component =
+          entity_manager_->GetComponent<PhysicsComponent>();
       auto* editor_event = event_payload.ToData<editor::EditorEventPayload>();
       if (editor_event->action == EditorEventAction_Enter) {
         for (auto iter = component_data_.begin(); iter != component_data_.end();
@@ -86,6 +91,16 @@ void EditOptionsComponent::OnEvent(const event::EventPayload& event_payload) {
                   rendermesh_data->currently_hidden;
               rendermesh_data->currently_hidden = hide;
             }
+          }
+          if (physics_component &&
+              (iter->data.selection_option == SelectionOption_PointerOnly ||
+               iter->data.selection_option == SelectionOption_Any ||
+               iter->data.selection_option == SelectionOption_Unspecified)) {
+            entity_manager_->AddEntityToComponent<PhysicsComponent>(
+                iter->entity);
+            // Generate shapes for raycasting, setting the results to not be
+            // included on export.
+            physics_component->GenerateRaycastShape(iter->entity, false);
           }
         }
       } else if (editor_event->action == EditorEventAction_Exit) {
