@@ -41,6 +41,7 @@ table WorldEditorConfig {
   // in units per frame.
   precise_movement_scale:float;
 
+  // Sensitivity of mouse movement. 0.001 is a good value to start with.
   mouse_sensitivity:float;
 }
 

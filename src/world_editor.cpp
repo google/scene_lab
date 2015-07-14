@@ -16,16 +16,11 @@
 
 #include <set>
 #include <string>
-#include "component_library/physics.h"
-#include "component_library/rendermesh.h"
-#include "component_library/transform.h"
 #include "library_components_generated.h"
-#include "entity/entity_manager.h"
 #include "editor_events_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/reflection.h"
-#include "fplbase/camera_interface.h"
 #include "fplbase/flatbuffer_utils.h"
 #include "fplbase/utilities.h"
 #include "mathfu/utilities.h"
@@ -62,6 +57,7 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   LoadSchemaFiles();
   horizontal_forward_ = mathfu::kAxisY3f;
   horizontal_right_ = mathfu::kAxisX3f;
+  controller_.reset(new EditorController(config_, input_system_));
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
@@ -84,24 +80,22 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     horizontal_right_ = right;
   }
 
+  controller_->Update();
   if (input_mode_ == kMoving) {
     // Allow the camera to look around and move.
-    input_controller_->Update();
-    camera_->set_facing(input_controller_->facing().Value());
-    camera_->set_up(input_controller_->up().Value());
+    camera_->set_facing(controller_->GetFacing());
 
     mathfu::vec3 movement = GetMovement();
     camera_->set_position(camera_->position() + movement * (float)delta_time);
 
-    if (input_controller_->Button(0).Value() && selected_entity_.IsValid()) {
+    if (controller_->ButtonWentDown(0) && selected_entity_.IsValid()) {
       // TODO: if the mouse is down, switch the editing mode
       // input_mode_ = kEditing;
     }
   } else if (input_mode_ == kEditing) {
     // We have an object selected to edit, so input now moves the object.
-    input_controller_->Update();
-    if (!input_controller_->Button(0).Value()) {
-      input_controller_->facing().SetValue(camera_->facing());
+    if (controller_->ButtonWentUp(0)) {
+      controller_->SetFacing(camera_->facing());
       input_mode_ = kMoving;
     } else {
       // dragging the mouse moves the object up/down/left/right
@@ -110,7 +104,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
 
   bool entity_changed = false;
   do {
-    if (input_system_->GetButton(FPLK_RIGHTBRACKET).went_down()) {
+    if (controller_->KeyWentDown(FPLK_RIGHTBRACKET)) {
       // select next entity to edit
       if (*entity_cycler_ != entity_manager_->end()) {
         (*entity_cycler_)++;
@@ -120,7 +114,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       }
       entity_changed = true;
     }
-    if (input_system_->GetButton(FPLK_LEFTBRACKET).went_down()) {
+    if (controller_->KeyWentDown(FPLK_LEFTBRACKET)) {
       if (*entity_cycler_ == entity_manager_->begin()) {
         *entity_cycler_ = entity_manager_->end();
       }
@@ -143,8 +137,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   } while (entity_changed && entity_cycler_->ToReference() != selected_entity_);
 
   entity_changed = false;
-  if (input_controller_->Button(0).Value() &&
-      input_controller_->Button(0).HasChanged()) {
+  if (controller_->ButtonWentDown(0)) {
     mathfu::vec3 start = camera_->position();
     mathfu::vec3 end = start + camera_->facing() * kRaycastDistance;
     entity::EntityRef result =
@@ -185,15 +178,15 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       }
     }
 
-    if (input_system_->GetButton(FPLK_INSERT).went_down() ||
-        input_system_->GetButton(FPLK_v).went_down()) {
+    if (controller_->KeyWentDown(FPLK_INSERT) ||
+        controller_->KeyWentDown(FPLK_v)) {
       entity::EntityRef new_entity = DuplicateEntity(selected_entity_);
       *entity_cycler_ = new_entity.ToIterator();
       SelectEntity(entity_cycler_->ToReference());
       NotifyEntityUpdated(new_entity);
     }
-    if (input_system_->GetButton(FPLK_DELETE).went_down() ||
-        input_system_->GetButton(FPLK_x).went_down()) {
+    if (controller_->KeyWentDown(FPLK_DELETE) ||
+        controller_->KeyWentDown(FPLK_x)) {
       entity::EntityRef entity = selected_entity_;
       NotifyEntityDeleted(entity);
       *entity_cycler_ = entity_manager_->end();
@@ -274,13 +267,11 @@ void WorldEditor::NotifyEntityDeleted(const entity::EntityRef& entity) const {
 
 void WorldEditor::Activate() {
   // Set up the initial camera position.
-  input_controller_->facing().SetValue(camera_->facing());
-  input_controller_->up().SetValue(camera_->up());
+  controller_->SetFacing(camera_->facing());
+  controller_->LockMouse();
 
   input_mode_ = kMoving;
   *entity_cycler_ = entity_manager_->end();
-
-  input_system_->SetRelativeMouseMode(true);
 
   // Raise the EditorStart event.
   if (event_manager_ != nullptr) {
@@ -440,8 +431,8 @@ bool WorldEditor::PreciseMovement() const {
   // TODO: would be better if we used precise movement by default, and
   //       transitioned to fast movement after the key has been held for
   //       a while.
-  return input_system_->GetButton(FPLK_LSHIFT).is_down() ||
-         input_system_->GetButton(FPLK_RSHIFT).is_down();
+  return controller_->KeyIsDown(FPLK_LSHIFT) ||
+         controller_->KeyIsDown(FPLK_RSHIFT);
 }
 
 vec3 WorldEditor::GlobalFromHorizontal(float forward, float right,
@@ -463,22 +454,22 @@ vec3 WorldEditor::GetMovement() const {
           : config_->camera_movement_speed();
 
   // TODO(jsimantov): make the specific keys configurable?
-  if (input_system_->GetButton(FPLK_w).is_down()) {
+  if (controller_->KeyIsDown(FPLK_w)) {
     forward_speed += move_speed;
   }
-  if (input_system_->GetButton(FPLK_s).is_down()) {
+  if (controller_->KeyIsDown(FPLK_s)) {
     forward_speed -= move_speed;
   }
-  if (input_system_->GetButton(FPLK_d).is_down()) {
+  if (controller_->KeyIsDown(FPLK_d)) {
     right_speed += move_speed;
   }
-  if (input_system_->GetButton(FPLK_a).is_down()) {
+  if (controller_->KeyIsDown(FPLK_a)) {
     right_speed -= move_speed;
   }
-  if (input_system_->GetButton(FPLK_r).is_down()) {
+  if (controller_->KeyIsDown(FPLK_r)) {
     up_speed += move_speed;
   }
-  if (input_system_->GetButton(FPLK_f).is_down()) {
+  if (controller_->KeyIsDown(FPLK_f)) {
     up_speed -= move_speed;
   }
 
@@ -503,50 +494,50 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   const float move_speed = movement_scale * config_->object_movement_speed();
   const float angular_speed = movement_scale * config_->object_angular_speed();
 
-  if (input_system_->GetButton(FPLK_i).is_down()) {
+  if (controller_->KeyIsDown(FPLK_i)) {
     fwd_speed += move_speed;
   }
-  if (input_system_->GetButton(FPLK_k).is_down()) {
+  if (controller_->KeyIsDown(FPLK_k)) {
     fwd_speed -= move_speed;
   }
-  if (input_system_->GetButton(FPLK_j).is_down()) {
+  if (controller_->KeyIsDown(FPLK_j)) {
     right_speed -= move_speed;
   }
-  if (input_system_->GetButton(FPLK_l).is_down()) {
+  if (controller_->KeyIsDown(FPLK_l)) {
     right_speed += move_speed;
   }
   // P; = move z axis
-  if (input_system_->GetButton(FPLK_p).is_down()) {
+  if (controller_->KeyIsDown(FPLK_p)) {
     up_speed += move_speed;
   }
-  if (input_system_->GetButton(FPLK_SEMICOLON).is_down()) {
+  if (controller_->KeyIsDown(FPLK_SEMICOLON)) {
     up_speed -= move_speed;
   }
   // UO = roll
-  if (input_system_->GetButton(FPLK_u).is_down()) {
+  if (controller_->KeyIsDown(FPLK_u)) {
     roll_speed += angular_speed;
   }
-  if (input_system_->GetButton(FPLK_o).is_down()) {
+  if (controller_->KeyIsDown(FPLK_o)) {
     roll_speed -= angular_speed;
   }
   // YH = pitch
-  if (input_system_->GetButton(FPLK_y).is_down()) {
+  if (controller_->KeyIsDown(FPLK_y)) {
     pitch_speed += angular_speed;
   }
-  if (input_system_->GetButton(FPLK_h).is_down()) {
+  if (controller_->KeyIsDown(FPLK_h)) {
     pitch_speed -= angular_speed;
   }
   // NM = yaw
-  if (input_system_->GetButton(FPLK_n).is_down()) {
+  if (controller_->KeyIsDown(FPLK_n)) {
     yaw_speed += angular_speed;
   }
-  if (input_system_->GetButton(FPLK_m).is_down()) {
+  if (controller_->KeyIsDown(FPLK_m)) {
     yaw_speed -= angular_speed;
   }
   // +- = scale
-  if (input_system_->GetButton(FPLK_EQUALS).is_down()) {
+  if (controller_->KeyIsDown(FPLK_EQUALS)) {
     scale_speed = config_->object_scale_speed();
-  } else if (input_system_->GetButton(FPLK_MINUS).is_down()) {
+  } else if (controller_->KeyIsDown(FPLK_MINUS)) {
     scale_speed = 1.0f / config_->object_scale_speed();
   }
   const vec3 position = LoadVec3(transform->mutable_position()) +
@@ -556,7 +547,7 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   orientation = Vec3{orientation.x() + pitch_speed,
                      orientation.y() + roll_speed, orientation.z() + yaw_speed};
   Vec3 scale = *transform->scale();
-  if (input_system_->GetButton(FPLK_0).is_down()) {
+  if (controller_->KeyIsDown(FPLK_0)) {
     scale = Vec3{1.0f, 1.0f, 1.0f};
     scale_speed = 0;  // to trigger returning true
   } else {
