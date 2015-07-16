@@ -72,8 +72,11 @@ class WorldEditor {
     components_to_update_.push_back(component_id);
   }
 
+  Shader* shader() const { return shader_; }
+  void set_shader(Shader* shader) { shader_ = shader; }
+
  private:
-  enum { kMoving, kEditing } input_mode_;
+  enum { kMoving, kEditing, kDragging } input_mode_;
 
   // return true if we should be moving the camera and objects slowly.
   bool PreciseMovement() const;
@@ -94,6 +97,16 @@ class WorldEditor {
   // returns true if the transform was modified
   bool ModifyTransformBasedOnInput(TransformDef* transform);
 
+  // Find the intersection between a ray and a plane.
+  // Ensure ray_direction and plane_normal are both normalized.
+  // Returns true if it intersects with the plane, and sets the
+  // intersection point.
+  static bool IntersectRayToPlane(const vec3& ray_origin,
+                                  const vec3& ray_direction,
+                                  const vec3& point_on_plane,
+                                  const vec3& plane_normal,
+                                  vec3* intersection_point);
+
   void LoadSchemaFiles();
 
   const WorldEditorConfig* config_;
@@ -104,6 +117,7 @@ class WorldEditor {
   component_library::EntityFactory* entity_factory_;
   // Which entity are we currently editing?
   entity::EntityRef selected_entity_;
+  Shader* shader_;
 
   // Temporary solution to let us cycle through all entities.
   std::unique_ptr<entity::EntityManager::EntityStorageContainer::Iterator>
@@ -123,6 +137,11 @@ class WorldEditor {
   // camera's `up()` direction.
   mathfu::vec3 horizontal_forward_;
   mathfu::vec3 horizontal_right_;
+
+  mathfu::vec3 drag_point_;
+  mathfu::vec3 drag_offset_;
+  mathfu::vec3 previous_mouse_ray_origin_;
+  mathfu::vec3 previous_mouse_ray_dir_;
 };
 
 }  // namespace editor

@@ -14,6 +14,7 @@
 
 #include "world_editor/world_editor.h"
 
+#include <math.h>
 #include <set>
 #include <string>
 #include "library_components_generated.h"
@@ -86,7 +87,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     // Allow the camera to look around and move.
     camera_->set_facing(controller_->GetFacing());
 
-    mathfu::vec3 movement = GetMovement();
+    vec3 movement = GetMovement();
     camera_->set_position(camera_->position() + movement * (float)delta_time);
 
     if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
@@ -95,6 +96,18 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       controller_->UnlockMouse();
     }
   } else if (input_mode_ == kEditing) {
+    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
+      controller_->SetFacing(camera_->facing());
+      controller_->LockMouse();
+      LogInfo("Toggle to moving mode");
+      input_mode_ = kMoving;
+    }
+  } else if (input_mode_ == kDragging) {
+    if (controller_->ButtonWentUp(config_->interact_button())) {
+      LogInfo("Stop dragging");
+      input_mode_ = kEditing;
+    }
+
     if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
       controller_->SetFacing(camera_->facing());
       controller_->LockMouse();
@@ -138,35 +151,41 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   } while (entity_changed && entity_cycler_->ToReference() != selected_entity_);
 
   entity_changed = false;
-  if (controller_->ButtonWentDown(0)) {
+  if (controller_->ButtonWentDown(config_->interact_button())) {
     // Use position of the mouse pointer for the ray cast.
-    mathfu::vec3 start, end;
+    vec3 start, end;
     if (controller_->mouse_locked()) {
       start = camera_->position();
       end = start + camera_->facing() * kRaycastDistance;
     } else {
       controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
                                     &end);
-      mathfu::vec3 dir = (end - start).Normalized();
+      vec3 dir = (end - start).Normalized();
       end = start + (dir * camera_->viewport_far_plane());
     }
     entity::EntityRef result =
-        entity_manager_->GetComponent<PhysicsComponent>()->RaycastSingle(start,
-                                                                         end);
+        entity_manager_->GetComponent<PhysicsComponent>()->RaycastSingle(
+            start, end, &drag_point_);
     if (result.IsValid()) {
       *entity_cycler_ = result.ToIterator();
       entity_changed = true;
     }
   }
+  bool start_dragging = false;
   if (entity_changed) {
     entity::EntityRef entity_ref = entity_cycler_->ToReference();
-    auto data = entity_manager_->GetComponentData<EditOptionsData>(entity_ref);
-    if (data != nullptr) {
-      // Are we allowed to click on this entity?
-      if (data->selection_option == SelectionOption_Unspecified ||
-          data->selection_option == SelectionOption_Any ||
-          data->selection_option == SelectionOption_PointerOnly) {
-        SelectEntity(entity_cycler_->ToReference());
+    if (input_mode_ == kEditing && entity_ref == selected_entity_) {
+      start_dragging = true;
+    } else {
+      auto data =
+          entity_manager_->GetComponentData<EditOptionsData>(entity_ref);
+      if (data != nullptr) {
+        // Are we allowed to click on this entity?
+        if (data->selection_option == SelectionOption_Unspecified ||
+            data->selection_option == SelectionOption_Any ||
+            data->selection_option == SelectionOption_PointerOnly) {
+          SelectEntity(entity_cycler_->ToReference());
+        }
       }
     }
   }
@@ -182,8 +201,14 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
           flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
       if (ModifyTransformBasedOnInput(transform)) {
         transform_component->AddFromRawData(selected_entity_, transform);
-        entity_manager_->GetComponent<PhysicsComponent>()
-            ->UpdatePhysicsFromTransform(selected_entity_);
+        auto physics = entity_manager_->GetComponent<PhysicsComponent>();
+        physics->UpdatePhysicsFromTransform(selected_entity_);
+        if (physics->GetComponentData(selected_entity_)->enabled) {
+          // Workaround for an issue with the physics library where modifying
+          // a raycast physics volume causes raycasts to stop working on it.
+          physics->DisablePhysics(selected_entity_);
+          physics->EnablePhysics(selected_entity_);
+        }
         NotifyEntityUpdated(selected_entity_);
       }
     }
@@ -211,6 +236,37 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   for (size_t i = 0; i < components_to_update_.size(); i++) {
     entity_manager_->GetComponent(components_to_update_[i])
         ->UpdateAllEntities(0);
+  }
+
+  if (start_dragging && input_mode_ == kEditing && selected_entity_) {
+    auto transform_component =
+        entity_manager_->GetComponent<TransformComponent>();
+    auto raw_data = transform_component->ExportRawData(selected_entity_);
+    TransformDef* transform =
+        flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
+    vec3 position = LoadVec3(transform->position());
+    vec3 intersect;
+
+    vec3 start, end;
+    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
+                                  &end);
+    vec3 mouse_ray_origin = start;
+    vec3 mouse_ray_dir = (end - start).Normalized();
+    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                            vec3(0, 0, 1), &intersect)) {
+      drag_offset_ = position - intersect;
+      input_mode_ = kDragging;
+    }
+  }
+  // Save the current mouse pointer direction in the world, for dragging
+  // the object around.
+  if (input_mode_ == kDragging) {
+    vec3 start, end;
+    if (controller_->GetMouseWorldRay(*camera_, renderer_->window_size(),
+                                      &start, &end)) {
+      previous_mouse_ray_origin_ = start;
+      previous_mouse_ray_dir_ = (end - start).Normalized();
+    }
   }
 
   entity_manager_->DeleteMarkedEntities();
@@ -253,6 +309,11 @@ void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
 
 void WorldEditor::Render(Renderer* /*renderer*/) {
   // Render any editor-specific things
+  // if (controller_->mouse_locked()) {
+  // renderer->SetCulling(Renderer::kNoCulling);
+  // renderer->DepthTest(false);
+  // draw a reticle
+  //}
 }
 
 void WorldEditor::SetInitialCamera(const CameraInterface& initial_camera) {
@@ -451,6 +512,30 @@ vec3 WorldEditor::GlobalFromHorizontal(float forward, float right,
          camera_->up() * up;
 }
 
+bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
+                                      const vec3& ray_direction,
+                                      const vec3& point_on_plane,
+                                      const vec3& plane_normal,
+                                      vec3* intersection_point) {
+  vec3 ray_origin_to_plane = ray_origin - point_on_plane;
+  float distance_from_ray_origin_to_plane =
+      vec3::DotProduct(ray_origin_to_plane, plane_normal);
+  // vec3 nearest_point_on_plane_to_ray_origin =
+  //     plane_normal * -distance_from_ray_origin_to_plane;
+  // ratio of diagonal / distance_from_ray_origin_to_plane
+  float length_ratio = vec3::DotProduct(ray_direction, -plane_normal);
+  // float diagonal = length_ratio * distance_from_ray_origin_to_plane;
+  if (distance_from_ray_origin_to_plane < 0.001)
+    *intersection_point = ray_origin_to_plane;
+  else if (length_ratio < 0.001)
+    return false;
+  else
+    *intersection_point =
+        ray_origin +
+        ray_direction * distance_from_ray_origin_to_plane * 1.0f / length_ratio;
+  return true;
+}
+
 vec3 WorldEditor::GetMovement() const {
   // Get a movement vector to move the user forward, up, or right.
   // Movement is always relative to the camera facing, but parallel to
@@ -490,87 +575,107 @@ vec3 WorldEditor::GetMovement() const {
 }
 
 bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
-  // IJKL = move x/y axis
-  float fwd_speed = 0, right_speed = 0, up_speed = 0;
-  float roll_speed = 0, pitch_speed = 0, yaw_speed = 0;
-  float scale_speed = 1;
+  if (input_mode_ == kDragging) {
+    vec3 start, end;
+    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
+                                  &end);
+    vec3 mouse_ray_origin = start;
+    vec3 mouse_ray_dir = (end - start).Normalized();
+    vec3 intersect;
 
-  // When the shift key is held, use more precise movement.
-  // TODO: would be better if we used precise movement by default, and
-  //       transitioned to fast movement after the key has been held for
-  //       a while.
-  const float movement_scale =
-      PreciseMovement() ? config_->precise_movement_scale() : 1.0f;
-  const float move_speed = movement_scale * config_->object_movement_speed();
-  const float angular_speed = movement_scale * config_->object_angular_speed();
-
-  if (controller_->KeyIsDown(FPLK_i)) {
-    fwd_speed += move_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_k)) {
-    fwd_speed -= move_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_j)) {
-    right_speed -= move_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_l)) {
-    right_speed += move_speed;
-  }
-  // P; = move z axis
-  if (controller_->KeyIsDown(FPLK_p)) {
-    up_speed += move_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_SEMICOLON)) {
-    up_speed -= move_speed;
-  }
-  // UO = roll
-  if (controller_->KeyIsDown(FPLK_u)) {
-    roll_speed += angular_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_o)) {
-    roll_speed -= angular_speed;
-  }
-  // YH = pitch
-  if (controller_->KeyIsDown(FPLK_y)) {
-    pitch_speed += angular_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_h)) {
-    pitch_speed -= angular_speed;
-  }
-  // NM = yaw
-  if (controller_->KeyIsDown(FPLK_n)) {
-    yaw_speed += angular_speed;
-  }
-  if (controller_->KeyIsDown(FPLK_m)) {
-    yaw_speed -= angular_speed;
-  }
-  // +- = scale
-  if (controller_->KeyIsDown(FPLK_EQUALS)) {
-    scale_speed = config_->object_scale_speed();
-  } else if (controller_->KeyIsDown(FPLK_MINUS)) {
-    scale_speed = 1.0f / config_->object_scale_speed();
-  }
-  const vec3 position = LoadVec3(transform->mutable_position()) +
-                        GlobalFromHorizontal(fwd_speed, right_speed, up_speed);
-
-  Vec3 orientation = *transform->mutable_orientation();
-  orientation = Vec3{orientation.x() + pitch_speed,
-                     orientation.y() + roll_speed, orientation.z() + yaw_speed};
-  Vec3 scale = *transform->scale();
-  if (controller_->KeyIsDown(FPLK_0)) {
-    scale = Vec3{1.0f, 1.0f, 1.0f};
-    scale_speed = 0;  // to trigger returning true
+    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                            vec3(0, 0, 1), &intersect)) {
+      vec3 new_pos = intersect + drag_offset_;
+      *transform->mutable_position() =
+          Vec3(new_pos.x(), new_pos.y(), new_pos.z());
+      return true;
+    }
   } else {
-    scale = Vec3{scale.x() * scale_speed, scale.y() * scale_speed,
-                 scale.z() * scale_speed};
-  }
-  if (fwd_speed != 0 || right_speed != 0 || up_speed != 0 || yaw_speed != 0 ||
-      roll_speed != 0 || pitch_speed != 0 || scale_speed != 1) {
-    *(transform->mutable_position()) =
-        Vec3(position.x(), position.y(), position.z());
-    *(transform->mutable_orientation()) = orientation;
-    *(transform->mutable_scale()) = scale;
-    return true;
+    // IJKL = move x/y axis
+    float fwd_speed = 0, right_speed = 0, up_speed = 0;
+    float roll_speed = 0, pitch_speed = 0, yaw_speed = 0;
+    float scale_speed = 1;
+
+    // When the shift key is held, use more precise movement.
+    // TODO: would be better if we used precise movement by default, and
+    //       transitioned to fast movement after the key has been held for
+    //       a while.
+    const float movement_scale =
+        PreciseMovement() ? config_->precise_movement_scale() : 1.0f;
+    const float move_speed = movement_scale * config_->object_movement_speed();
+    const float angular_speed =
+        movement_scale * config_->object_angular_speed();
+
+    if (controller_->KeyIsDown(FPLK_i)) {
+      fwd_speed += move_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_k)) {
+      fwd_speed -= move_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_j)) {
+      right_speed -= move_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_l)) {
+      right_speed += move_speed;
+    }
+    // P; = move z axis
+    if (controller_->KeyIsDown(FPLK_p)) {
+      up_speed += move_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_SEMICOLON)) {
+      up_speed -= move_speed;
+    }
+    // UO = roll
+    if (controller_->KeyIsDown(FPLK_u)) {
+      roll_speed += angular_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_o)) {
+      roll_speed -= angular_speed;
+    }
+    // YH = pitch
+    if (controller_->KeyIsDown(FPLK_y)) {
+      pitch_speed += angular_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_h)) {
+      pitch_speed -= angular_speed;
+    }
+    // NM = yaw
+    if (controller_->KeyIsDown(FPLK_n)) {
+      yaw_speed += angular_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_m)) {
+      yaw_speed -= angular_speed;
+    }
+    // +- = scale
+    if (controller_->KeyIsDown(FPLK_EQUALS)) {
+      scale_speed = config_->object_scale_speed();
+    } else if (controller_->KeyIsDown(FPLK_MINUS)) {
+      scale_speed = 1.0f / config_->object_scale_speed();
+    }
+    const vec3 position =
+        LoadVec3(transform->mutable_position()) +
+        GlobalFromHorizontal(fwd_speed, right_speed, up_speed);
+
+    Vec3 orientation = *transform->mutable_orientation();
+    orientation =
+        Vec3{orientation.x() + pitch_speed, orientation.y() + roll_speed,
+             orientation.z() + yaw_speed};
+    Vec3 scale = *transform->scale();
+    if (controller_->KeyIsDown(FPLK_0)) {
+      scale = Vec3{1.0f, 1.0f, 1.0f};
+      scale_speed = 0;  // to trigger returning true
+    } else {
+      scale = Vec3{scale.x() * scale_speed, scale.y() * scale_speed,
+                   scale.z() * scale_speed};
+    }
+    if (fwd_speed != 0 || right_speed != 0 || up_speed != 0 || yaw_speed != 0 ||
+        roll_speed != 0 || pitch_speed != 0 || scale_speed != 1) {
+      *(transform->mutable_position()) =
+          Vec3(position.x(), position.y(), position.z());
+      *(transform->mutable_orientation()) = orientation;
+      *(transform->mutable_scale()) = scale;
+      return true;
+    }
   }
   return false;
 }

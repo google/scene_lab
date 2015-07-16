@@ -96,6 +96,11 @@ class EditorController {
   // mouse is unlocked.
   const mathfu::vec2& GetPointer() const { return pointer_current_; }
 
+  // Get the delta in on-screen pointer position from the previous update.
+  mathfu::vec2 GetPointerDelta() const {
+    return pointer_current_ - pointer_previous_;
+  }
+
   // Lock the mouse into the middle of the screen, which will start updating
   // facing.
   void LockMouse() {
