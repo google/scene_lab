@@ -42,11 +42,12 @@ static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
 void WorldEditor::Initialize(const WorldEditorConfig* config,
-                             InputSystem* input_system,
+                             Renderer* renderer, InputSystem* input_system,
                              entity::EntityManager* entity_manager,
                              event::EventManager* event_manager,
                              EntityFactory* entity_factory) {
   config_ = config;
+  renderer_ = renderer;
   input_system_ = input_system;
   entity_manager_ = entity_manager;
   event_manager_ = event_manager;
@@ -88,17 +89,17 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     mathfu::vec3 movement = GetMovement();
     camera_->set_position(camera_->position() + movement * (float)delta_time);
 
-    if (controller_->ButtonWentDown(0) && selected_entity_.IsValid()) {
-      // TODO: if the mouse is down, switch the editing mode
-      // input_mode_ = kEditing;
+    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
+      input_mode_ = kEditing;
+      LogInfo("Toggle to editing mode");
+      controller_->UnlockMouse();
     }
   } else if (input_mode_ == kEditing) {
-    // We have an object selected to edit, so input now moves the object.
-    if (controller_->ButtonWentUp(0)) {
+    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
       controller_->SetFacing(camera_->facing());
+      controller_->LockMouse();
+      LogInfo("Toggle to moving mode");
       input_mode_ = kMoving;
-    } else {
-      // dragging the mouse moves the object up/down/left/right
     }
   }
 
@@ -138,8 +139,17 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
 
   entity_changed = false;
   if (controller_->ButtonWentDown(0)) {
-    mathfu::vec3 start = camera_->position();
-    mathfu::vec3 end = start + camera_->facing() * kRaycastDistance;
+    // Use position of the mouse pointer for the ray cast.
+    mathfu::vec3 start, end;
+    if (controller_->mouse_locked()) {
+      start = camera_->position();
+      end = start + camera_->facing() * kRaycastDistance;
+    } else {
+      controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
+                                    &end);
+      mathfu::vec3 dir = (end - start).Normalized();
+      end = start + (dir * camera_->viewport_far_plane());
+    }
     entity::EntityRef result =
         entity_manager_->GetComponent<PhysicsComponent>()->RaycastSingle(start,
                                                                          end);
@@ -402,7 +412,7 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
     size_t num_paths = config_->schema_include_paths()->size();
-    include_paths.reset(new const char* [num_paths + 1]);
+    include_paths.reset(new const char*[num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
       include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
     }

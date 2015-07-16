@@ -32,6 +32,7 @@
 #include "event/event_manager.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/input.h"
+#include "fplbase/renderer.h"
 #include "fplbase/utilities.h"
 #include "mathfu/vector_3.h"
 #include "world_editor/edit_options.h"
@@ -44,7 +45,8 @@ namespace editor {
 
 class WorldEditor {
  public:
-  void Initialize(const WorldEditorConfig* config, InputSystem* input_system,
+  void Initialize(const WorldEditorConfig* config, Renderer* renderer,
+                  InputSystem* input_system,
                   entity::EntityManager* entity_manager,
                   event::EventManager* event_manager,
                   component_library::EntityFactory* entity_factory);
@@ -95,6 +97,7 @@ class WorldEditor {
   void LoadSchemaFiles();
 
   const WorldEditorConfig* config_;
+  Renderer* renderer_;
   InputSystem* input_system_;
   entity::EntityManager* entity_manager_;
   event::EventManager* event_manager_;

@@ -43,6 +43,10 @@ table WorldEditorConfig {
 
   // Sensitivity of mouse movement. 0.001 is a good value to start with.
   mouse_sensitivity:float;
+
+  // Input control customization
+  // Mouse button to toggle between moving and editing. 0 is main button, etc.
+  toggle_mode_button:byte;
 }
 
 root_type WorldEditorConfig;

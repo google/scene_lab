@@ -15,9 +15,10 @@
 #ifndef FPL_EDITOR_CONTROLLER_H_
 #define FPL_EDITOR_CONTROLLER_H_
 
+#include "component_library/camera_interface.h"
+#include "fplbase/input.h"
 #include "mathfu/glsl_mappings.h"
 #include "mathfu/constants.h"
-#include "fplbase/input.h"
 #include "world_editor_config_generated.h"
 
 namespace fpl {
@@ -108,6 +109,14 @@ class EditorController {
     mouse_locked_ = false;
     input_system_->SetRelativeMouseMode(false);
   }
+
+  // Get the pointer position in the world, as a ray from the near to far
+  // clipping plane. Returns true if the calculation succeeded.
+  bool GetMouseWorldRay(const CameraInterface& camera,
+                        const mathfu::vec2i& screen_size, mathfu::vec3* near,
+                        mathfu::vec3* far) const;
+
+  bool mouse_locked() const { return mouse_locked_; }
 
  private:
   const WorldEditorConfig* editor_config_;

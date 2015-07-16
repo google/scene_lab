@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "fplbase/utilities.h"
 #include "world_editor/editor_controller.h"
 
+#include <math.h>
 using mathfu::vec2i;
 using mathfu::vec2;
 using mathfu::vec3;
@@ -46,6 +48,29 @@ void EditorController::Update() {
     buttons_previous_[i] = buttons_current_[i];
     buttons_current_[i] = input_system_->GetPointerButton(i).is_down();
   }
+}
+
+bool EditorController::GetMouseWorldRay(const CameraInterface& camera,
+                                        const vec2i& screen_size, vec3* near,
+                                        vec3* far) const {
+  float fov_y_tan = 2 * tan(camera.viewport_angle() * 0.5f);
+  float fov_x_tan = fov_y_tan * camera.viewport_resolution().x() /
+                    camera.viewport_resolution().y();
+
+  vec2 pointer = vec2(fov_x_tan, -fov_y_tan) *
+                 (GetPointer() / vec2(screen_size) - vec2(0.5f, 0.5f));
+  // pointer goes from (-tan(FOVx)/2, tan(FOVy)/2) to (tan(FOVx)/2,
+  // -tan(FOVy)/2) (upper right to lower left); 0,0 is center of screen.
+
+  vec3 forward = camera.facing().Normalized();
+  vec3 up = camera.up().Normalized();
+  vec3 right = vec3::CrossProduct(forward, up).Normalized();
+  up = vec3::CrossProduct(right, forward).Normalized();
+
+  *near = camera.position();
+  *far = camera.position() + forward + up * pointer.y() + right * pointer.x();
+
+  return true;
 }
 
 }  // fpl_base
