@@ -30,6 +30,7 @@
 #include "entity/component_interface.h"
 #include "entity/entity_manager.h"
 #include "event/event_manager.h"
+#include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/input.h"
 #include "fplbase/renderer.h"
@@ -45,11 +46,9 @@ namespace editor {
 
 class WorldEditor {
  public:
-  void Initialize(const WorldEditorConfig* config, Renderer* renderer,
-                  InputSystem* input_system,
+  void Initialize(const WorldEditorConfig* config,
                   entity::EntityManager* entity_manager,
-                  event::EventManager* event_manager,
-                  component_library::EntityFactory* entity_factory);
+                  FontManager* font_manager);
   void AdvanceFrame(WorldTime delta_time);
   void Render(Renderer* renderer);
   void Activate();
@@ -115,6 +114,7 @@ class WorldEditor {
   entity::EntityManager* entity_manager_;
   event::EventManager* event_manager_;
   component_library::EntityFactory* entity_factory_;
+  FontManager* font_manager_;
   // Which entity are we currently editing?
   entity::EntityRef selected_entity_;
   Shader* shader_;

@@ -17,18 +17,20 @@
 #include <math.h>
 #include <set>
 #include <string>
-#include "library_components_generated.h"
+#include "component_library/common_services.h"
 #include "editor_events_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
 #include "fplbase/utilities.h"
+#include "library_components_generated.h"
 #include "mathfu/utilities.h"
 
 namespace fpl {
 namespace editor {
 
+using component_library::CommonServicesComponent;
 using component_library::MetaComponent;
 using component_library::MetaData;
 using component_library::PhysicsComponent;
@@ -43,16 +45,18 @@ static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
 void WorldEditor::Initialize(const WorldEditorConfig* config,
-                             Renderer* renderer, InputSystem* input_system,
                              entity::EntityManager* entity_manager,
-                             event::EventManager* event_manager,
-                             EntityFactory* entity_factory) {
+                             FontManager* font_manager) {
   config_ = config;
-  renderer_ = renderer;
-  input_system_ = input_system;
   entity_manager_ = entity_manager;
-  event_manager_ = event_manager;
-  entity_factory_ = entity_factory;
+  font_manager_ = font_manager;
+
+  auto services = entity_manager_->GetComponent<CommonServicesComponent>();
+  renderer_ = services->renderer();
+  input_system_ = services->input_system();
+  event_manager_ = services->event_manager();
+  entity_factory_ = services->entity_factory();
+
   entity_cycler_.reset(
       new entity::EntityManager::EntityStorageContainer::Iterator{
           entity_manager->end()});
