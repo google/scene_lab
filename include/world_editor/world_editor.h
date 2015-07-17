@@ -21,11 +21,11 @@
 #include <string>
 #include <vector>
 #include "component_library/camera_interface.h"
+#include "component_library/entity_factory.h"
 #include "component_library/meta.h"
 #include "component_library/physics.h"
 #include "component_library/rendermesh.h"
 #include "component_library/transform.h"
-#include "component_library/entity_factory.h"
 #include "editor_components_generated.h"
 #include "entity/component_interface.h"
 #include "entity/entity_manager.h"
@@ -37,8 +37,9 @@
 #include "fplbase/utilities.h"
 #include "mathfu/vector_3.h"
 #include "world_editor/edit_options.h"
-#include "world_editor/editor_event.h"
 #include "world_editor/editor_controller.h"
+#include "world_editor/editor_event.h"
+#include "world_editor/editor_gui.h"
 #include "world_editor_config_generated.h"
 
 namespace fpl {
@@ -142,6 +143,7 @@ class WorldEditor {
 
   std::vector<entity::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
+  std::unique_ptr<EditorGui> gui_;
   std::unique_ptr<CameraInterface> camera_;
 
   // Camera angles, projected onto the horizontal plane, as defined by the

@@ -25,9 +25,11 @@ set(world_editor_SRCS
     include/world_editor/edit_options.h
     include/world_editor/editor_controller.h
     include/world_editor/editor_event.h
+    include/world_editor/editor_gui.h
     include/world_editor/world_editor.h
     src/edit_options.cpp
     src/editor_controller.cpp
+    src/editor_gui.cpp
     src/world_editor.cpp
  )
 

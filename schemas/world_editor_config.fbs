@@ -50,6 +50,21 @@ table WorldEditorConfig {
   interact_button:byte = 0;
   // Mouse button to toggle between moving and editing.
   toggle_mode_button:byte = 2;
+
+  gui_allow_editing:bool = true;
+  gui_children_ui_size:int = 14;
+  gui_edit_ui_size:int = 16;
+
+  bg_color:fpl.Vec4;
+  bg_button_color:fpl.Vec4;
+  bg_hover_color:fpl.Vec4;
+  bg_click_color:fpl.Vec4;
+
+  text_button_color:fpl.Vec4;
+  text_normal_color:fpl.Vec4;
+  text_disabled_color:fpl.Vec4;
+  text_modified_color:fpl.Vec4;
+  text_error_color:fpl.Vec4;
 }
 
 root_type WorldEditorConfig;

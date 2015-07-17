@@ -48,7 +48,8 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
   $(WORLD_EDITOR_RELATIVE_DIR)/src/world_editor.cpp \
   $(WORLD_EDITOR_RELATIVE_DIR)/src/edit_options.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_controller.cpp
+  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_controller.cpp \
+  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_gui.cpp
 
 WORLD_EDITOR_SCHEMA_DIR := $(WORLD_EDITOR_DIR)/schemas
 WORLD_EDITOR_SCHEMA_INCLUDE_DIRS := \

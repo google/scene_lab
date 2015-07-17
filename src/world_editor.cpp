@@ -64,6 +64,8 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   horizontal_forward_ = mathfu::kAxisY3f;
   horizontal_right_ = mathfu::kAxisX3f;
   controller_.reset(new EditorController(config_, input_system_));
+  gui_.reset(
+      new EditorGui(config_, entity_manager_, font_manager_, &schema_data_));
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
@@ -86,7 +88,6 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     horizontal_right_ = right;
   }
 
-  controller_->Update();
   if (input_mode_ == kMoving) {
     // Allow the camera to look around and move.
     camera_->set_facing(controller_->GetFacing());
@@ -94,13 +95,15 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     vec3 movement = GetMovement();
     camera_->set_position(camera_->position() + movement * (float)delta_time);
 
-    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
+    if (!gui_->InputCaptured() &&
+        controller_->ButtonWentDown(config_->toggle_mode_button())) {
       input_mode_ = kEditing;
       LogInfo("Toggle to editing mode");
       controller_->UnlockMouse();
     }
   } else if (input_mode_ == kEditing) {
-    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
+    if (!gui_->InputCaptured() &&
+        controller_->ButtonWentDown(config_->toggle_mode_button())) {
       controller_->SetFacing(camera_->facing());
       controller_->LockMouse();
       LogInfo("Toggle to moving mode");
@@ -112,7 +115,8 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       input_mode_ = kEditing;
     }
 
-    if (controller_->ButtonWentDown(config_->toggle_mode_button())) {
+    if (!gui_->InputCaptured() &&
+        controller_->ButtonWentDown(config_->toggle_mode_button())) {
       controller_->SetFacing(camera_->facing());
       controller_->LockMouse();
       LogInfo("Toggle to moving mode");
@@ -122,22 +126,26 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
 
   bool entity_changed = false;
   do {
-    if (controller_->KeyWentDown(FPLK_RIGHTBRACKET)) {
-      // select next entity to edit
-      if (*entity_cycler_ != entity_manager_->end()) {
-        (*entity_cycler_)++;
+    if (gui_->CanDeselectEntity()) {
+      if (!gui_->InputCaptured() &&
+          controller_->KeyWentDown(FPLK_RIGHTBRACKET)) {
+        // select next entity to edit
+        if (*entity_cycler_ != entity_manager_->end()) {
+          (*entity_cycler_)++;
+        }
+        if (*entity_cycler_ == entity_manager_->end()) {
+          *entity_cycler_ = entity_manager_->begin();
+        }
+        entity_changed = true;
       }
-      if (*entity_cycler_ == entity_manager_->end()) {
-        *entity_cycler_ = entity_manager_->begin();
+      if (!gui_->InputCaptured() &&
+          controller_->KeyWentDown(FPLK_LEFTBRACKET)) {
+        if (*entity_cycler_ == entity_manager_->begin()) {
+          *entity_cycler_ = entity_manager_->end();
+        }
+        (*entity_cycler_)--;
+        entity_changed = true;
       }
-      entity_changed = true;
-    }
-    if (controller_->KeyWentDown(FPLK_LEFTBRACKET)) {
-      if (*entity_cycler_ == entity_manager_->begin()) {
-        *entity_cycler_ = entity_manager_->end();
-      }
-      (*entity_cycler_)--;
-      entity_changed = true;
     }
     if (entity_changed) {
       entity::EntityRef entity_ref = entity_cycler_->ToReference();
@@ -155,7 +163,8 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   } while (entity_changed && entity_cycler_->ToReference() != selected_entity_);
 
   entity_changed = false;
-  if (controller_->ButtonWentDown(config_->interact_button())) {
+  if (!gui_->InputCaptured() && gui_->CanDeselectEntity() &&
+      controller_->ButtonWentDown(config_->interact_button())) {
     // Use position of the mouse pointer for the ray cast.
     vec3 start, end;
     if (controller_->mouse_locked()) {
@@ -173,6 +182,10 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
     if (result.IsValid()) {
       *entity_cycler_ = result.ToIterator();
       entity_changed = true;
+    } else {
+      // deselet entity
+      *entity_cycler_ = entity_manager_->end();
+      SelectEntity(entity::EntityRef());
     }
   }
   bool start_dragging = false;
@@ -206,26 +219,28 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       if (ModifyTransformBasedOnInput(transform)) {
         transform_component->AddFromRawData(selected_entity_, transform);
         auto physics = entity_manager_->GetComponent<PhysicsComponent>();
-        physics->UpdatePhysicsFromTransform(selected_entity_);
-        if (physics->GetComponentData(selected_entity_)->enabled) {
-          // Workaround for an issue with the physics library where modifying
-          // a raycast physics volume causes raycasts to stop working on it.
-          physics->DisablePhysics(selected_entity_);
-          physics->EnablePhysics(selected_entity_);
+        if (physics->GetComponentData(selected_entity_)) {
+          physics->UpdatePhysicsFromTransform(selected_entity_);
+          if (physics->GetComponentData(selected_entity_)->enabled) {
+            // Workaround for an issue with the physics library where modifying
+            // a raycast physics volume causes raycasts to stop working on it.
+            physics->DisablePhysics(selected_entity_);
+            physics->EnablePhysics(selected_entity_);
+          }
         }
         NotifyEntityUpdated(selected_entity_);
       }
     }
 
-    if (controller_->KeyWentDown(FPLK_INSERT) ||
-        controller_->KeyWentDown(FPLK_v)) {
+    if (!gui_->InputCaptured() && (controller_->KeyWentDown(FPLK_INSERT) ||
+                                   controller_->KeyWentDown(FPLK_v))) {
       entity::EntityRef new_entity = DuplicateEntity(selected_entity_);
       *entity_cycler_ = new_entity.ToIterator();
       SelectEntity(entity_cycler_->ToReference());
       NotifyEntityUpdated(new_entity);
     }
-    if (controller_->KeyWentDown(FPLK_DELETE) ||
-        controller_->KeyWentDown(FPLK_x)) {
+    if (!gui_->InputCaptured() && (controller_->KeyWentDown(FPLK_DELETE) ||
+                                   controller_->KeyWentDown(FPLK_x))) {
       entity::EntityRef entity = selected_entity_;
       NotifyEntityDeleted(entity);
       *entity_cycler_ = entity_manager_->end();
@@ -318,6 +333,21 @@ void WorldEditor::Render(Renderer* /*renderer*/) {
   // renderer->DepthTest(false);
   // draw a reticle
   //}
+  gui_->SetEditEntity(selected_entity_);
+  if (selected_entity_ && gui_->show_physics()) {
+    auto physics = entity_manager_->GetComponent<PhysicsComponent>();
+    mat4 cam = camera_->GetTransformMatrix();
+    physics->DebugDrawObject(renderer_, cam, selected_entity_,
+                             vec3(1.0f, 0.5f, 0.5f));
+  }
+  gui_->Render();
+  if (gui_->edit_entity() != selected_entity_) {
+    // The GUI changed who we have selected.
+    *entity_cycler_ = gui_->edit_entity().ToIterator();
+    SelectEntity(gui_->edit_entity());
+  }
+  controller_->Update();  // update the controller now so we can block its input
+                          // via the gui
 }
 
 void WorldEditor::SetInitialCamera(const CameraInterface& initial_camera) {
@@ -540,8 +570,8 @@ bool WorldEditor::PreciseMovement() const {
   // TODO: would be better if we used precise movement by default, and
   //       transitioned to fast movement after the key has been held for
   //       a while.
-  return controller_->KeyIsDown(FPLK_LSHIFT) ||
-         controller_->KeyIsDown(FPLK_RSHIFT);
+  return (!gui_->InputCaptured() && (controller_->KeyIsDown(FPLK_LSHIFT) ||
+                                     controller_->KeyIsDown(FPLK_RSHIFT)));
 }
 
 vec3 WorldEditor::GlobalFromHorizontal(float forward, float right,
@@ -575,6 +605,7 @@ bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
 }
 
 vec3 WorldEditor::GetMovement() const {
+  if (gui_->InputCaptured()) return mathfu::kZeros3f;
   // Get a movement vector to move the user forward, up, or right.
   // Movement is always relative to the camera facing, but parallel to
   // ground.
@@ -629,6 +660,8 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
       return true;
     }
   } else {
+    if (gui_->InputCaptured()) return false;
+
     // IJKL = move x/y axis
     float fwd_speed = 0, right_speed = 0, up_speed = 0;
     float roll_speed = 0, pitch_speed = 0, yaw_speed = 0;
