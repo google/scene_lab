@@ -19,6 +19,7 @@ namespace fpl;
 enum EditorEventAction : byte {
   Enter,          // we have just entered edit mode
   Exit,           // we are about to exit edit mode
+  EntityCreated,  // this entity was just created
   EntityUpdated,  // the entity was just changed
   EntityDeleted,  // the entity is about to be deleted
 }

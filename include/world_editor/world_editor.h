@@ -90,6 +90,7 @@ class WorldEditor {
   entity::EntityRef DuplicateEntity(entity::EntityRef& entity);
   void DestroyEntity(entity::EntityRef& entity);
   void HighlightEntity(const entity::EntityRef& entity, float tint);
+  void NotifyEntityCreated(const entity::EntityRef& entity) const;
   void NotifyEntityUpdated(const entity::EntityRef& entity) const;
   void NotifyEntityDeleted(const entity::EntityRef& entity) const;
 

@@ -77,9 +77,15 @@ void EditOptionsComponent::OnEvent(const event::EventPayload& event_payload) {
       auto physics_component =
           entity_manager_->GetComponent<PhysicsComponent>();
       auto* editor_event = event_payload.ToData<editor::EditorEventPayload>();
-      if (editor_event->action == EditorEventAction_Enter) {
+      if (editor_event->action == EditorEventAction_Enter ||
+          (editor_event->action == EditorEventAction_EntityCreated &&
+           editor_event->entity)) {
         for (auto iter = component_data_.begin(); iter != component_data_.end();
              ++iter) {
+          // If editor_event->entity is set, only update that entity.
+          // Otherwise update all entities.
+          if (editor_event->entity && iter->entity != editor_event->entity)
+            continue;
           if (iter->data.render_option == RenderOption_OnlyInEditor ||
               iter->data.render_option == RenderOption_NotInEditor) {
             RenderMeshData* rendermesh_data =

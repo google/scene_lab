@@ -326,6 +326,13 @@ void WorldEditor::SetInitialCamera(const CameraInterface& initial_camera) {
   camera_->set_up(initial_camera.up());
 }
 
+void WorldEditor::NotifyEntityCreated(const entity::EntityRef& entity) const {
+  if (event_manager_ != nullptr) {
+    event_manager_->BroadcastEvent(
+        EditorEventPayload(EditorEventAction_EntityCreated, entity));
+  }
+}
+
 void WorldEditor::NotifyEntityUpdated(const entity::EntityRef& entity) const {
   if (event_manager_ != nullptr) {
     event_manager_->BroadcastEvent(
@@ -397,6 +404,7 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
     // need to remove their entity IDs since otherwise they will have duplicate
     // entity IDs to the one we created.  We also need to make sure the new
     // entity IDs are marked with the same source file as the old.
+
     for (size_t i = 0; i < entities_created.size(); i++) {
       entity::EntityRef& new_entity = entities_created[i];
       MetaData* old_editor_data =
@@ -410,6 +418,9 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
       }
     }
     entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
+    for (size_t i = 0; i < entities_created.size(); i++) {
+      NotifyEntityCreated(entities_created[i]);
+    }
     return entities_created[0];
   }
   return entity::EntityRef();
