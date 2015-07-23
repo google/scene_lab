@@ -64,7 +64,12 @@ class WorldEditor {
 
   void SelectEntity(const entity::EntityRef& entity_ref);
 
-  void SaveWorld();
+  // If to_disk is true, save to .bin and .json files and update the entity
+  // factory's file cache. Otherwise, just update the file cache but don't
+  // physically save the files to disk.
+  void SaveWorld(bool to_disk);
+  void SaveWorld() { SaveWorld(true); }
+  // Save all the entities that were from this specific file into that file.
   void SaveEntitiesInFile(const std::string& filename);
 
   void AddComponentToUpdate(entity::ComponentId component_id) {
@@ -106,6 +111,11 @@ class WorldEditor {
                                   const vec3& point_on_plane,
                                   const vec3& plane_normal,
                                   vec3* intersection_point);
+
+  // Serialize the entities from the given file into the given vector.
+  // Returns true if it succeeded, false if there was an error.
+  bool SerializeEntitiesFromFile(const std::string& filename,
+                                 std::vector<uint8_t>* output);
 
   void LoadSchemaFiles();
 

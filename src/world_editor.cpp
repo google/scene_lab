@@ -362,6 +362,8 @@ void WorldEditor::Activate() {
 }
 
 void WorldEditor::Deactivate() {
+  SaveWorld(false);
+
   // Raise the EditorExit event.
   if (event_manager_ != nullptr) {
     event_manager_->BroadcastEvent(EditorEventPayload(EditorEventAction_Exit));
@@ -373,7 +375,7 @@ void WorldEditor::Deactivate() {
   *entity_cycler_ = entity_manager_->end();
 }
 
-void WorldEditor::SaveWorld() {
+void WorldEditor::SaveWorld(bool to_disk) {
   auto editor_component = entity_manager_->GetComponent<MetaComponent>();
   // get a list of all filenames in the world
   std::set<std::string> filenames;
@@ -382,7 +384,18 @@ void WorldEditor::SaveWorld() {
     filenames.insert(entity->data.source_file);
   }
   for (auto iter = filenames.begin(); iter != filenames.end(); ++iter) {
-    SaveEntitiesInFile(*iter);
+    const std::string& filename = *iter;
+    if (to_disk) {
+      SaveEntitiesInFile(filename);
+    }
+    std::vector<uint8_t> entity_buffer;
+    if (SerializeEntitiesFromFile(filename, &entity_buffer)) {
+      entity_factory_->OverrideCachedFile(
+          (filename + ".bin").c_str(),
+          std::unique_ptr<std::string>(new std::string(
+              reinterpret_cast<const char*>(entity_buffer.data()),
+              entity_buffer.size())));
+    }
   }
 }
 
@@ -447,12 +460,13 @@ void WorldEditor::LoadSchemaFiles() {
   }
 }
 
-void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
+bool WorldEditor::SerializeEntitiesFromFile(const std::string& filename,
+                                            std::vector<uint8_t>* output) {
   if (filename == "") {
-    LogInfo("Skipping saving entities to blank filename.");
-    return;
+    LogInfo("Skipping serializing entities to blank filename.");
+    return false;
   }
-  LogInfo("Saving entities in file: '%s'", filename.c_str());
+  LogInfo("Serializing entities from file: '%s'", filename.c_str());
   // We know the FlatBuffer format we're using: components
   flatbuffers::FlatBufferBuilder builder;
   std::vector<std::vector<uint8_t>> entities_serialized;
@@ -470,11 +484,20 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
     }
   }
   std::vector<uint8_t> entity_list;
-  if (!entity_factory_->SerializeEntityList(entities_serialized,
-                                            &entity_list)) {
-    LogError("Couldn't serialize entity list");
+  if (!entity_factory_->SerializeEntityList(entities_serialized, output)) {
+    LogError("Couldn't serialize entity list.");
+    return false;
+  }
+  return true;
+}
+
+void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
+  std::vector<uint8_t> entity_list;
+  if (!SerializeEntitiesFromFile(filename, &entity_list)) {
+    LogError("SerializeEntitiesFromFile failed.");
     return;
   }
+  LogInfo("Saving entities in file: '%s'", filename.c_str());
   if (SaveFile((filename + ".bin").c_str(), entity_list.data(),
                entity_list.size())) {
     LogInfo("Save (binary) successful.");
