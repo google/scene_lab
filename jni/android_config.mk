@@ -37,6 +37,8 @@ DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
 DEPENDENCIES_GTEST_DIR?=$(FPL_ROOT)/googletest
 # Location of the MathFu library.
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
+# Location of the Motive library.
+DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 # Location of the Entity library.
 DEPENDENCIES_ENTITY_DIR?=$(FPL_ROOT)/entity
 # Location of the FlatUI library.
