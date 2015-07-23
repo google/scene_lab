@@ -50,12 +50,33 @@ class EditorGui : public event::EventListener {
 
   // Call this if you change any entity data externally
   void ClearEntityData() { entity_data_.clear(); }
-  // Write entity_data_modified_ back to edit_entity_.
+  // Write the entity fields that were changed to the entity_data_ flatbuffer,
+  // then import the changed flatbuffers back to the edit_entity_.
   void CommitEntityData();
 
   // Should we let the editor deselect this as the current entity?
   // Probably not if we've made any changes.
-  bool CanDeselectEntity() const { return !entity_modified_; }
+  bool CanDeselectEntity() const { return !EntityModified(); }
+
+  // Has the entity been modified in any way? Either the on-screen fields
+  // or the in-memory flatbuffer?
+  bool EntityModified() const {
+    return EntityFieldsModified() || EntityBufferModified();
+  }
+  // Have the on-screen fields been modified, but not pushed to the Flatbuffer?
+  bool EntityFieldsModified() const {
+    for (size_t i = 0; i < component_fields_modified_.size(); i++) {
+      if (component_fields_modified_[i]) return true;
+    }
+    return false;
+  }
+  // Has the entity flatbuffer been modified, but not imported into the entity?
+  bool EntityBufferModified() const {
+    for (size_t i = 0; i < component_buffer_modified_.size(); i++) {
+      if (component_buffer_modified_[i]) return true;
+    }
+    return false;
+  }
 
   // Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
@@ -69,6 +90,7 @@ class EditorGui : public event::EventListener {
   static const int kSpacing = 3;
   static const int kIndent = 3;
   static const int kFontSize = 18;
+  static const int kBlankStringEditWidth = 8;
 
   // Read the raw data from a given entity's component and save it into
   // a vector, so we can mutate it later.
@@ -76,8 +98,12 @@ class EditorGui : public event::EventListener {
                           entity::ComponentId component,
                           std::vector<uint8_t>* output_vector) const;
 
-  // Propagate all of the edited fields from edit_fields to entity_data.
-  void PropagateEdits();
+  // Propagate all of the edited fields from edit_fields_ to entity_data_ for
+  // the given component. Sets component_buffer_modified_ to true if there was
+  // anything propagated, and component_fields_modified_ to false once finished
+  // propagating. Returns true if the entity_data_ buffer for this component was
+  // changed.
+  bool PropagateEdits(entity::ComponentId id);
 
   // Gui helper function to capture mouse clicks and prevent the world editor
   // from consuming them.
@@ -146,7 +172,6 @@ class EditorGui : public event::EventListener {
                             flatbuffers::Table& table, const std::string& id);
   bool VisitFlatbufferVector(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
-                             const reflection::Object& objdef,
                              flatbuffers::Table& table, const std::string& id);
   bool VisitFlatbufferUnion(VisitMode mode, const reflection::Schema& schema,
                             const reflection::Field& fielddef,
@@ -158,7 +183,6 @@ class EditorGui : public event::EventListener {
                              flatbuffers::Table& table, const std::string& id);
   bool VisitFlatbufferString(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
-                             const reflection::Object& objdef,
                              flatbuffers::Table& table, const std::string& id);
 
   // Create a text button; call this inside a gui::Run.
@@ -232,6 +256,20 @@ class EditorGui : public event::EventListener {
   // Get the virtual resolution (for FlatUI) of the whole screen.
   void GetVirtualResolution(vec2* resolution_output);
 
+  // Clear the "entity modified" fields entirely.
+  void ClearEntityModified() {
+    ClearEntityFieldsModified();
+    ClearEntityBufferModified();
+  }
+  void ClearEntityFieldsModified() {
+    component_fields_modified_.resize(0);
+    component_fields_modified_.resize(entity::kMaxComponentCount, 0);
+  }
+  void ClearEntityBufferModified() {
+    component_buffer_modified_.resize(0);
+    component_buffer_modified_.resize(entity::kMaxComponentCount, 0);
+  }
+
   const WorldEditorConfig* config_;
   entity::EntityManager* entity_manager_;
   FontManager* font_manager_;
@@ -258,11 +296,13 @@ class EditorGui : public event::EventListener {
   // List of table names we have expanded the view for.
   std::set<std::string> expanded_subtables_;
 
-  std::vector<bool> components_to_show_;
-  std::vector<bool> components_modified_;
-  // Component ID we are currently propagating output for.
-  entity::ComponentId component_id_propagating_;
-
+  std::vector<bool> components_to_show_;  // Components to display on screen.
+  std::vector<bool> component_fields_modified_;  // Text fields were modified.
+  std::vector<bool> component_buffer_modified_;  // Actual data was modified.
+  entity::ComponentId
+      component_id_visiting_;            // Component we are currently visiting.
+  entity::ComponentId force_propagate_;  // Force this component's UI fields
+                                         // into its buffer.
   // temporary holding place for edited fields until they go into entity_data_.
   std::unordered_map<std::string, std::string> edit_fields_;
 
@@ -285,7 +325,6 @@ class EditorGui : public event::EventListener {
   float edit_width_;
   WindowState edit_window_state_;
   bool show_physics_;
-  bool entity_modified_;
   bool show_types_;
   bool expand_all_;
   bool mouse_in_window_;

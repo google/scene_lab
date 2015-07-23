@@ -44,11 +44,11 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       font_manager_(font_manager),
       schema_data_(schema_data),
       resizable_flatbuffer_(nullptr),
-      component_id_propagating_(0),
+      component_id_visiting_(0),
+      force_propagate_(0),
       edit_width_(0),
       edit_window_state_(kNormal),
       show_physics_(false),
-      entity_modified_(false),
       show_types_(false),
       expand_all_(false),
       mouse_in_window_(false),
@@ -62,7 +62,7 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
   components_to_show_.resize(entity::kMaxComponentCount, false);
   components_to_show_[MetaComponent::GetComponentId()] = true;
   components_to_show_[TransformComponent::GetComponentId()] = true;
-  components_modified_.resize(entity::kMaxComponentCount, false);
+  ClearEntityModified();
   scroll_offset_ = mathfu::kZeros2i;
 
   bg_edit_ui_color_ = vec4(0.0f, 0.0f, 0.0f, 0.3f);
@@ -101,9 +101,7 @@ void EditorGui::SetEditEntity(entity::EntityRef& entity) {
     edit_fields_.clear();
     scroll_offset_ = mathfu::kZeros2i;
     // set all components to unmodified
-    components_modified_.clear();
-    components_modified_.resize(entity::kMaxComponentCount, false);
-    entity_modified_ = false;
+    ClearEntityModified();
     edit_entity_ = entity;
   }
 }
@@ -170,7 +168,7 @@ void EditorGui::Render() {
         gui::kEventWentDown)
       show_physics_ = !show_physics_;
 
-    if (entity_modified_) {
+    if (EntityModified()) {
       if (TextButton("[Commit Changes]", "we:commit", 16) &
           gui::kEventWentDown) {
         CommitEntityData();
@@ -178,7 +176,13 @@ void EditorGui::Render() {
       if (TextButton("[Revert Changes]", "we:commit", 16) &
           gui::kEventWentDown) {
         edit_fields_.clear();
-        entity_modified_ = false;
+        ClearEntityModified();
+      }
+
+      if (force_propagate_ != 0) {
+        entity::ComponentId id = force_propagate_;
+        force_propagate_ = 0;
+        PropagateEdits(id);
       }
     }
     gui::EndGroup();  // we:buttons
@@ -192,45 +196,48 @@ void EditorGui::Render() {
 }
 
 void EditorGui::CommitEntityData() {
-  PropagateEdits();
-
   // Now go through the components that were modified, and for each one, add
   // it back as raw data.
-  for (entity::ComponentId id = 0; id < components_modified_.size(); id++) {
-    if (entity_data_.find(id) != entity_data_.end() &&
-        components_modified_[id]) {
-      entity::ComponentInterface* component = entity_manager_->GetComponent(id);
-      component->AddFromRawData(
-          edit_entity_, flatbuffers::GetAnyRoot(entity_data_[id].data()));
-      components_modified_[id] = false;
+  for (entity::ComponentId id = 0; id < component_buffer_modified_.size();
+       id++) {
+    if (entity_data_.find(id) != entity_data_.end()) {
+      if (PropagateEdits(id)) {  // resets component_fields_modified_ and sets
+                                 // component_buffers_modified_
+        entity::ComponentInterface* component =
+            entity_manager_->GetComponent(id);
+        component->AddFromRawData(
+            edit_entity_, flatbuffers::GetAnyRoot(entity_data_[id].data()));
+        component_buffer_modified_[id] = false;
+      }
     }
   }
   // All components have been saved out.
   event_manager_->BroadcastEvent(
       EditorEventPayload(EditorEventAction_EntityUpdated, edit_entity_));
-  entity_modified_ = false;
 }
 
-void EditorGui::PropagateEdits() {
-  for (entity::ComponentId id = 0; id <= entity_factory_->max_component_id();
-       id++) {
-    component_id_propagating_ = id;
-    entity::ComponentInterface* component = entity_manager_->GetComponent(id);
-    if (component != nullptr &&
-        component->GetComponentDataAsVoid(edit_entity_) != nullptr) {
-      std::vector<uint8_t>* raw_data =
-          (entity_data_.find(id) != entity_data_.end()) ? &entity_data_[id]
-                                                        : nullptr;
-      if (raw_data != nullptr) {
-        bool go_again;
-        do {
-          go_again = EditFlatbuffer(
-              raw_data, entity_factory_->ComponentIdToTableName(id));
-        } while (go_again);
-      }
+bool EditorGui::PropagateEdits(entity::ComponentId id) {
+  component_id_visiting_ = id;
+  auto component = entity_manager_->GetComponent(id);
+  if (component != nullptr &&
+      component->GetComponentDataAsVoid(edit_entity_) != nullptr &&
+      component_fields_modified_[id]) {
+    std::vector<uint8_t>* raw_data =
+        (entity_data_.find(id) != entity_data_.end()) ? &entity_data_[id]
+                                                      : nullptr;
+    if (raw_data != nullptr) {
+      bool go_again;
+      do {
+        // EditFlatbuffer will set component_buffer_modified = true
+        // if any data was modified.
+        go_again = EditFlatbuffer(raw_data,
+                                  entity_factory_->ComponentIdToTableName(id));
+      } while (go_again);
+      component_fields_modified_[id] = false;
     }
-    component_id_propagating_ = 0;
   }
+  component_id_visiting_ = 0;
+  return component_buffer_modified_[id];
 }
 
 void EditorGui::CaptureMouseClicks() {
@@ -345,6 +352,58 @@ void EditorGui::DrawEntityComponent(entity::ComponentId id) {
                         (table_name + "-contents").c_str());
         DrawFlatbuffer(raw_data, entity_factory_->ComponentIdToTableName(id));
         gui::EndGroup();  // $table_name-contents
+        gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        if (raw_data != nullptr) {
+          auto event = gui::CheckEvent();
+          if (event & gui::kEventWentDown) {
+            components_to_show_[id] = !components_to_show_[id];
+          }
+          if (event & gui::kEventHover) {
+            gui::ColorBackground(vec4(0.5f, 0.5f, 0.5f, 0.8f));
+          }
+        } else {
+          // gray out the table name since we can't click it
+          gui::SetTextColor(vec4(0.7f, 0.7f, 0.7f, 1.0f));
+        }
+        gui::Label(table_name.c_str(), 30);
+        gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        gui::EndGroup();  // $table_name-title
+        MetaData* meta_data =
+            entity_manager_->GetComponentData<MetaData>(edit_entity_);
+        bool from_proto =
+            meta_data ? (meta_data->components_from_prototype.find(id) !=
+                         meta_data->components_from_prototype.end())
+                      : false;
+        if (raw_data != nullptr) {
+          gui::StartGroup(gui::kLayoutHorizontalTop, kSpacing,
+                          (table_name + "-controls").c_str());
+
+          /* TODO: "Apply changes" button,
+           * "Save to prototype" button,
+           * "Revert to prototype" button.
+           */
+          gui::Label(from_proto ? "(from prototype)" : "(from entity)", 12);
+          gui::EndGroup();  // $table_name-controls
+        } else {
+          // Component is present but wasn't exported by ExportRawData.
+          // Usually that means it was automatically generated and doesn't
+          // need to be edited by a human.
+          gui::SetTextColor(vec4(0.7f, 0.7f, 0.7f, 1.0f));
+          gui::Label("(not exported)", 12);
+          gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        }
+        gui::EndGroup();  // $table_name-container
+        if (raw_data != nullptr) {
+          if (expand_all_ || components_to_show_[id]) {
+            gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing,
+                            (table_name + "-contents").c_str());
+            component_id_visiting_ = id;
+            DrawFlatbuffer(raw_data,
+                           entity_factory_->ComponentIdToTableName(id));
+            component_id_visiting_ = 0;
+            gui::EndGroup();  // $table_name-contents
+          }
+        }
       }
     }
   }
@@ -409,10 +468,17 @@ bool EditorGui::EntityButton(entity::EntityRef& entity, int size) {
 bool EditorGui::ReadDataFromEntity(entity::EntityRef& entity,
                                    entity::ComponentId component_id,
                                    std::vector<uint8_t>* output_vector) const {
+  auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   auto component = entity_manager_->GetComponent(component_id);
   if (component != nullptr &&
       component->GetComponentDataAsVoid(entity) != nullptr) {
+    bool prev_force_defaults = services->export_force_defaults();
+    // Force all default fields to have values that the user can edit
+    services->set_export_force_defaults(true);
+    // Export the entity's raw data.
     auto raw_data = component->ExportRawData(entity);
+    services->set_export_force_defaults(prev_force_defaults);
+
     if (raw_data == nullptr) return false;
     auto schema = reflection::GetSchema(schema_data_->c_str());
     if (schema == nullptr) return false;
@@ -767,7 +833,7 @@ bool EditorGui::VisitField(VisitMode mode, const std::string& name,
     if (edit_fields_[id] != value) {
       // yellow
       if (mode == kDraw) gui::SetTextColor(vec4(1.0f, 1.0f, 0.0f, 1.0f));
-      entity_modified_ = true;
+      component_fields_modified_[component_id_visiting_] = true;
       if (mode == kEdit) {
         LogInfo("VisitField: Setting '%s' to '%s' (was: '%s')", id.c_str(),
                 edit_fields_[id].c_str(), value.c_str());
@@ -779,6 +845,10 @@ bool EditorGui::VisitField(VisitMode mode, const std::string& name,
     }
   }
   if (mode == kDraw) {
+    vec2 edit_vec = vec2(0, 0);
+    if (edit_fields_[id].length() == 0) {
+      edit_vec.x() = kBlankStringEditWidth;
+    }
     if (gui::Edit(config_->gui_edit_ui_size(), vec2(0, 0), edit_id.c_str(),
                   &edit_fields_[id])) {
       keyboard_in_use_ = true;
@@ -898,8 +968,7 @@ bool EditorGui::VisitFlatbufferField(VisitMode mode,
       break;
     }
     case reflection::String: {
-      if (VisitFlatbufferString(mode, schema, fielddef, objectdef, table,
-                                new_id))
+      if (VisitFlatbufferString(mode, schema, fielddef, table, new_id))
         return true;  // Mutated strings may need to be resized
       break;
     }
@@ -910,11 +979,14 @@ bool EditorGui::VisitFlatbufferField(VisitMode mode,
         VisitFlatbufferStruct(mode, schema, fielddef, subobjdef, table, new_id);
         // Mutated structs never need to be resized
       } else {
-        flatbuffers::Table& subtable =
-            const_cast<flatbuffers::Table&>(*GetFieldT(table, fielddef));
-        if (VisitSubtable(mode, fielddef.name()->str(), subobjdef.name()->str(),
-                          "", new_id, schema, subobjdef, subtable))
-          return true;  // Mutated tables may need to be resized
+        if (fielddef.offset() != 0) {
+          flatbuffers::Table& subtable =
+              const_cast<flatbuffers::Table&>(*GetFieldT(table, fielddef));
+          if (VisitSubtable(mode, fielddef.name()->str(),
+                            subobjdef.name()->str(), "", new_id, schema,
+                            subobjdef, subtable))
+            return true;  // Mutated tables may need to be resized
+        }
       }
       break;
     }
@@ -925,8 +997,7 @@ bool EditorGui::VisitFlatbufferField(VisitMode mode,
       break;
     }
     case reflection::Vector: {
-      if (VisitFlatbufferVector(mode, schema, fielddef, objectdef, table,
-                                new_id))
+      if (VisitFlatbufferVector(mode, schema, fielddef, table, new_id))
         return true;
       break;
     }
@@ -1018,7 +1089,7 @@ bool EditorGui::VisitFlatbufferScalar(VisitMode mode,
   if (VisitField(mode, fielddef.name()->str(), value, type, comment, id)) {
     // Read the value of edit_fields_[id] and put it into the current table.
     SetAnyFieldS(&table, fielddef, edit_fields_[id].c_str());
-    components_modified_[component_id_propagating_] = true;
+    component_buffer_modified_[component_id_visiting_] = true;
   }
   return false;  // mutated scalars will never need to resize
 }
@@ -1026,16 +1097,24 @@ bool EditorGui::VisitFlatbufferScalar(VisitMode mode,
 bool EditorGui::VisitFlatbufferString(VisitMode mode,
                                       const reflection::Schema& schema,
                                       const reflection::Field& fielddef,
-                                      const reflection::Object& objdef,
                                       flatbuffers::Table& table,
                                       const std::string& id) {
-  if (VisitField(mode, fielddef.name()->str(),
-                 GetFieldS(table, fielddef)->str(), "string", "", id)) {
+  std::string str_text, comment;
+  if (fielddef.offset() == 0)
+    comment = "(no value)";
+  else
+    str_text = GetFieldS(table, fielddef)->str();
+
+  if (VisitField(mode, fielddef.name()->str(), str_text, "string", comment,
+                 id)) {
     // Read the value of edit_fields_[id] and put it into the current table.
     flatbuffers::String* str =
         table.GetPointer<flatbuffers::String*>(fielddef.offset());
-    SetString(schema, edit_fields_[id], str, resizable_flatbuffer_, &objdef);
-    components_modified_[component_id_propagating_] = true;
+    SetString(
+        schema, edit_fields_[id], str, resizable_flatbuffer_,
+        schema.objects()->LookupByKey(
+            entity_factory_->ComponentIdToTableName(component_id_visiting_)));
+    component_buffer_modified_[component_id_visiting_] = true;
     return true;
   }
   return false;
@@ -1062,7 +1141,7 @@ bool EditorGui::VisitFlatbufferStruct(VisitMode mode,
       LogInfo("Struct '%s' WAS valid for %s.", edit_fields_[id].c_str(),
               id.c_str());
       ParseStringIntoStruct(edit_fields_[id], schema, objectdef, struct_ptr);
-      components_modified_[component_id_propagating_] = true;
+      component_buffer_modified_[component_id_visiting_] = true;
     } else {
       LogInfo("Struct '%s' was not valid for %s.", edit_fields_[id].c_str(),
               id.c_str());
@@ -1079,24 +1158,81 @@ bool EditorGui::VisitFlatbufferUnion(VisitMode mode,
                                      flatbuffers::Table& table,
                                      const std::string& id) {
   auto& subobjdef = GetUnionType(schema, objectdef, fielddef, table);
-  flatbuffers::Table& subtable =
-      const_cast<flatbuffers::Table&>(*GetFieldT(table, fielddef));
-  return VisitSubtable(mode, fielddef.name()->str(), subobjdef.name()->str(),
-                       "", id, schema, subobjdef, subtable);
+  if (fielddef.offset() > 0) {
+    flatbuffers::Table& subtable =
+        const_cast<flatbuffers::Table&>(*GetFieldT(table, fielddef));
+    return VisitSubtable(mode, fielddef.name()->str(), subobjdef.name()->str(),
+                         "", id, schema, subobjdef, subtable);
+  } else {
+    return false;
+  }
+}
+
+// Alternative Flatbuffers ResizeVector that just sets the new bytes to 0.
+// TODO: Consider putting this in Flatbuffers' reflection.h?
+inline void ResizeVector(const reflection::Schema& schema, uoffset_t newsize,
+                         const reflection::BaseType elem_type,
+                         const Vector<Offset<void>>* vec,
+                         std::vector<uint8_t>* flatbuf,
+                         const reflection::Object* root_table = nullptr) {
+  size_t type_size = flatbuffers::GetTypeSize(elem_type);
+  auto delta_elem = static_cast<int>(newsize) - static_cast<int>(vec->size());
+  auto delta_bytes = delta_elem * type_size;
+  auto vec_start = reinterpret_cast<const uint8_t*>(vec) - flatbuf->data();
+  auto start = static_cast<uoffset_t>(vec_start + sizeof(uoffset_t) +
+                                      type_size * vec->size());
+  if (delta_bytes) {
+    flatbuffers::ResizeContext(schema, start, delta_bytes, flatbuf, root_table);
+    flatbuffers::WriteScalar(flatbuf->data() + vec_start,
+                             newsize);  // Length field.
+    // Set new elements to "val".
+    for (int i = 0; i < delta_elem; i++) {
+      auto loc = flatbuf->data() + start + i * type_size;
+      memset(loc, 0, type_size);
+    }
+  }
 }
 
 bool EditorGui::VisitFlatbufferVector(VisitMode mode,
                                       const reflection::Schema& schema,
                                       const reflection::Field& fielddef,
-                                      const reflection::Object& objdef,
                                       flatbuffers::Table& table,
                                       const std::string& id) {
+  if (fielddef.offset() == 0) return false;
   auto vec = table.GetPointer<Vector<Offset<Table>>*>(fielddef.offset());
   auto element_base_type = fielddef.type()->element();
   auto elemobjectdef = element_base_type == reflection::Obj
                            ? schema.objects()->Get(fielddef.type()->index())
                            : nullptr;
 
+  std::string idx = ".size";
+  if (mode == kDraw || mode == kDrawReadOnly)
+    gui::StartGroup(gui::kLayoutHorizontalCenter, 8,
+                    (id + idx + "-commit").c_str());
+  if (VisitField(mode, fielddef.name()->str() + idx,
+                 flatbuffers::NumToString(vec->size()), "size_t", "",
+                 id + idx)) {
+    uoffset_t new_size =
+        flatbuffers::StringToInt(edit_fields_[id + idx].c_str());
+    auto vec_v = reinterpret_cast<const Vector<Offset<void>>*>(vec);
+    ResizeVector(
+        schema, new_size, element_base_type, vec_v, resizable_flatbuffer_,
+        schema.objects()->LookupByKey(
+            entity_factory_->ComponentIdToTableName(component_id_visiting_)));
+    if (mode == kDraw || mode == kDrawReadOnly)
+      gui::EndGroup();  // $id$idx-commit
+    return true;
+  }
+  if (flatbuffers::StringToInt(edit_fields_[id + idx].c_str()) != vec->size()) {
+    if (TextButton("click to resize", (id + idx + "resize").c_str(),
+                   config_->gui_edit_ui_size()) &
+        gui::kEventWentDown) {
+      force_propagate_ = component_id_visiting_;
+      component_buffer_modified_[component_id_visiting_] = true;
+    }
+  }
+  if (mode == kDraw || mode == kDrawReadOnly)
+    gui::EndGroup();  // $id$idx-commit
   switch (element_base_type) {
     case reflection::String: {
       // vector of strings
@@ -1108,8 +1244,10 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
         if (VisitField(mode, fielddef.name()->str() + idx, str->str(), "string",
                        "", id + idx)) {
           SetString(schema, edit_fields_[id + idx], str, resizable_flatbuffer_,
-                    &objdef);
-          components_modified_[component_id_propagating_] = true;
+                    schema.objects()->LookupByKey(
+                        entity_factory_->ComponentIdToTableName(
+                            component_id_visiting_)));
+          component_buffer_modified_[component_id_visiting_] = true;
           return true;
         }
       }
@@ -1150,7 +1288,7 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
                       edit_fields_[id + idx].c_str(), (id + idx).c_str());
               ParseStringIntoStruct(edit_fields_[id + idx], schema,
                                     *elemobjectdef, ptr);
-              components_modified_[component_id_propagating_] = true;
+              component_buffer_modified_[component_id_visiting_] = true;
             } else {
               LogInfo("Struct '%s' was not valid for %s.",
                       edit_fields_[(id + idx)].c_str(), id.c_str());
@@ -1183,7 +1321,7 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
                        enum_hint, id + idx)) {
           // Handle the same way as VisitFlatbufferScalar does.
           ParseScalar(edit_fields_[id + idx], element_base_type, ptr);
-          components_modified_[component_id_propagating_] = true;
+          component_buffer_modified_[component_id_visiting_] = true;
         }
         i++;
       }
