@@ -550,8 +550,9 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
     if (parser.Parse(schema_text_.c_str(), include_paths.get(),
                      config_->schema_file_text()->c_str())) {
       std::string json;
-      GenerateText(parser, entity_list.data(), flatbuffers::GeneratorOptions(),
-                   &json);
+      flatbuffers::GeneratorOptions options;
+      options.strict_json = true;
+      GenerateText(parser, entity_list.data(), options, &json);
       if (SaveFile((filename + ".json").c_str(), json)) {
         LogInfo("Save (JSON) successful");
       } else {
