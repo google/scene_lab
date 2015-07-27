@@ -132,10 +132,11 @@ void EditorGui::Render() {
     edit_width_ = 0;
 
   gui::Run(*asset_manager_, *font_manager_, *input_system_, [&]() {
-    PositionUI(1000, gui::kAlignLeft, gui::kAlignTop);
+    gui::SetVirtualResolution(1000);
     gui::StartGroup(gui::kLayoutVerticalLeft, 0, "we:overall-ui");
     CaptureMouseClicks();
-    gui::StartGroup(gui::kLayoutOverlayCenter, 0, "we:button-overlay");
+    gui::StartGroup(gui::kLayoutOverlay, 0, "we:button-overlay");
+    gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
 
     gui::StartGroup(gui::kLayoutHorizontalTop, 0, "we:button-bg");
     gui::ColorBackground(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -1332,7 +1333,9 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
 }
 
 gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
-  gui::StartGroup(gui::kLayoutOverlayCenter, size / 4, id);
+  gui::StartGroup(gui::kLayoutOverlay, size / 4, id);
+  gui::ModalGroup();
+  gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   gui::SetMargin(gui::Margin(5));
   auto event = gui::CheckEvent();
   if (event & ~gui::kEventHover) {
