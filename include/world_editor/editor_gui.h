@@ -38,7 +38,19 @@ class EditorGui : public event::EventListener {
             const std::string* schema_data);
   virtual void OnEvent(const event::EventPayload& event_payload);
 
+  // Render the game, then update based on button presses. You must either call
+  // this, or call DrawGui() in a FlatUI Run context, followed by
+  // UpdateAfterRender().
   void Render();
+
+  // Either call Render() above, or call the following sequence if you are using
+  // FlatUI elsewhere:
+  // - StartRender();
+  // - gui::Run(() { ... other Gui... DrawGui(...) };
+  // - FinishRender();
+  void StartRender();
+  void DrawGui(const mathfu::vec2& virtual_resolution);
+  void FinishRender();
 
   bool InputCaptured() const { return mouse_in_window() || keyboard_in_use(); }
 
@@ -83,6 +95,17 @@ class EditorGui : public event::EventListener {
 
  private:
   enum VisitMode { kDraw, kDrawReadOnly, kEdit };
+  enum GuiButton {
+    kNone = 0,
+    kWindowMaximize,
+    kWindowHide,
+    kWindowRestore,
+    kToggleDataTypes,
+    kToggleExpandAll,
+    kTogglePhysics,
+    kEntityCommit,
+    kEntityRevert
+  };
   enum WindowState { kNormal, kMaximized, kHidden };
 
   static const int kVirtualResolution = 1000;
@@ -189,7 +212,7 @@ class EditorGui : public event::EventListener {
   gui::Event TextButton(const char* text, const char* id, int size);
 
   // Show a button that, if you click on it, selects another entity.
-  bool EntityButton(entity::EntityRef& entity, int size);
+  void EntityButton(const entity::EntityRef& entity, int size);
 
   // Get the string representation of a value of the given type at a
   // given memory location.
@@ -322,8 +345,9 @@ class EditorGui : public event::EventListener {
 
   mathfu::vec2i scroll_offset_;
   mathfu::vec2 virtual_resolution_;
-  float edit_width_;
+  GuiButton button_pressed_;
   WindowState edit_window_state_;
+  float edit_width_;
   bool show_physics_;
   bool show_types_;
   bool expand_all_;

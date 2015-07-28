@@ -52,7 +52,7 @@ table WorldEditorConfig {
   toggle_mode_button:byte = 2;
 
   gui_allow_editing:bool = true;
-  gui_children_ui_size:int = 14;
+  gui_children_ui_size:int = 22;
   gui_edit_ui_size:int = 16;
 
   bg_color:fpl.Vec4;

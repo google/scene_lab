@@ -46,8 +46,9 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       resizable_flatbuffer_(nullptr),
       component_id_visiting_(0),
       force_propagate_(0),
-      edit_width_(0),
+      button_pressed_(kNone),
       edit_window_state_(kNormal),
+      edit_width_(0),
       show_physics_(false),
       show_types_(false),
       expand_all_(false),
@@ -67,6 +68,10 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
 
   bg_edit_ui_color_ = vec4(0.0f, 0.0f, 0.0f, 0.3f);
   bg_hover_color_ = vec4(0.5f, 0.5f, 0.5f, 0.8f);
+  bg_button_bar_color_ = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  bg_button_color_ = vec4(0.2f, 0.2f, 0.2f, 1);
+  bg_hover_color_ = vec4(0.3f, 0.3f, 0.3f, 1);
+  bg_click_color_ = vec4(0.4f, 0.4f, 0.4f, 1);
 
   text_disabled_color_ = vec4(0.7f, 0.7f, 0.7f, 1.0f);
   text_normal_color_ = vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -120,9 +125,71 @@ void EditorGui::GetVirtualResolution(vec2* resolution_output) {
 }
 
 void EditorGui::Render() {
+  StartRender();
+  mathfu::vec2 virtual_resolution;
+  GetVirtualResolution(&virtual_resolution);
+  gui::Run(*asset_manager_, *font_manager_, *input_system_, [&]() {
+    gui::SetVirtualResolution(kVirtualResolution);
+    DrawGui(virtual_resolution);
+  });
+  FinishRender();
+}
+
+void EditorGui::StartRender() {
   mouse_in_window_ = false;
   keyboard_in_use_ = false;
-  GetVirtualResolution(&virtual_resolution_);
+}
+
+void EditorGui::FinishRender() {
+  switch (button_pressed_) {
+    case kNone: {
+      break;
+    }
+    case kWindowMaximize: {
+      edit_window_state_ = kMaximized;
+      break;
+    }
+    case kWindowHide: {
+      edit_window_state_ = kHidden;
+      break;
+    }
+    case kWindowRestore: {
+      edit_window_state_ = kNormal;
+      break;
+    }
+    case kToggleDataTypes: {
+      show_types_ = !show_types_;
+      break;
+    }
+    case kToggleExpandAll: {
+      expand_all_ = !expand_all_;
+      break;
+    }
+    case kTogglePhysics: {
+      show_physics_ = !show_physics_;
+      break;
+    }
+    case kEntityCommit: {
+      CommitEntityData();
+      break;
+    }
+    case kEntityRevert: {
+      edit_fields_.clear();
+      ClearEntityModified();
+      break;
+    }
+  }
+  button_pressed_ = kNone;
+
+  if (force_propagate_ != 0) {
+    entity::ComponentId id = force_propagate_;
+    force_propagate_ = 0;
+    PropagateEdits(id);
+  }
+}
+
+void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
+  virtual_resolution_ = virtual_resolution;
 
   if (edit_window_state_ == kMaximized)
     edit_width_ = virtual_resolution_.x();
@@ -131,69 +198,65 @@ void EditorGui::Render() {
   else if (edit_window_state_ == kHidden)
     edit_width_ = 0;
 
-  gui::Run(*asset_manager_, *font_manager_, *input_system_, [&]() {
-    gui::SetVirtualResolution(1000);
-    gui::StartGroup(gui::kLayoutVerticalLeft, 0, "we:overall-ui");
-    CaptureMouseClicks();
-    gui::StartGroup(gui::kLayoutOverlay, 0, "we:button-overlay");
-    gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
+  gui::StartGroup(gui::kLayoutOverlay, 0, "we:overall-ui");
 
-    gui::StartGroup(gui::kLayoutHorizontalTop, 0, "we:button-bg");
-    gui::ColorBackground(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    gui::SetMargin(gui::Margin(virtual_resolution_.x(), kToolbarHeight, 0, 0));
-    CaptureMouseClicks();
-    gui::EndGroup();  // we:button-bg
+  const float kButtonSize = kToolbarHeight;
 
-    // Show a bunch of buttons along the top of the screen.
-    gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:buttons");
-    CaptureMouseClicks();
-    if (edit_window_state_ == kNormal) {
-      if (TextButton("[Maximize]", "we:maximize", 16) & gui::kEventWentDown)
-        edit_window_state_ = kMaximized;
-      if (TextButton("[Hide]", "we:hide", 16) & gui::kEventWentDown)
-        edit_window_state_ = kHidden;
-    } else {
-      if (TextButton("[Restore]", "we:restore", 16) & gui::kEventWentDown)
-        edit_window_state_ = kNormal;
-    }
-    if (TextButton(show_types_ ? "[Data types: On]" : "[Data types: Off]",
-                   "we:types", 16) &
+  // Show a bunch of buttons along the top of the screen.
+  gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:button-bg");
+  gui::PositionGroup(gui::kAlignCenter, gui::kAlignTop, mathfu::kZeros2f);
+  CaptureMouseClicks();
+  gui::ColorBackground(bg_button_bar_color_);
+  gui::SetMargin(gui::Margin(virtual_resolution_.x(), kToolbarHeight, 0, 0));
+  gui::EndGroup();  // button-bg
+
+  gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:buttons");
+  gui::PositionGroup(gui::kAlignCenter, gui::kAlignTop, mathfu::kZeros2f);
+  CaptureMouseClicks();
+
+  if (edit_window_state_ == kNormal) {
+    if (TextButton("[Maximize]", "we:maximize", kButtonSize) &
         gui::kEventWentDown)
-      show_types_ = !show_types_;
-    if (TextButton(expand_all_ ? "[Expand all: On]" : "[Expand all: Off]",
-                   "we:expand", 16) &
+      button_pressed_ = kWindowMaximize;
+    if (TextButton("[Hide]", "we:hide", kButtonSize) & gui::kEventWentDown)
+      button_pressed_ = kWindowHide;
+  } else {
+    if (TextButton("[Restore]", "we:restore", kButtonSize) &
         gui::kEventWentDown)
-      expand_all_ = !expand_all_;
-    if (TextButton(show_physics_ ? "[Show physics: On]" : "[Show physics: Off]",
-                   "we:physics", 16) &
-        gui::kEventWentDown)
-      show_physics_ = !show_physics_;
+      button_pressed_ = kWindowRestore;
+  }
+  if (TextButton(show_types_ ? "[Data types: On]" : "[Data types: Off]",
+                 "we:types", kButtonSize) &
+      gui::kEventWentDown)
+    button_pressed_ = kToggleDataTypes;
+  if (TextButton(show_physics_ ? "[Show physics: On]" : "[Show physics: Off]",
+                 "we:physics", kButtonSize) &
+      gui::kEventWentDown)
+    button_pressed_ = kTogglePhysics;
+  if (TextButton(expand_all_ ? "[Expand all: On]" : "[Expand all: Off]",
+                 "we:expand", kButtonSize) &
+      gui::kEventWentDown)
+    button_pressed_ = kToggleExpandAll;
 
-    if (EntityModified()) {
-      if (TextButton("[Commit Changes]", "we:commit", 16) &
-          gui::kEventWentDown) {
-        CommitEntityData();
-      }
-      if (TextButton("[Revert Changes]", "we:commit", 16) &
-          gui::kEventWentDown) {
-        edit_fields_.clear();
-        ClearEntityModified();
-      }
-
-      if (force_propagate_ != 0) {
-        entity::ComponentId id = force_propagate_;
-        force_propagate_ = 0;
-        PropagateEdits(id);
-      }
+  if (EntityModified()) {
+    if (TextButton("[Revert Changes]", "we:revert", kButtonSize) &
+        gui::kEventWentDown) {
+      button_pressed_ = kEntityRevert;
     }
-    gui::EndGroup();  // we:buttons
-    gui::EndGroup();  // we:button-overlay
-
-    if (edit_entity_ && edit_window_state_ != kHidden) {
-      DrawEditEntityUI();
+    if (TextButton("[Commit Changes]", "we:commit", kButtonSize) &
+        gui::kEventWentDown) {
+      button_pressed_ = kEntityCommit;
     }
-    gui::EndGroup();  // we:overall-ui
-  });
+  }
+  gui::EndGroup();  // we:buttons
+
+  if (edit_entity_ && edit_window_state_ != kHidden) {
+    gui::StartGroup(gui::kLayoutVerticalLeft, 10, "we:edit-ui");
+    gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, vec2(0, kButtonSize));
+    DrawEditEntityUI();
+    gui::EndGroup();
+  }
+  gui::EndGroup();  // we:overall-ui
 }
 
 void EditorGui::CommitEntityData() {
@@ -256,7 +319,6 @@ void EditorGui::DrawEditEntityUI() {
   gui::StartScroll(vec2(edit_width_, virtual_resolution_.y() - kToolbarHeight),
                    &scroll_offset_);
   gui::ColorBackground(bg_edit_ui_color_);
-  CaptureMouseClicks();
 
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-scroll");
   gui::ColorBackground(mathfu::kZeros4f);
@@ -346,65 +408,14 @@ void EditorGui::DrawEntityComponent(entity::ComponentId id) {
     }
     gui::EndGroup();  // $table_name-container
 
-    // If we have actual data to show, let's show it!
     if (raw_data != nullptr) {
       if (expand_all_ || components_to_show_[id]) {
         gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing,
                         (table_name + "-contents").c_str());
+        component_id_visiting_ = id;
         DrawFlatbuffer(raw_data, entity_factory_->ComponentIdToTableName(id));
+        component_id_visiting_ = 0;
         gui::EndGroup();  // $table_name-contents
-        gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        if (raw_data != nullptr) {
-          auto event = gui::CheckEvent();
-          if (event & gui::kEventWentDown) {
-            components_to_show_[id] = !components_to_show_[id];
-          }
-          if (event & gui::kEventHover) {
-            gui::ColorBackground(vec4(0.5f, 0.5f, 0.5f, 0.8f));
-          }
-        } else {
-          // gray out the table name since we can't click it
-          gui::SetTextColor(vec4(0.7f, 0.7f, 0.7f, 1.0f));
-        }
-        gui::Label(table_name.c_str(), 30);
-        gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        gui::EndGroup();  // $table_name-title
-        MetaData* meta_data =
-            entity_manager_->GetComponentData<MetaData>(edit_entity_);
-        bool from_proto =
-            meta_data ? (meta_data->components_from_prototype.find(id) !=
-                         meta_data->components_from_prototype.end())
-                      : false;
-        if (raw_data != nullptr) {
-          gui::StartGroup(gui::kLayoutHorizontalTop, kSpacing,
-                          (table_name + "-controls").c_str());
-
-          /* TODO: "Apply changes" button,
-           * "Save to prototype" button,
-           * "Revert to prototype" button.
-           */
-          gui::Label(from_proto ? "(from prototype)" : "(from entity)", 12);
-          gui::EndGroup();  // $table_name-controls
-        } else {
-          // Component is present but wasn't exported by ExportRawData.
-          // Usually that means it was automatically generated and doesn't
-          // need to be edited by a human.
-          gui::SetTextColor(vec4(0.7f, 0.7f, 0.7f, 1.0f));
-          gui::Label("(not exported)", 12);
-          gui::SetTextColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        }
-        gui::EndGroup();  // $table_name-container
-        if (raw_data != nullptr) {
-          if (expand_all_ || components_to_show_[id]) {
-            gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing,
-                            (table_name + "-contents").c_str());
-            component_id_visiting_ = id;
-            DrawFlatbuffer(raw_data,
-                           entity_factory_->ComponentIdToTableName(id));
-            component_id_visiting_ = 0;
-            gui::EndGroup();  // $table_name-contents
-          }
-        }
       }
     }
   }
@@ -439,31 +450,24 @@ void EditorGui::DrawEntityFamily() {
   }
 }
 
-bool EditorGui::EntityButton(entity::EntityRef& entity, int size) {
-  bool ret = false;
-  entity::EntityRef new_entity;
+void EditorGui::EntityButton(const entity::EntityRef& entity, int size) {
   MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(entity);
+  std::string entity_id =
+      meta_data
+          ? entity_manager_->GetComponent<MetaComponent>()->GetEntityID(
+                const_cast<entity::EntityRef&>(entity))
+          : "Unknown entity ID";
   if (meta_data) {
-    std::string entity_id =
-        entity_manager_->GetComponent<MetaComponent>()->GetEntityID(entity);
-    gui::StartGroup(gui::kLayoutHorizontalTop, 0,
-                    (std::string("we:entity-button-") + entity_id).c_str());
-    auto event = gui::CheckEvent();
-    if (event & ~gui::kEventHover) {
-      gui::ColorBackground(vec4(0.5f, 0.5f, 0.5f, 0.8f));
-    }
-    if (event & gui::kEventWentDown) {
-      changed_edit_entity_ = entity;
-      ret = true;
-    }
-    gui::Label(
-        (entity_id + "  (" +
-         entity_manager_->GetComponentData<MetaData>(entity)->prototype + ")")
-            .c_str(),
-        size);
-    gui::EndGroup();  // we:entity-button-$entity_id
+    entity_id += "  (";
+    entity_id += meta_data->prototype;
+    entity_id += ")";
   }
-  return ret;
+  auto event =
+      TextButton(entity_id.c_str(),
+                 (std::string("we:entity-button-") + entity_id).c_str(), size);
+  if (event & gui::kEventWentDown) {
+    changed_edit_entity_ = entity;
+  }
 }
 
 bool EditorGui::ReadDataFromEntity(const entity::EntityRef& entity,
@@ -1335,21 +1339,23 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
 }
 
 gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
-  gui::StartGroup(gui::kLayoutOverlay, size / 4, id);
-  gui::ModalGroup();
-  gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
-  gui::SetMargin(gui::Margin(5));
+  const float kMargin = 5;
+  float text_size = size - 2 * kMargin;
+  gui::StartGroup(gui::kLayoutHorizontalTop, size / 4, id);
+  // gui::ModalGroup();
+  // gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
+  gui::SetMargin(gui::Margin(kMargin));
   auto event = gui::CheckEvent();
   if (event & ~gui::kEventHover) {
     mouse_in_window_ = true;
-    gui::ColorBackground(vec4(0.4f, 0.4f, 0.4f, 1));
+    gui::ColorBackground(bg_click_color_);
   } else if (event & gui::kEventHover) {
-    gui::ColorBackground(vec4(0.3f, 0.3f, 0.3f, 1));
+    gui::ColorBackground(bg_hover_color_);
   } else {
-    gui::ColorBackground(vec4(0.2f, 0.2f, 0.2f, 1));
+    gui::ColorBackground(bg_button_color_);
   }
-  gui::SetTextColor(vec4(1, 1, 1, 1));
-  gui::Label(text, size);
+  gui::SetTextColor(text_normal_color_);
+  gui::Label(text, text_size);
   gui::EndGroup();  // $id
   return event;
 }
