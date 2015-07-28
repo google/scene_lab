@@ -41,7 +41,7 @@ class EditOptionsComponent : public entity::Component<EditOptionsData>,
  public:
   virtual void Init();
   virtual void AddFromRawData(entity::EntityRef& entity, const void* raw_data);
-  virtual RawDataUniquePtr ExportRawData(entity::EntityRef& entity) const;
+  virtual RawDataUniquePtr ExportRawData(const entity::EntityRef& entity) const;
 
   virtual void OnEvent(const event::EventPayload& event_payload);
 };
