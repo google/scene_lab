@@ -94,7 +94,7 @@ class EditorGui : public event::EventListener {
 
   // Read the raw data from a given entity's component and save it into
   // a vector, so we can mutate it later.
-  bool ReadDataFromEntity(entity::EntityRef& entity,
+  bool ReadDataFromEntity(const entity::EntityRef& entity,
                           entity::ComponentId component,
                           std::vector<uint8_t>* output_vector) const;
 

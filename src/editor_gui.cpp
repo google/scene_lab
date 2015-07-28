@@ -466,7 +466,7 @@ bool EditorGui::EntityButton(entity::EntityRef& entity, int size) {
   return ret;
 }
 
-bool EditorGui::ReadDataFromEntity(entity::EntityRef& entity,
+bool EditorGui::ReadDataFromEntity(const entity::EntityRef& entity,
                                    entity::ComponentId component_id,
                                    std::vector<uint8_t>* output_vector) const {
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
@@ -477,7 +477,9 @@ bool EditorGui::ReadDataFromEntity(entity::EntityRef& entity,
     // Force all default fields to have values that the user can edit
     services->set_export_force_defaults(true);
     // Export the entity's raw data.
-    auto raw_data = component->ExportRawData(entity);
+    // TODO: Remove the following const_cast when b/22728593 is fixed.
+    auto raw_data =
+        component->ExportRawData(const_cast<entity::EntityRef&>(entity));
     services->set_export_force_defaults(prev_force_defaults);
 
     if (raw_data == nullptr) return false;
