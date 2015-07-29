@@ -53,7 +53,7 @@ void EditOptionsComponent::AddFromRawData(entity::EntityRef& entity,
 }
 
 entity::ComponentInterface::RawDataUniquePtr
-EditOptionsComponent::ExportRawData(entity::EntityRef& entity) const {
+EditOptionsComponent::ExportRawData(const entity::EntityRef& entity) const {
   const EditOptionsData* data = GetComponentData(entity);
   if (data == nullptr) return nullptr;
 
