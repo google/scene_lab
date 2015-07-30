@@ -59,8 +59,6 @@ class WorldEditor {
     camera_ = std::move(camera);
   }
 
-  void RegisterComponent(entity::ComponentInterface* component);
-
   const CameraInterface* GetCamera() const { return camera_.get(); }
 
   void SelectEntity(const entity::EntityRef& entity_ref);
@@ -82,6 +80,18 @@ class WorldEditor {
 
  private:
   enum { kMoving, kEditing, kDragging } input_mode_;
+  enum {
+    kDragHorizontal,
+    kDragVertical,
+    kDragPlane,
+    kRotateX,
+    kRotateY,
+    kRotateZ,
+    kScaleAll,
+    kScaleX,
+    kScaleY,
+    kScaleZ
+  } mouse_mode_;
 
   // return true if we should be moving the camera and objects slowly.
   bool PreciseMovement() const;

@@ -200,7 +200,7 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
 
   gui::StartGroup(gui::kLayoutOverlay, 0, "we:overall-ui");
 
-  const float kButtonSize = kToolbarHeight;
+  const float kButtonSize = config_->gui_toolbar_size();
 
   // Show a bunch of buttons along the top of the screen.
   gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:button-bg");
@@ -211,40 +211,39 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   gui::EndGroup();  // button-bg
 
   gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:buttons");
-  gui::PositionGroup(gui::kAlignCenter, gui::kAlignTop, mathfu::kZeros2f);
+  gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   CaptureMouseClicks();
 
   if (edit_window_state_ == kNormal) {
     if (TextButton("[Maximize]", "we:maximize", kButtonSize) &
-        gui::kEventWentDown)
+        gui::kEventWentUp)
       button_pressed_ = kWindowMaximize;
-    if (TextButton("[Hide]", "we:hide", kButtonSize) & gui::kEventWentDown)
+    if (TextButton("[Hide]", "we:hide", kButtonSize) & gui::kEventWentUp)
       button_pressed_ = kWindowHide;
   } else {
-    if (TextButton("[Restore]", "we:restore", kButtonSize) &
-        gui::kEventWentDown)
+    if (TextButton("[Restore]", "we:restore", kButtonSize) & gui::kEventWentUp)
       button_pressed_ = kWindowRestore;
   }
   if (TextButton(show_types_ ? "[Data types: On]" : "[Data types: Off]",
                  "we:types", kButtonSize) &
-      gui::kEventWentDown)
+      gui::kEventWentUp)
     button_pressed_ = kToggleDataTypes;
   if (TextButton(show_physics_ ? "[Show physics: On]" : "[Show physics: Off]",
                  "we:physics", kButtonSize) &
-      gui::kEventWentDown)
+      gui::kEventWentUp)
     button_pressed_ = kTogglePhysics;
   if (TextButton(expand_all_ ? "[Expand all: On]" : "[Expand all: Off]",
                  "we:expand", kButtonSize) &
-      gui::kEventWentDown)
+      gui::kEventWentUp)
     button_pressed_ = kToggleExpandAll;
 
   if (EntityModified()) {
     if (TextButton("[Revert Changes]", "we:revert", kButtonSize) &
-        gui::kEventWentDown) {
+        gui::kEventWentUp) {
       button_pressed_ = kEntityRevert;
     }
     if (TextButton("[Commit Changes]", "we:commit", kButtonSize) &
-        gui::kEventWentDown) {
+        gui::kEventWentUp) {
       button_pressed_ = kEntityCommit;
     }
   }
@@ -430,7 +429,7 @@ void EditorGui::DrawEntityFamily() {
     if (transform_data->parent) {
       gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:parent");
       gui::Label("Parent:", 24);
-      EntityButton(transform_data->parent, config_->gui_children_ui_size());
+      EntityButton(transform_data->parent, config_->gui_edit_button_size());
       gui::EndGroup();  // we:parent
     }
     bool has_child = false;
@@ -442,7 +441,7 @@ void EditorGui::DrawEntityFamily() {
         gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:children");
         gui::Label("Children:", 24);
       }
-      EntityButton(child, config_->gui_children_ui_size());
+      EntityButton(child, config_->gui_edit_button_size());
     }
     if (has_child) {
       gui::EndGroup();  // we:children
@@ -465,7 +464,7 @@ void EditorGui::EntityButton(const entity::EntityRef& entity, int size) {
   auto event =
       TextButton(entity_id.c_str(),
                  (std::string("we:entity-button-") + entity_id).c_str(), size);
-  if (event & gui::kEventWentDown) {
+  if (event & gui::kEventWentUp) {
     changed_edit_entity_ = entity;
   }
 }
@@ -1232,8 +1231,8 @@ bool EditorGui::VisitFlatbufferVector(VisitMode mode,
   }
   if (flatbuffers::StringToInt(edit_fields_[id + idx].c_str()) != vec->size()) {
     if (TextButton("click to resize", (id + idx + "resize").c_str(),
-                   config_->gui_edit_ui_size()) &
-        gui::kEventWentDown) {
+                   config_->gui_edit_button_size()) &
+        gui::kEventWentUp) {
       force_propagate_ = component_id_visiting_;
       component_buffer_modified_[component_id_visiting_] = true;
     }

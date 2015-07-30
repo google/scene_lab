@@ -64,6 +64,8 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   horizontal_forward_ = mathfu::kAxisY3f;
   horizontal_right_ = mathfu::kAxisX3f;
   controller_.reset(new EditorController(config_, input_system_));
+  input_mode_ = kMoving;
+  mouse_mode_ = kDragHorizontal;
   gui_.reset(
       new EditorGui(config_, entity_manager_, font_manager_, &schema_data_));
 }
@@ -646,19 +648,21 @@ vec3 WorldEditor::GetMovement() const {
 
 bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   if (input_mode_ == kDragging) {
-    vec3 start, end;
-    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
-                                  &end);
-    vec3 mouse_ray_origin = start;
-    vec3 mouse_ray_dir = (end - start).Normalized();
-    vec3 intersect;
+    if (mouse_mode_ == kDragHorizontal) {
+      vec3 start, end;
+      controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
+                                    &end);
+      vec3 mouse_ray_origin = start;
+      vec3 mouse_ray_dir = (end - start).Normalized();
+      vec3 intersect;
 
-    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
-                            vec3(0, 0, 1), &intersect)) {
-      vec3 new_pos = intersect + drag_offset_;
-      *transform->mutable_position() =
-          Vec3(new_pos.x(), new_pos.y(), new_pos.z());
-      return true;
+      if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                              vec3(0, 0, 1), &intersect)) {
+        vec3 new_pos = intersect + drag_offset_;
+        *transform->mutable_position() =
+            Vec3(new_pos.x(), new_pos.y(), new_pos.z());
+        return true;
+      }
     }
   } else {
     if (gui_->InputCaptured()) return false;
