@@ -149,8 +149,6 @@ class WorldEditor {
   std::string schema_data_;
   std::string schema_text_;
 
-  bool previous_relative_mouse_mode;
-
   std::vector<entity::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
   std::unique_ptr<EditorGui> gui_;

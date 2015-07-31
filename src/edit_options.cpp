@@ -27,6 +27,7 @@ FPL_ENTITY_DEFINE_COMPONENT(fpl::editor::EditOptionsComponent,
 namespace fpl {
 namespace editor {
 
+using fpl::component_library::CommonServicesComponent;
 using fpl::component_library::PhysicsComponent;
 using fpl::component_library::PhysicsData;
 using fpl::component_library::RenderMeshComponent;
@@ -58,11 +59,14 @@ EditOptionsComponent::ExportRawData(const entity::EntityRef& entity) const {
   if (data == nullptr) return nullptr;
 
   flatbuffers::FlatBufferBuilder fbb;
+  bool defaults = entity_manager_->GetComponent<CommonServicesComponent>()
+                      ->export_force_defaults();
+  fbb.ForceDefaults(defaults);
   EditOptionsDefBuilder builder(fbb);
-  if (data->selection_option != SelectionOption_Unspecified)
+  if (defaults || data->selection_option != SelectionOption_Unspecified)
     builder.add_selection_option(data->selection_option);
 
-  if (data->render_option != RenderOption_Unspecified)
+  if (defaults || data->render_option != RenderOption_Unspecified)
     builder.add_render_option(data->render_option);
 
   fbb.Finish(builder.Finish());

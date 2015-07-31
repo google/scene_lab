@@ -49,7 +49,8 @@ LOCAL_SRC_FILES := \
   $(WORLD_EDITOR_RELATIVE_DIR)/src/world_editor.cpp \
   $(WORLD_EDITOR_RELATIVE_DIR)/src/edit_options.cpp \
   $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_controller.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_gui.cpp
+  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_gui.cpp \
+  $(WORLD_EDITOR_RELATIVE_DIR)/src/flatbuffer_editor.cpp
 
 WORLD_EDITOR_SCHEMA_DIR := $(WORLD_EDITOR_DIR)/schemas
 WORLD_EDITOR_SCHEMA_INCLUDE_DIRS := \
@@ -59,6 +60,7 @@ WORLD_EDITOR_SCHEMA_INCLUDE_DIRS := \
 WORLD_EDITOR_SCHEMA_FILES := \
   $(WORLD_EDITOR_SCHEMA_DIR)/editor_components.fbs \
   $(WORLD_EDITOR_SCHEMA_DIR)/editor_events.fbs \
+  $(WORLD_EDITOR_SCHEMA_DIR)/flatbuffer_editor_config.fbs \
   $(WORLD_EDITOR_SCHEMA_DIR)/world_editor_config.fbs
 
 ifeq (,$(WORLD_EDITOR_RUN_ONCE))

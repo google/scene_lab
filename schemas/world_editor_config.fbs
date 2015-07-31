@@ -13,6 +13,7 @@
 // limitations under the License.
 
 include "common.fbs";
+include "flatbuffer_editor_config.fbs";
 
 namespace fpl.editor;
 
@@ -52,21 +53,13 @@ table WorldEditorConfig {
   toggle_mode_button:byte = 2;
 
   gui_allow_editing:bool = true;
-  gui_edit_ui_size:int = 16;
-  gui_edit_button_size:int = 22;
-
+  gui_button_size:int = 22;
   gui_toolbar_size:int = 26;
 
-  bg_color:fpl.Vec4;
-  bg_button_color:fpl.Vec4;
-  bg_hover_color:fpl.Vec4;
-  bg_click_color:fpl.Vec4;
+  gui_bg_toolbar_color:fpl.ColorRGBA;
+  gui_bg_edit_ui_color:fpl.ColorRGBA;
 
-  text_button_color:fpl.Vec4;
-  text_normal_color:fpl.Vec4;
-  text_disabled_color:fpl.Vec4;
-  text_modified_color:fpl.Vec4;
-  text_error_color:fpl.Vec4;
+  flatbuffer_editor_config:FlatbufferEditorConfig;
 }
 
 root_type WorldEditorConfig;

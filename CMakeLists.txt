@@ -26,10 +26,12 @@ set(world_editor_SRCS
     include/world_editor/editor_controller.h
     include/world_editor/editor_event.h
     include/world_editor/editor_gui.h
+    include/world_editor/flatbuffer_editor.h
     include/world_editor/world_editor.h
     src/edit_options.cpp
     src/editor_controller.cpp
     src/editor_gui.cpp
+    src/flatbuffer_editor.cpp
     src/world_editor.cpp
  )
 
