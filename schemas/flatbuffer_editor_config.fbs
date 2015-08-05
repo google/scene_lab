@@ -20,6 +20,8 @@ table FlatbufferEditorConfig {
   read_only:bool = false;
   // Auto-commit edits to Flatbuffers whenever safe?
   auto_commit_edits:bool = true;
+  // Allow edits that might change the size of the Flatbuffer?
+  allow_resizing_flatbuffer:bool = true;
 
   // Virtual pixel size to draw the Flatbuffer edit fields.
   ui_size:byte = 16;
@@ -45,8 +47,13 @@ table FlatbufferEditorConfig {
   text_disabled_color:fpl.ColorRGBA;
   // Color for fields you are allowed to edit. Recommended: Green.
   text_editable_color:fpl.ColorRGBA;
-  // Color for fields you have modified. Recommended: Yellow.
+  // Color for fields you are currently editing. Recommended: Yellow.
+  text_editing_color:fpl.ColorRGBA;
+  // Color for fields you have modified from the original. Recommended: Yellow.
   text_modified_color:fpl.ColorRGBA;
+  // Color for fields that had modified values committed into the Flatbuffer.
+  // Recommended: Yellow.
+  text_committed_color:fpl.ColorRGBA;
   // Color for fields you have modified to an invalid value. Recommended: Red.
   text_error_color:fpl.ColorRGBA;
 }

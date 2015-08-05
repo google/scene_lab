@@ -52,6 +52,7 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
              flatbuffers::NumToString(reinterpret_cast<size_t>(this));
   config_read_only_ = config->read_only();
   config_auto_commit_ = config->auto_commit_edits();
+  config_allow_resize_ = config->allow_resizing_flatbuffer();
   if (flatbuffer_data != nullptr) {
     CopyTable(flatbuffer_data, &flatbuffer_);
   }
@@ -68,10 +69,13 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
     bg_button_click_color_ = default_bg;
     text_disabled_color_ = default_fg;
     text_normal_color_ = default_fg;
+    text_comment_color_ = default_fg;
     text_button_color_ = default_fg;
     text_editable_color_ = default_fg;
     text_modified_color_ = default_fg;
+    text_committed_color_ = default_fg;
     text_error_color_ = default_fg;
+    text_editing_color_ = default_fg;
   } else {
     ui_size_ = config->ui_size();
     ui_spacing_ = config->ui_spacing();
@@ -83,11 +87,15 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
               &bg_button_click_color_);
 
     LoadColor(config->text_normal_color(), default_fg, &text_normal_color_);
+    LoadColor(config->text_comment_color(), default_fg, &text_comment_color_);
     LoadColor(config->text_button_color(), default_fg, &text_button_color_);
     LoadColor(config->text_disabled_color(), default_fg, &text_disabled_color_);
     LoadColor(config->text_editable_color(), default_fg, &text_editable_color_);
     LoadColor(config->text_modified_color(), default_fg, &text_modified_color_);
     LoadColor(config->text_error_color(), default_fg, &text_error_color_);
+    LoadColor(config->text_editing_color(), default_fg, &text_editing_color_);
+    LoadColor(config->text_committed_color(), default_fg,
+              &text_committed_color_);
   }
 }
 
@@ -438,6 +446,7 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
   if (IsDraw(mode)) {
     gui::StartGroup(gui::kLayoutHorizontalCenter, ui_spacing(),
                     (id + "-container").c_str());
+    gui::SetTextColor(text_normal_color_);
     gui::Label(FormatFieldName(name, type).c_str(), ui_size());
   }
   if (mode == kDrawReadOnly) {
@@ -445,8 +454,16 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
     gui::SetTextColor(text_disabled_color_);
   } else {
     if (edit_fields_[id] != value) {
-      // Show in "modified" color.
-      if (IsDrawEdit(mode)) gui::SetTextColor(text_modified_color_);
+      // Show in a "modified" color.
+      if (IsDrawEdit(mode)) {
+        if (currently_editing_field_ == id) {
+          gui::SetTextColor(text_editing_color_);
+        } else if (error_fields_.find(id) != error_fields_.end()) {
+          gui::SetTextColor(text_error_color_);
+        } else {
+          gui::SetTextColor(text_modified_color_);
+        }
+      }
       edit_fields_modified_ = true;
       if (mode == kCommitEdits &&
           (force_commit_field_ == "" || force_commit_field_ == id)) {
@@ -455,6 +472,9 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
         committed_fields_.insert(id);
         return true;  // Return true if the field was changed.
       }
+    } else if (committed_fields_.find(id) != committed_fields_.end()) {
+      // show in "committed" color
+      if (IsDrawEdit(mode)) gui::SetTextColor(text_committed_color_);
     } else {
       // Show in "editable" but not modified color.
       if (IsDrawEdit(mode)) gui::SetTextColor(text_editable_color_);
@@ -490,7 +510,7 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
     }
   }
   if (IsDraw(mode)) {
-    gui::SetTextColor(text_normal_color_);
+    gui::SetTextColor(text_comment_color_);
     if (comment != "") {
       gui::Label(comment.c_str(), ui_size());
     }
@@ -611,7 +631,10 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
           return true;
         }
       } else {
-        if (VisitFlatbufferString(mode, schema, fielddef, table, new_id))
+        if (VisitFlatbufferString((!config_allow_resize() && IsDrawEdit(mode))
+                                      ? kDrawReadOnly
+                                      : mode,
+                                  schema, fielddef, table, new_id))
           return true;  // Mutated strings may need to be resized
       }
       break;
@@ -642,9 +665,11 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
           if (fielddef.offset() != 0) {
             flatbuffers::Table& subtable =
                 const_cast<flatbuffers::Table&>(*GetFieldT(table, fielddef));
-            if (VisitSubtable(mode, fielddef.name()->str(),
-                              subobjdef.name()->str(), "", new_id, schema,
-                              subobjdef, subtable))
+            if (VisitSubtable((!config_allow_resize() && IsDrawEdit(mode))
+                                  ? kDrawReadOnly
+                                  : mode,
+                              fielddef.name()->str(), subobjdef.name()->str(),
+                              "", new_id, schema, subobjdef, subtable))
               return true;  // Mutated tables may need to be resized
           }
         }
@@ -659,8 +684,10 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
           return false;
         }
       } else {
-        if (VisitFlatbufferUnion(mode, schema, fielddef, objectdef, table,
-                                 new_id)) {
+        if (VisitFlatbufferUnion((!config_allow_resize() && IsDrawEdit(mode))
+                                     ? kDrawReadOnly
+                                     : mode,
+                                 schema, fielddef, objectdef, table, new_id)) {
           return true;  // Mutated unions may need to be resized
         }
       }
@@ -818,9 +845,12 @@ bool FlatbufferEditor::VisitFlatbufferStruct(
               id.c_str());
       ParseStringIntoStruct(edit_fields_[id], schema, objectdef, &fbstruct);
       flatbuffer_modified_ = true;
+      if (error_fields_.find(id) != error_fields_.end())
+        error_fields_.erase(id);
     } else {
       LogInfo("Struct '%s' was not valid for %s.", edit_fields_[id].c_str(),
               id.c_str());
+      error_fields_.insert(id);
       // TODO: mark invalid fields in red.
     }
   }
@@ -863,8 +893,10 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
                     (id + idx + "-commit").c_str());
   // Special: Don't auto-commit vector sizes back to the Flatbuffer as it causes
   // too much to change; if VisitMode is kDrawEditAuto, pass in kDrawEditManual.
-  if (VisitField(mode == kDrawEditAuto ? kDrawEditManual : mode,
-                 fielddef.name()->str() + idx,
+  VisitMode size_mode = mode == kDrawEditAuto ? kDrawEditManual : mode;
+  if (IsDrawEdit(size_mode) && !config_allow_resize())
+    size_mode = kDrawReadOnly;
+  if (VisitField(size_mode, fielddef.name()->str() + idx,
                  flatbuffers::NumToString(vec->size()), "size_t", "",
                  id + idx)) {
     uoffset_t new_size =
@@ -882,8 +914,11 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
         std::string idx = "[" + flatbuffers::NumToString(i) + "]";
         flatbuffers::String* str =
             flatbuffers::GetAnyVectorElemPointer<flatbuffers::String>(vec, i);
-        if (VisitField(mode, fielddef.name()->str() + idx, str->str(), "string",
-                       "", id + idx)) {
+        if (VisitField((!config_allow_resize() && IsDrawEdit(mode))
+                           ? kDrawReadOnly
+                           : mode,
+                       fielddef.name()->str() + idx, str->str(), "string", "",
+                       id + idx)) {
           SetString(schema, edit_fields_[id + idx], str, &flatbuffer_,
                     &table_def_);
           flatbuffer_modified_ = true;
@@ -899,9 +934,11 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
           std::string idx = "[" + flatbuffers::NumToString(i) + "]";
           flatbuffers::Table* tableelem =
               flatbuffers::GetAnyVectorElemPointer<flatbuffers::Table>(vec, i);
-          if (VisitSubtable(mode, fielddef.name()->str() + idx,
-                            elemobjectdef->name()->str(), "", id + idx, schema,
-                            *elemobjectdef, *tableelem))
+          if (VisitSubtable(
+                  (!config_allow_resize() && IsDrawEdit(mode)) ? kDrawReadOnly
+                                                               : mode,
+                  fielddef.name()->str() + idx, elemobjectdef->name()->str(),
+                  "", id + idx, schema, *elemobjectdef, *tableelem))
             return true;  // Mutated tables may require resize.
         }
       } else {

@@ -110,6 +110,13 @@ class FlatbufferEditor {
   bool config_auto_commit() const { return config_auto_commit_; }
   void set_config_auto_commit(bool b) { config_auto_commit_ = b; }
 
+  // Allow resizing of the Flatbuffer. If this is true, you can edit
+  // anything inside the Flatbuffer, including vector sizes, strings,
+  // union types, and even adding missing sub-tables.
+  // Otherwise, you are only allowed to edit scalar values.
+  bool config_allow_resize() const { return config_allow_resize_; }
+  void set_config_allow_resize(bool b) { config_allow_resize_ = b; }
+
   // Size of all the UI elements passed to FlatUI.
   int ui_size() const { return ui_size_; }
   void set_ui_size(int s) { ui_size_ = s; }
@@ -163,6 +170,7 @@ class FlatbufferEditor {
   void ClearEditFields() {
     edit_fields_.clear();
     edit_fields_modified_ = false;
+    error_fields_.clear();
   }
 
   // This function takes the edit_fields_ that the user has been working on, and
@@ -306,6 +314,9 @@ class FlatbufferEditor {
   // cleared whenever ClearFlatbufferModifiedFlag() is called, as this assumes
   // that your code is now using the new Flatbuffer data.
   std::set<std::string> committed_fields_;
+  // List of fields that are currently causing errors. For example, badly
+  // parsing structs, etc.
+  std::set<std::string> error_fields_;
   // The actual Flatbuffer data.
   std::vector<uint8_t> flatbuffer_;
   // The root ID for our UI controls.
@@ -324,8 +335,10 @@ class FlatbufferEditor {
   bool show_types_;        // Show type names?
   bool expand_all_;        // Expand all subtables?
   // Configuration settings, defaults taken from Flatbuffer.
-  bool config_read_only_;    // If true, only draw and don't allow edits.
-  bool config_auto_commit_;  // Auto-commit edited fields to the Flatbuffer.
+  bool config_read_only_;     // If true, only draw and don't allow edits.
+  bool config_auto_commit_;   // Auto-commit edited fields to the Flatbuffer.
+  bool config_allow_resize_;  // If false, disallow edits that might change the
+                              // size of the Flatbuffer.
   // Information about fields being edited.
   bool edit_fields_modified_;  // Have GUI edit fields been modified?
   bool flatbuffer_modified_;   // Has the Flatbuffer data been modified?
@@ -338,9 +351,12 @@ class FlatbufferEditor {
 
   mathfu::vec4 text_button_color_;
   mathfu::vec4 text_normal_color_;
+  mathfu::vec4 text_comment_color_;
   mathfu::vec4 text_disabled_color_;
   mathfu::vec4 text_editable_color_;
+  mathfu::vec4 text_editing_color_;
   mathfu::vec4 text_modified_color_;
+  mathfu::vec4 text_committed_color_;
   mathfu::vec4 text_error_color_;
 };
 
