@@ -46,6 +46,7 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       schema_data_(schema_data),
       auto_commit_component_(0),
       auto_revert_component_(0),
+      auto_recreate_component_(0),
       button_pressed_(kNone),
       edit_window_state_(kNormal),
       edit_width_(0),
@@ -154,6 +155,59 @@ void EditorGui::FinishRender() {
                  component_guis_.end()) {
     component_guis_.erase(auto_revert_component_);
     auto_revert_component_ = 0;
+  } else if (auto_recreate_component_ != 0 &&
+             component_guis_.find(auto_recreate_component_) !=
+                 component_guis_.end()) {
+    // Delete and recreate the entity, but with one component's data replaced.
+    auto meta_component = entity_manager_->GetComponent<MetaComponent>();
+
+    std::vector<entity::ComponentInterface::RawDataUniquePtr> exported_data;
+    std::vector<const void*> exported_pointers;  // Indexed by component ID.
+    exported_pointers.resize(entity_factory_->max_component_id() + 1, nullptr);
+    for (entity::ComponentId component_id = 0;
+         component_id <= entity_factory_->max_component_id(); component_id++) {
+      const MetaData* meta_data =
+          meta_component->GetComponentData(edit_entity_);
+      if (component_id == auto_recreate_component_) {
+        exported_pointers[component_id] =
+            component_guis_[auto_recreate_component_]->flatbuffer();
+      } else if (meta_data->components_from_prototype.find(component_id) ==
+                 meta_data->components_from_prototype.end()) {
+        entity::ComponentInterface* component =
+            entity_manager_->GetComponent(component_id);
+        if (component != nullptr) {
+          exported_data.push_back(component->ExportRawData(edit_entity_));
+          exported_pointers[component_id] = exported_data.back().get();
+        }
+      }
+    }
+    std::string old_source_file =
+        meta_component->GetComponentData(edit_entity_)->source_file;
+    std::vector<uint8_t> entity_serialized;
+    if (entity_factory_->CreateEntityDefinition(exported_pointers,
+                                                &entity_serialized)) {
+      std::vector<std::vector<uint8_t>> entity_defs = {entity_serialized};
+      std::vector<uint8_t> entity_list_def;
+      if (entity_factory_->SerializeEntityList(entity_defs, &entity_list_def)) {
+        // create a new copy of the entity...
+        std::vector<entity::EntityRef> entities_created;
+        if (entity_factory_->LoadEntityListFromMemory(entity_list_def.data(),
+                                                      entity_manager_,
+                                                      &entities_created) > 0) {
+          for (size_t i = 0; i < entities_created.size(); i++) {
+            MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(
+                entities_created[i]);
+            meta_data->source_file = old_source_file;
+          }
+          // delete the old entity...
+          entity::EntityRef old_entity = edit_entity_;
+          SetEditEntity(entities_created[0]);
+          entity_manager_->DeleteEntityImmediately(old_entity);
+          entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
+        }
+      }
+    }
+    auto_recreate_component_ = 0;
   }
 
   switch (button_pressed_) {
@@ -337,6 +391,7 @@ void EditorGui::DrawEditEntityUI() {
 
 void EditorGui::DrawEntityComponent(entity::ComponentId id) {
   const int kTableNameSize = 30;
+  const int kTableButtonSize = kTableNameSize - 8;
 
   // Check if we have a FlatbufferEditor for this component.
   entity::ComponentInterface* component = entity_manager_->GetComponent(id);
@@ -395,14 +450,19 @@ void EditorGui::DrawEntityComponent(entity::ComponentId id) {
                           : false;
     if (component_guis_[id]->flatbuffer_modified()) {
       if (TextButton("[Commit]", (table_name + "-commit-to-entity").c_str(),
-                     kTableNameSize) &
+                     kTableButtonSize) &
           gui::kEventWentUp) {
         auto_commit_component_ = id;
       }
       if (TextButton("[Revert]", (table_name + "-revert-entity").c_str(),
-                     kTableNameSize) &
+                     kTableButtonSize) &
           gui::kEventWentUp) {
         auto_revert_component_ = id;
+      }
+      if (TextButton("[Reload]", (table_name + "-reload-entity").c_str(),
+                     kTableButtonSize) &
+          gui::kEventWentUp) {
+        auto_recreate_component_ = id;
       }
     } else if (has_data) {
       // Draw the title of the component table.

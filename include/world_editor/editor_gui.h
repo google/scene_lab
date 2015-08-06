@@ -151,6 +151,7 @@ class EditorGui : public event::EventListener {
       component_guis_;
   entity::ComponentId auto_commit_component_;
   entity::ComponentId auto_revert_component_;
+  entity::ComponentId auto_recreate_component_;
 
   std::vector<bool> components_to_show_;  // Components to display on screen.
 
