@@ -49,6 +49,7 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       auto_recreate_component_(0),
       button_pressed_(kNone),
       edit_window_state_(kNormal),
+      edit_view_(kEditEntity),
       edit_width_(0),
       show_physics_(false),
       show_types_(false),
@@ -219,7 +220,7 @@ void EditorGui::FinishRender() {
       break;
     }
     case kWindowHide: {
-      edit_window_state_ = kHidden;
+      edit_view_ = kNoEditView;
       break;
     }
     case kWindowRestore: {
@@ -257,47 +258,28 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
     edit_width_ = virtual_resolution_.x();
   else if (edit_window_state_ == kNormal)
     edit_width_ = virtual_resolution_.x() / 3.0f;
-  else if (edit_window_state_ == kHidden)
-    edit_width_ = 0;
 
   gui::StartGroup(gui::kLayoutOverlay, 0, "we:overall-ui");
 
   const float kButtonSize = config_->gui_toolbar_size();
 
   // Show a bunch of buttons along the top of the screen.
-  gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:button-bg");
+  gui::StartGroup(gui::kLayoutHorizontalCenter, 10, "we:button-bg");
   gui::PositionGroup(gui::kAlignCenter, gui::kAlignTop, mathfu::kZeros2f);
   CaptureMouseClicks();
   gui::ColorBackground(bg_toolbar_color_);
-  gui::SetMargin(gui::Margin(virtual_resolution_.x(), kToolbarHeight, 0, 0));
+  gui::SetMargin(
+      gui::Margin(virtual_resolution_.x(), config_->gui_toolbar_size(), 0, 0));
   gui::EndGroup();  // button-bg
 
-  gui::StartGroup(gui::kLayoutHorizontalTop, 10, "we:buttons");
+  gui::StartGroup(gui::kLayoutHorizontalCenter, 14, "we:buttons");
   gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   CaptureMouseClicks();
 
-  if (edit_window_state_ == kNormal) {
-    if (TextButton("[Maximize]", "we:maximize", kButtonSize) &
-        gui::kEventWentUp)
-      button_pressed_ = kWindowMaximize;
-    if (TextButton("[Hide]", "we:hide", kButtonSize) & gui::kEventWentUp)
-      button_pressed_ = kWindowHide;
-  } else {
-    if (TextButton("[Restore]", "we:restore", kButtonSize) & gui::kEventWentUp)
-      button_pressed_ = kWindowRestore;
-  }
-  if (TextButton(show_types_ ? "[Data types: On]" : "[Data types: Off]",
-                 "we:types", kButtonSize) &
-      gui::kEventWentUp)
-    button_pressed_ = kToggleDataTypes;
-  if (TextButton(show_physics_ ? "[Show physics: On]" : "[Show physics: Off]",
-                 "we:physics", kButtonSize) &
-      gui::kEventWentUp)
-    button_pressed_ = kTogglePhysics;
-  if (TextButton(expand_all_ ? "[Expand all: On]" : "[Expand all: Off]",
-                 "we:expand", kButtonSize) &
-      gui::kEventWentUp)
-    button_pressed_ = kToggleExpandAll;
+  gui::Label(" World Editor", config_->gui_toolbar_size() - 8);
+
+  TextButton("[Save World]", "we:save", config_->gui_toolbar_size());
+  TextButton("[Exit Editor]", "we:exit", config_->gui_toolbar_size());
 
   if (EntityModified()) {
     if (TextButton("[Revert All Changes]", "we:revert", kButtonSize) &
@@ -311,11 +293,16 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   }
   gui::EndGroup();  // we:buttons
 
-  if (edit_entity_ && edit_window_state_ != kHidden) {
-    gui::StartGroup(gui::kLayoutVerticalLeft, 10, "we:edit-ui");
-    gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, vec2(0, kButtonSize));
-    DrawEditEntityUI();
-    gui::EndGroup();
+  DrawTabs();
+  if (edit_view_ != kNoEditView) {
+    BeginDrawEditView();
+    if (edit_view_ == kEditEntity) {
+      DrawEditEntityUI();
+    }
+    else if (edit_view_ == kSettings) {
+      DrawSettingsUI();
+    }
+    FinishDrawEditView();
   }
   gui::EndGroup();  // we:overall-ui
 }
@@ -358,34 +345,146 @@ void EditorGui::CaptureMouseClicks() {
   }
 }
 
-void EditorGui::DrawEditEntityUI() {
-  changed_edit_entity_ = entity::EntityRef();
-
-  gui::StartGroup(gui::kLayoutVerticalLeft, 0, "we:edit-ui");
-  gui::StartScroll(vec2(edit_width_, virtual_resolution_.y() - kToolbarHeight),
+void EditorGui::BeginDrawEditView() {
+  gui::StartGroup(gui::kLayoutVerticalLeft, 0, "we:edit-ui-container");
+  gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop,
+                     vec2(virtual_resolution_.x() - edit_width_,
+                          2 * config_->gui_toolbar_size()));
+  gui::StartScroll(vec2(edit_width_, virtual_resolution_.y() -
+                                         2 * config_->gui_toolbar_size()),
                    &scroll_offset_);
+  CaptureMouseClicks();
   gui::ColorBackground(bg_edit_ui_color_);
+  gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-v");
+  gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing);
+  gui::SetMargin(gui::Margin(edit_width_, 1, 0, 0));
+  gui::EndGroup();
+  gui::StartGroup(gui::kLayoutHorizontalTop, kSpacing, "we:edit-ui-h");
+  gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing);
+  gui::SetMargin(gui::Margin(1, virtual_resolution_.y(), 0, 0));
+  gui::EndGroup();
 
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-scroll");
-  gui::ColorBackground(mathfu::kZeros4f);
-  CaptureMouseClicks();
   gui::SetMargin(gui::Margin(10, 10));
+}
 
-  for (entity::ComponentId id = 0; id <= entity_factory_->max_component_id();
-       id++) {
-    DrawEntityComponent(id);
-  }
-  DrawEntityFamily();
-
+void EditorGui::FinishDrawEditView() {
+  gui::EndGroup();  // we:edit-ui-v
+  gui::EndGroup();  // we:edit-ui-h
   gui::EndGroup();  // we:edit-ui-scroll
   gui::EndScroll();
-  gui::EndGroup();  // we:edit-ui
+  gui::EndGroup();  // we:edit-ui-container
+}
 
-  if (changed_edit_entity_) {
-    // Something during the course of rendering the UI caused the selected
-    // entity to change, so let's select the new entity.
-    SetEditEntity(changed_edit_entity_);
+static const char* const kEditViewNames[] = {
+    "Edit Entity", "List Entities", "Edit Proto", "List Protos", "Settings"};
+
+void EditorGui::DrawTabs() {
+  float kTabSpacing = 4;
+  float kGrowSelectedTab = 4;
+  float kTabButtonSize = 12;
+
+  int new_edit_view = edit_view_;
+
+  gui::StartGroup(gui::kLayoutOverlay, 0, "we:toolbar-bg");
+  gui::PositionGroup(
+      gui::kAlignLeft, gui::kAlignTop,
+      vec2(virtual_resolution_.x() - edit_width_, config_->gui_toolbar_size()));
+  CaptureMouseClicks();
+
+  gui::StartGroup(gui::kLayoutHorizontalBottom, 0, "we:toolbar-fill");
+  gui::SetMargin(gui::Margin(edit_width_, config_->gui_toolbar_size(), 0, 0));
+  gui::ColorBackground(bg_edit_ui_color_);
+  gui::EndGroup();  // we:toolbar-fill
+
+  gui::StartGroup(gui::kLayoutHorizontalBottom, kTabSpacing, "we:toolbar");
+  // do some math to get the tabs spaced evenly
+  float num_tabs = kEditViewCount;
+  float width_each = edit_width_ / num_tabs - kTabSpacing - 1;
+  for (int i = 0; i < kEditViewCount; i++) {
+    const char* view = kEditViewNames[i];
+    // container for the tab
+    gui::StartGroup(gui::kLayoutOverlay, 0,
+                    (std::string("we:toolbar-tab-container-") + view).c_str());
+    gui::StartGroup(gui::kLayoutHorizontalBottom, 0,
+                    (std::string("we:toolbar-tab-overlay-") + view).c_str());
+    float width_adjust = 0;
+    float size_adjust = 0;
+    if (edit_view_ == i) {
+      gui::ColorBackground(mathfu::kZeros4f);
+      gui::SetTextColor(text_button_color_);
+      width_adjust = kTabSpacing;  // make selected tab slightly bigger
+      size_adjust = kGrowSelectedTab;
+    } else {
+      gui::ColorBackground(bg_button_color_);
+      gui::SetTextColor(text_normal_color_);
+    }
+    gui::SetMargin(gui::Margin(width_each + width_adjust,
+                               config_->gui_toolbar_size(), 0, 0));
+    auto event = gui::CheckEvent();
+    if (event & gui::kEventWentUp) {
+      new_edit_view = i;
+    }
+    gui::EndGroup();  // we:toolbar-tab-overlay-view
+    gui::StartGroup(gui::kLayoutHorizontalBottom, 0,
+                    (std::string("we:toolbar-tab-label-") + view).c_str());
+    gui::Label(view, kTabButtonSize + size_adjust);
+    gui::EndGroup();  // we:toolbar-tab-label-view
+    gui::EndGroup();  // we:toolbar-tab-container-view
+  }
+
+  gui::EndGroup();  // we:toolbar
+  gui::EndGroup();  // we:toolbar-bg
+  if (new_edit_view >= 0 && new_edit_view < kEditViewCount) {
+    edit_view_ = static_cast<EditView>(new_edit_view);
+  }
+}
+
+void EditorGui::DrawSettingsUI() {
+  const float kButtonSize = 30;
+  if (TextButton(show_types_ ? "[Data types: On]" : "[Data types: Off]",
+                 "we:types", kButtonSize) &
+      gui::kEventWentUp)
+    button_pressed_ = kToggleDataTypes;
+  if (TextButton(show_physics_ ? "[Show physics: On]" : "[Show physics: Off]",
+                 "we:physics", kButtonSize) &
+      gui::kEventWentUp)
+    button_pressed_ = kTogglePhysics;
+  if (TextButton(expand_all_ ? "[Expand all: On]" : "[Expand all: Off]",
+                 "we:expand", kButtonSize) &
+      gui::kEventWentUp)
+    button_pressed_ = kToggleExpandAll;
+  if (edit_window_state_ == kNormal) {
+    if (TextButton("[Maximize View]", "we:maximize", kButtonSize) &
+        gui::kEventWentUp)
+      button_pressed_ = kWindowMaximize;
+  } else if (edit_window_state_ == kMaximized) {
+    if (TextButton("[Restore View]", "we:restore", kButtonSize) &
+        gui::kEventWentUp)
+      button_pressed_ = kWindowRestore;
+  }
+  if (TextButton("[Hide View]", "we:hide", kButtonSize) & gui::kEventWentUp)
+    button_pressed_ = kWindowHide;
+}
+
+void EditorGui::DrawEditEntityUI() {
+  if (!edit_entity_) {
+    gui::Label("No entity selected!", config_->gui_button_size());
+  } else {
     changed_edit_entity_ = entity::EntityRef();
+
+    for (entity::ComponentId id = 0; id <= entity_factory_->max_component_id();
+         id++) {
+      DrawEntityComponent(id);
+    }
+    DrawEntityFamily();
+
+    if (changed_edit_entity_) {
+      // Something during the course of rendering the UI caused the selected
+      // entity to change, so let's select the new entity.
+      SetEditEntity(changed_edit_entity_);
+      changed_edit_entity_ = entity::EntityRef();
+    }
   }
 }
 
@@ -543,8 +642,6 @@ gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
   const float kMargin = 5;
   float text_size = size - 2 * kMargin;
   gui::StartGroup(gui::kLayoutHorizontalTop, size / 4, id);
-  // gui::ModalGroup();
-  // gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   gui::SetMargin(gui::Margin(kMargin));
   auto event = gui::CheckEvent();
   if (event & ~gui::kEventHover) {

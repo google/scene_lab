@@ -97,7 +97,17 @@ class EditorGui : public event::EventListener {
     kEntityCommit,
     kEntityRevert
   };
-  enum WindowState { kNormal, kMaximized, kHidden };
+
+  enum EditView {
+    kNoEditView = -1,
+    kEditEntity = 0,
+    kEntityList,
+    kEditPrototype,
+    kPrototypeList,
+    kSettings,
+    kEditViewCount
+  };
+  enum WindowState { kNormal, kMaximized };
 
   static const int kVirtualResolution = 1000;
   static const int kToolbarHeight = 30;
@@ -117,10 +127,18 @@ class EditorGui : public event::EventListener {
 
   // Draw an interface for editing an entity.
   void DrawEditEntityUI();
+  // Draw an interface for changing editor settings.
+  void DrawSettingsUI();
   // Draw a list of all of the component data that this entity has.
   void DrawEntityComponent(entity::ComponentId id);
   // Draw a list of the entity's parent and children, if any.
   void DrawEntityFamily();
+
+  // Draw tab bars for the different views.
+  void DrawTabs();
+
+  void BeginDrawEditView();
+  void FinishDrawEditView();
 
   // Create a text button; call this inside a gui::Run.
   gui::Event TextButton(const char* text, const char* id, int size);
@@ -173,6 +191,7 @@ class EditorGui : public event::EventListener {
   mathfu::vec2 virtual_resolution_;
   GuiButton button_pressed_;
   WindowState edit_window_state_;
+  EditView edit_view_;
   float edit_width_;
   bool show_physics_;
   bool show_types_;
