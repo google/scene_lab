@@ -112,6 +112,7 @@ class EditorGui : public event::EventListener {
   static const int kVirtualResolution = 1000;
   static const int kToolbarHeight = 30;
   static const int kSpacing = 3;
+  static const int kBlankEditWidth = 20;
   static const int kIndent = 3;
   static const int kFontSize = 18;
 
@@ -127,6 +128,8 @@ class EditorGui : public event::EventListener {
 
   // Draw an interface for editing an entity.
   void DrawEditEntityUI();
+  // Draw an interface for choosing an entity.
+  void DrawEntityListUI();
   // Draw an interface for changing editor settings.
   void DrawSettingsUI();
   // Draw a list of all of the component data that this entity has.
@@ -173,7 +176,8 @@ class EditorGui : public event::EventListener {
 
   std::vector<bool> components_to_show_;  // Components to display on screen.
 
-  // TODO: Read these from config.
+  std::string entity_list_filter_;
+
   mathfu::vec4 bg_edit_ui_color_;
   mathfu::vec4 bg_toolbar_color_;
   mathfu::vec4 bg_button_color_;

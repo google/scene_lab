@@ -298,8 +298,9 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
     BeginDrawEditView();
     if (edit_view_ == kEditEntity) {
       DrawEditEntityUI();
-    }
-    else if (edit_view_ == kSettings) {
+    } else if (edit_view_ == kEntityList) {
+      DrawEntityListUI();
+    } else if (edit_view_ == kSettings) {
       DrawSettingsUI();
     }
     FinishDrawEditView();
@@ -485,6 +486,45 @@ void EditorGui::DrawEditEntityUI() {
       SetEditEntity(changed_edit_entity_);
       changed_edit_entity_ = entity::EntityRef();
     }
+  }
+}
+
+void EditorGui::DrawEntityListUI() {
+  changed_edit_entity_ = entity::EntityRef();
+
+  gui::StartGroup(gui::kLayoutHorizontalCenter, kSpacing,
+                  "ws:entity-list-filter");
+  gui::SetTextColor(text_normal_color_);
+  gui::Label("Filter:", config_->gui_button_size());
+  mathfu::vec2 size_vec =
+      entity_list_filter_.length() > 0 ? vec2(0, 0) : vec2(kBlankEditWidth, 0);
+  gui::SetTextColor(text_editable_color_);
+  gui::Edit(config_->gui_button_size(), size_vec, "ws:entity-list-edit",
+            &entity_list_filter_);
+  gui::EndGroup();  // ws:entity-list-filter
+
+  for (auto e = entity_manager_->begin(); e != entity_manager_->end(); ++e) {
+    MetaData* meta_data =
+        entity_manager_->GetComponentData<MetaData>(e.ToReference());
+    // TODO: Use regular expressions or globbing
+    if (entity_list_filter_.length() == 0 ||
+        (meta_data != nullptr &&
+         (entity_manager_->GetComponent<MetaComponent>()
+                  ->GetEntityID(e.ToReference())
+                  .find(entity_list_filter_) != std::string::npos ||
+          meta_data->prototype.find(entity_list_filter_) !=
+              std::string::npos))) {
+      EntityButton(e.ToReference(), config_->gui_button_size());
+    }
+  }
+  if (changed_edit_entity_ != entity::EntityRef()) {
+    // select new entity
+    if (changed_edit_entity_ == edit_entity_) {
+      // select the same entity again, so change the tab mode
+      edit_view_ = kEditEntity;
+    }
+    SetEditEntity(changed_edit_entity_);
+    changed_edit_entity_ = entity::EntityRef();
   }
 }
 
