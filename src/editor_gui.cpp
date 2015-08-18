@@ -499,8 +499,10 @@ void EditorGui::DrawEntityListUI() {
   mathfu::vec2 size_vec =
       entity_list_filter_.length() > 0 ? vec2(0, 0) : vec2(kBlankEditWidth, 0);
   gui::SetTextColor(text_editable_color_);
-  gui::Edit(config_->gui_button_size(), size_vec, "ws:entity-list-edit",
-            &entity_list_filter_);
+  if (gui::Edit(config_->gui_button_size(), size_vec, "ws:entity-list-edit",
+                &entity_list_filter_)) {
+    keyboard_in_use_ = true;
+  }
   gui::EndGroup();  // ws:entity-list-filter
 
   for (auto e = entity_manager_->begin(); e != entity_manager_->end(); ++e) {

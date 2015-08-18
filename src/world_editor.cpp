@@ -313,6 +313,10 @@ void WorldEditor::HighlightEntity(const entity::EntityRef& entity, float tint) {
 }
 
 void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
+  if (selected_entity_.IsValid() && selected_entity_ != entity_ref) {
+    // un-highlight the old one
+    HighlightEntity(selected_entity_, 1);
+  }
   if (entity_ref.IsValid()) {
     auto data = entity_manager_->GetComponentData<MetaData>(entity_ref);
     if (data != nullptr) {
@@ -320,10 +324,6 @@ void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
               data->entity_id.c_str(), data->prototype.c_str());
     }
     HighlightEntity(entity_ref, 2);
-  }
-  if (selected_entity_.IsValid() && selected_entity_ != entity_ref) {
-    // un-highlight the old one
-    HighlightEntity(selected_entity_, 1);
   }
   selected_entity_ = entity_ref;
 }
