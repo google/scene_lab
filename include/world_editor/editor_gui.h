@@ -191,7 +191,7 @@ class EditorGui : public event::EventListener {
   mathfu::vec4 text_modified_color_;
   mathfu::vec4 text_error_color_;
 
-  mathfu::vec2i scroll_offset_;
+  mathfu::vec2i scroll_offset_[kEditViewCount];
   mathfu::vec2 virtual_resolution_;
   GuiButton button_pressed_;
   WindowState edit_window_state_;

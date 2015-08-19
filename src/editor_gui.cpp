@@ -65,7 +65,9 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
   components_to_show_.resize(entity::kMaxComponentCount, false);
   components_to_show_[MetaComponent::GetComponentId()] = true;
   components_to_show_[TransformComponent::GetComponentId()] = true;
-  scroll_offset_ = mathfu::kZeros2i;
+  for (int i = 0; i < kEditViewCount; i++) {
+    scroll_offset_[i] = mathfu::kZeros2i;
+  }
 
   const FlatbufferEditorConfig* fbconfig = config->flatbuffer_editor_config();
   bg_toolbar_color_ = LoadColorRGBA(config->gui_bg_toolbar_color());
@@ -106,7 +108,7 @@ void EditorGui::SetEditEntity(entity::EntityRef& entity) {
   if (edit_entity_ != entity) {
     LogInfo("SetEditEntity()");
     ClearEntityData();
-    scroll_offset_ = mathfu::kZeros2i;
+    scroll_offset_[kEditEntity] = mathfu::kZeros2i;
     edit_entity_ = entity;
   }
 }
@@ -353,7 +355,7 @@ void EditorGui::BeginDrawEditView() {
                           2 * config_->gui_toolbar_size()));
   gui::StartScroll(vec2(edit_width_, virtual_resolution_.y() -
                                          2 * config_->gui_toolbar_size()),
-                   &scroll_offset_);
+                   &scroll_offset_[edit_view_]);
   CaptureMouseClicks();
   gui::ColorBackground(bg_edit_ui_color_);
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-v");
