@@ -60,6 +60,8 @@ table WorldEditorConfig {
   gui_bg_edit_ui_color:fpl.ColorRGBA;
 
   flatbuffer_editor_config:FlatbufferEditorConfig;
+
+  gui_font:string;
 }
 
 root_type WorldEditorConfig;

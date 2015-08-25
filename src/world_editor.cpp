@@ -45,17 +45,18 @@ static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
 void WorldEditor::Initialize(const WorldEditorConfig* config,
-                             entity::EntityManager* entity_manager,
-                             FontManager* font_manager) {
+                             entity::EntityManager* entity_manager) {
   config_ = config;
   entity_manager_ = entity_manager;
-  font_manager_ = font_manager;
 
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   renderer_ = services->renderer();
   input_system_ = services->input_system();
   event_manager_ = services->event_manager();
   entity_factory_ = services->entity_factory();
+
+  font_manager_.Open(config_->gui_font()->c_str());
+  font_manager_.SetRenderer(*renderer_);
 
   entity_cycler_.reset(
       new entity::EntityManager::EntityStorageContainer::Iterator{
@@ -67,7 +68,7 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   input_mode_ = kMoving;
   mouse_mode_ = kDragHorizontal;
   gui_.reset(
-      new EditorGui(config_, entity_manager_, font_manager_, &schema_data_));
+      new EditorGui(config_, entity_manager_, &font_manager_, &schema_data_));
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
