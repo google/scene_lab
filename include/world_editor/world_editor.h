@@ -78,19 +78,21 @@ class WorldEditor {
   void set_shader(Shader* shader) { shader_ = shader; }
 
  private:
-  enum { kMoving, kEditing, kDragging } input_mode_;
-  enum {
-    kDragHorizontal,
-    kDragVertical,
-    kDragPlane,
-    kRotateX,
-    kRotateY,
-    kRotateZ,
-    kScaleAll,
-    kScaleX,
-    kScaleY,
-    kScaleZ
-  } mouse_mode_;
+  enum InputMode { kMoving, kEditing, kDragging };
+  enum MouseMode {
+    kMoveHorizontal,    // Move along the ground.
+    kMoveVertical,      // Move along a plane perpendicular to the ground and
+                        // perpendicular to the camera.
+    kRotateHorizontal,  // Rotate horizontally--that is, about an axis
+                        // perpendicular to the ground.
+    kRotateVertical,    // Rotate vertically--that is, about an axis parallel to
+                        // the ground that points back towards the camera.
+    kScaleAll,          // Scale on all axes as you drag up and down.
+    kScaleX,            // Scale on the X axis as you drag along the ground.
+    kScaleY,            // Scale on the Y axis as you drag along the ground.
+    kScaleZ,            // Scale on the Z axis as you drag up and down.
+    kMouseModeCount
+  };
 
   // return true if we should be moving the camera and objects slowly.
   bool PreciseMovement() const;
@@ -122,6 +124,14 @@ class WorldEditor {
                                   const vec3& plane_normal,
                                   vec3* intersection_point);
 
+  // Take a point, and project it onto a plane in the direction of the plane
+  // normal. Ensure plane_normal is normalized. Returns true if was able to
+  // project the point, false if it wasn't (which would be a weird situation).
+  static bool ProjectPointToPlane(const vec3& point_to_project,
+                                  const vec3& point_on_plane,
+                                  const vec3& plane_normal,
+                                  vec3* point_projected);
+
   // Serialize the entities from the given file into the given vector.
   // Returns true if it succeeded, false if there was an error.
   bool SerializeEntitiesFromFile(const std::string& filename,
@@ -139,6 +149,9 @@ class WorldEditor {
   // Which entity are we currently editing?
   entity::EntityRef selected_entity_;
   Shader* shader_;
+
+  InputMode input_mode_;
+  MouseMode mouse_mode_;
 
   // Temporary solution to let us cycle through all entities.
   std::unique_ptr<entity::EntityManager::EntityStorageContainer::Iterator>
@@ -158,10 +171,11 @@ class WorldEditor {
   mathfu::vec3 horizontal_forward_;
   mathfu::vec3 horizontal_right_;
 
-  mathfu::vec3 drag_point_;
-  mathfu::vec3 drag_offset_;
-  mathfu::vec3 previous_mouse_ray_origin_;
-  mathfu::vec3 previous_mouse_ray_dir_;
+  mathfu::vec3 drag_point_;  // Point on the object at which we began dragging.
+  mathfu::vec3 drag_plane_normal_;  // Normal of the plane we're dragging along.
+  mathfu::vec3 drag_offset_;  // Offset between drag point and object's origin.
+  mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
+  mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
 };
 
 }  // namespace editor

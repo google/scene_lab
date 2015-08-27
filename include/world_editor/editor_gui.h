@@ -85,6 +85,10 @@ class EditorGui : public event::EventListener {
   // Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
 
+  // Returns which mouse mode index we have selected.
+  unsigned int mouse_mode_index() const { return mouse_mode_index_; }
+  void set_mouse_mode_index(int m) { mouse_mode_index_ = m; }
+
  private:
   enum GuiButton {
     kNone = 0,
@@ -115,6 +119,7 @@ class EditorGui : public event::EventListener {
   static const int kBlankEditWidth = 20;
   static const int kIndent = 3;
   static const int kFontSize = 18;
+  static const int kButtonMargin = 5;
 
   // Commit only the requested component flatbuffer to the entity.
   void CommitComponentData(entity::ComponentId id);
@@ -197,6 +202,7 @@ class EditorGui : public event::EventListener {
   WindowState edit_window_state_;
   EditView edit_view_;
   float edit_width_;
+  int mouse_mode_index_;
   bool show_physics_;
   bool show_types_;
   bool expand_all_;

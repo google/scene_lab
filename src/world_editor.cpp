@@ -30,6 +30,8 @@
 namespace fpl {
 namespace editor {
 
+static const float kDegreesToRadians = static_cast<float>(M_PI) / 180.0f;
+
 using component_library::CommonServicesComponent;
 using component_library::MetaComponent;
 using component_library::MetaData;
@@ -66,7 +68,7 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   horizontal_right_ = mathfu::kAxisX3f;
   controller_.reset(new EditorController(config_, input_system_));
   input_mode_ = kMoving;
-  mouse_mode_ = kDragHorizontal;
+  mouse_mode_ = kMoveHorizontal;
   gui_.reset(
       new EditorGui(config_, entity_manager_, &font_manager_, &schema_data_));
 }
@@ -274,21 +276,40 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
                                   &end);
     vec3 mouse_ray_origin = start;
     vec3 mouse_ray_dir = (end - start).Normalized();
+    if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
+        mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
+      // For scaling, the normal for the drag plane is just a vector pointing
+      // back towards the camera.
+      drag_plane_normal_ = -camera_->facing();
+    } else if (mouse_mode_ == kMoveVertical || mouse_mode_ == kRotateVertical) {
+      // For Vertical actions, the normal for the drag plane is a vector
+      // pointing back towards the camera with the up component zeroed, so it's
+      // perpendicular to the ground.
+      drag_plane_normal_ = -camera_->facing();
+      drag_plane_normal_.z() = 0;
+      drag_plane_normal_.Normalize();
+    } else {
+      // For Horizontal, the normal for the drag plane is the up-vector.
+      drag_plane_normal_ = vec3(0, 0, 1);
+    }
     if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
-                            vec3(0, 0, 1), &intersect)) {
+                            drag_plane_normal_, &intersect)) {
       drag_offset_ = position - intersect;
+      drag_prev_intersect_ = intersect;
+      drag_orig_scale_ = LoadVec3(transform->scale());
       input_mode_ = kDragging;
     }
   }
-  // Save the current mouse pointer direction in the world, for dragging
-  // the object around.
-  if (input_mode_ == kDragging) {
-    vec3 start, end;
-    if (controller_->GetMouseWorldRay(*camera_, renderer_->window_size(),
-                                      &start, &end)) {
-      previous_mouse_ray_origin_ = start;
-      previous_mouse_ray_dir_ = (end - start).Normalized();
+
+  if (input_mode_ != kDragging) {
+    // If not dragging, then see if we changed the mouse mode.
+    unsigned int mode_idx = gui_->mouse_mode_index();
+    if (mode_idx < kMouseModeCount) {
+      mouse_mode_ = static_cast<MouseMode>(mode_idx);
     }
+  } else {
+    // If we are still dragging, don't allow the mouse mode to be changed.
+    gui_->set_mouse_mode_index(mouse_mode_);
   }
 
   entity_manager_->DeleteMarkedEntities();
@@ -447,9 +468,9 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
   if (entity_factory_->LoadEntityListFromMemory(
           entity_list.data(), entity_manager_, &entities_created) > 0) {
     // We created some new duplicate entities! (most likely exactly one.)  We
-    // need to remove their entity IDs since otherwise they will have duplicate
-    // entity IDs to the one we created.  We also need to make sure the new
-    // entity IDs are marked with the same source file as the old.
+    // need to remove their entity IDs since otherwise they will have
+    // duplicate entity IDs to the one we created.  We also need to make sure
+    // the new entity IDs are marked with the same source file as the old.
 
     for (size_t i = 0; i < entities_created.size(); i++) {
       entity::EntityRef& new_entity = entities_created[i];
@@ -608,6 +629,22 @@ bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
   return true;
 }
 
+bool WorldEditor::ProjectPointToPlane(const vec3& point_to_project,
+                                      const vec3& point_on_plane,
+                                      const vec3& plane_normal,
+                                      vec3* point_projected) {
+  // Try to intersect the point with the plane in both directions.
+  if (IntersectRayToPlane(point_to_project, -plane_normal, point_on_plane,
+                          plane_normal, point_projected)) {
+    return true;
+  }
+  if (IntersectRayToPlane(point_to_project, plane_normal, point_on_plane,
+                          plane_normal, point_projected)) {
+    return true;
+  }
+  return false;  // Can't project the point for some reason.
+}
+
 vec3 WorldEditor::GetMovement() const {
   if (gui_->InputCaptured()) return mathfu::kZeros3f;
   // Get a movement vector to move the user forward, up, or right.
@@ -649,23 +686,83 @@ vec3 WorldEditor::GetMovement() const {
 
 bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   if (input_mode_ == kDragging) {
-    if (mouse_mode_ == kDragHorizontal) {
-      vec3 start, end;
-      controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
-                                    &end);
-      vec3 mouse_ray_origin = start;
-      vec3 mouse_ray_dir = (end - start).Normalized();
-      vec3 intersect;
+    vec3 start, end;
+    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
+                                  &end);
+    vec3 mouse_ray_origin = start;
+    vec3 mouse_ray_dir = (end - start).Normalized();
+    vec3 intersect;
 
-      if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
-                              vec3(0, 0, 1), &intersect)) {
+    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                            drag_plane_normal_, &intersect)) {
+      if (mouse_mode_ == kMoveHorizontal || mouse_mode_ == kMoveVertical) {
         vec3 new_pos = intersect + drag_offset_;
         *transform->mutable_position() =
             Vec3(new_pos.x(), new_pos.y(), new_pos.z());
         return true;
+      } else {
+        // Rotation and scaling are both based on the relative position of the
+        // mouse intersection point and the object's origin as projected onto
+        // the drag plane.
+        vec3 origin = LoadVec3(transform->position());
+        vec3 origin_on_plane;
+        if (!ProjectPointToPlane(origin, drag_point_, drag_plane_normal_,
+                                 &origin_on_plane)) {
+          // For some reason we couldn't project the origin point onto the drag
+          // plane. This is a weird situation; best just not modify anything.
+          return false;
+        }
+        if (mouse_mode_ == kRotateHorizontal ||
+            mouse_mode_ == kRotateVertical) {
+          // Figure out how much the drag point has rotated about the object's
+          // origin since last frame, and add that to our current rotation.
+          vec3 new_rot = (intersect - origin).Normalized();
+          vec3 old_rot = (drag_prev_intersect_ - origin).Normalized();
+          vec3 cross = vec3::CrossProduct(old_rot, new_rot);
+          float sin_a = vec3::DotProduct(cross, drag_plane_normal_) > 0
+                            ? -cross.Length()
+                            : cross.Length();
+          float cos_a = vec3::DotProduct(old_rot, new_rot);
+          float angle = atan2(sin_a, cos_a);
+          drag_prev_intersect_ = intersect;
+
+          // Apply 'angle' with axis 'drag_plane_normal_' to existing
+          // orientation.
+          mathfu::quat orientation = mathfu::quat::FromEulerAngles(
+              mathfu::vec3(transform->orientation()->x(),
+                           transform->orientation()->y(),
+                           transform->orientation()->z()) *
+              kDegreesToRadians);
+          orientation = orientation *
+                        mathfu::quat::FromAngleAxis(angle, drag_plane_normal_);
+          mathfu::vec3 euler = orientation.ToEulerAngles() / kDegreesToRadians;
+          *transform->mutable_orientation() =
+              fpl::Vec3(euler.x(), euler.y(), euler.z());
+          return true;
+
+        } else if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
+                   mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
+          float old_offset = (drag_point_ - origin).Length();
+          float new_offset = (intersect - origin).Length();
+          if (old_offset == 0) return false;  // Avoid division by zero.
+          // Use the ratio of the original and current distance between mouse
+          // cursor and object origin to determine scale. Direction is ignored.
+          float scale = new_offset / old_offset;
+          float xscale =
+              (mouse_mode_ == kScaleX || mouse_mode_ == kScaleAll) ? scale : 1;
+          float yscale =
+              (mouse_mode_ == kScaleY || mouse_mode_ == kScaleAll) ? scale : 1;
+          float zscale =
+              (mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) ? scale : 1;
+          *transform->mutable_scale() =
+              Vec3(drag_orig_scale_.x() * xscale, drag_orig_scale_.y() * yscale,
+                   drag_orig_scale_.z() * zscale);
+          return true;
+        }
       }
     }
   } else {
+    // Not dragging, use keyboard keys instead.
     if (gui_->InputCaptured()) return false;
 
     // IJKL = move x/y axis

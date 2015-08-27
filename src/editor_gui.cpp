@@ -22,6 +22,7 @@
 #include "fplbase/flatbuffer_utils.h"
 #include "world_editor/editor_event.h"
 #include "world_editor/editor_gui.h"
+#include "world_editor/world_editor.h"
 
 namespace fpl {
 namespace editor {
@@ -37,6 +38,13 @@ using flatbuffers::Table;
 using flatbuffers::uoffset_t;
 using flatbuffers::Vector;
 
+// Names of the mouse modes from WorldEditor.cpp, in the same order as
+// the mouse_mode_ enum. nullptr is an end sentinel to start over at 0.
+static const char* const kMouseModeNames[] = {
+    "Move Horizontally", "Move Vertically", "Rotate Horizontally",
+    "Rotate Vertically", "Scale All",       "Scale X",
+    "Scale Y",           "Scale Z",         nullptr};
+
 EditorGui::EditorGui(const WorldEditorConfig* config,
                      entity::EntityManager* entity_manager,
                      FontManager* font_manager, const std::string* schema_data)
@@ -51,6 +59,7 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       edit_window_state_(kNormal),
       edit_view_(kEditEntity),
       edit_width_(0),
+      mouse_mode_index_(0),
       show_physics_(false),
       show_types_(false),
       expand_all_(false),
@@ -106,7 +115,6 @@ void EditorGui::OnEvent(const event::EventPayload& event_payload) {
 
 void EditorGui::SetEditEntity(entity::EntityRef& entity) {
   if (edit_entity_ != entity) {
-    LogInfo("SetEditEntity()");
     ClearEntityData();
     scroll_offset_[kEditEntity] = mathfu::kZeros2i;
     edit_entity_ = entity;
@@ -264,6 +272,7 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   gui::StartGroup(gui::kLayoutOverlay, 0, "we:overall-ui");
 
   const float kButtonSize = config_->gui_toolbar_size();
+  const float kTextSize = kButtonSize - 2 * kButtonMargin;
 
   // Show a bunch of buttons along the top of the screen.
   gui::StartGroup(gui::kLayoutHorizontalCenter, 10, "we:button-bg");
@@ -278,10 +287,10 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   CaptureMouseClicks();
 
-  gui::Label(" World Editor", config_->gui_toolbar_size() - 8);
+  gui::Label(" World Editor", kTextSize);
 
-  TextButton("[Save World]", "we:save", config_->gui_toolbar_size());
-  TextButton("[Exit Editor]", "we:exit", config_->gui_toolbar_size());
+  TextButton("[Save World]", "we:save", kButtonSize);
+  TextButton("[Exit Editor]", "we:exit", kButtonSize);
 
   if (EntityModified()) {
     if (TextButton("[Revert All Changes]", "we:revert", kButtonSize) &
@@ -307,6 +316,20 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
     }
     FinishDrawEditView();
   }
+  gui::StartGroup(gui::kLayoutHorizontalCenter, 10, "we:tools");
+  gui::PositionGroup(gui::kAlignLeft, gui::kAlignBottom, mathfu::kZeros2f);
+  gui::ColorBackground(bg_toolbar_color_);
+  CaptureMouseClicks();
+  if (TextButton(
+          (std::string("Mouse Mode: ") + kMouseModeNames[mouse_mode_index_])
+              .c_str(),
+          "we:mouse_mode", kButtonSize) &
+      gui::kEventWentUp) {
+    mouse_mode_index_++;
+    if (kMouseModeNames[mouse_mode_index_] == nullptr) mouse_mode_index_ = 0;
+  }
+  gui::EndGroup();  // we:tools
+
   gui::EndGroup();  // we:overall-ui
 }
 
@@ -683,10 +706,9 @@ void EditorGui::EntityButton(const entity::EntityRef& entity, int size) {
 }
 
 gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
-  const float kMargin = 5;
-  float text_size = size - 2 * kMargin;
+  float text_size = size - 2 * kButtonMargin;
   gui::StartGroup(gui::kLayoutHorizontalTop, size / 4, id);
-  gui::SetMargin(gui::Margin(kMargin));
+  gui::SetMargin(gui::Margin(kButtonMargin));
   auto event = gui::CheckEvent();
   if (event & ~gui::kEventHover) {
     mouse_in_window_ = true;
