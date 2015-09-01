@@ -197,7 +197,8 @@ void EditorGui::FinishRender() {
     std::vector<uint8_t> entity_serialized;
     if (entity_factory_->CreateEntityDefinition(exported_pointers,
                                                 &entity_serialized)) {
-      std::vector<std::vector<uint8_t>> entity_defs = {entity_serialized};
+      std::vector<std::vector<uint8_t>> entity_defs;
+      entity_defs.push_back(entity_serialized);
       std::vector<uint8_t> entity_list_def;
       if (entity_factory_->SerializeEntityList(entity_defs, &entity_list_def)) {
         // create a new copy of the entity...

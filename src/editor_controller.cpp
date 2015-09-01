@@ -32,8 +32,9 @@ void EditorController::Update() {
     vec2 delta = editor_config_->mouse_sensitivity() *
                  vec2(input_system_->get_pointers()[0].mousedelta);
 
-    vec3 side_axis =
-        quat::FromAngleAxis(-M_PI / 2, mathfu::kAxisZ3f) * facing_current_;
+    vec3 side_axis = quat::FromAngleAxis(-static_cast<float>(M_PI) / 2.0f,
+                                         mathfu::kAxisZ3f) *
+                     facing_current_;
 
     quat pitch_adjustment = quat::FromAngleAxis(-delta.y(), side_axis);
     quat yaw_adjustment = quat::FromAngleAxis(-delta.x(), mathfu::kAxisZ3f);

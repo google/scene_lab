@@ -61,8 +61,8 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   font_manager_.SetRenderer(*renderer_);
 
   entity_cycler_.reset(
-      new entity::EntityManager::EntityStorageContainer::Iterator{
-          entity_manager->end()});
+      new entity::EntityManager::EntityStorageContainer::Iterator(
+          entity_manager->end()));
   LoadSchemaFiles();
   horizontal_forward_ = mathfu::kAxisY3f;
   horizontal_right_ = mathfu::kAxisX3f;
@@ -459,7 +459,8 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
                                         &entity_serialized)) {
     LogError("DuplicateEntity: Couldn't serialize entity");
   }
-  std::vector<std::vector<uint8_t>> entity_defs = {entity_serialized};
+  std::vector<std::vector<uint8_t>> entity_defs;
+  entity_defs.push_back(entity_serialized);
   std::vector<uint8_t> entity_list;
   if (!entity_factory_->SerializeEntityList(entity_defs, &entity_list)) {
     LogError("DuplicateEntity: Couldn't create entity list");
@@ -532,7 +533,7 @@ bool WorldEditor::SerializeEntitiesFromFile(const std::string& filename,
     entity::EntityRef entity = entityiter.ToReference();
     const MetaData* editor_data = editor_component->GetComponentData(entity);
     if (editor_data != nullptr && editor_data->source_file == filename) {
-      entities_serialized.push_back({});
+      entities_serialized.push_back(std::vector<uint8_t>());
       entity_factory_->SerializeEntity(entity, entity_manager_,
                                        &entities_serialized.back());
     }
@@ -832,15 +833,15 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
 
     Vec3 orientation = *transform->mutable_orientation();
     orientation =
-        Vec3{orientation.x() + pitch_speed, orientation.y() + roll_speed,
-             orientation.z() + yaw_speed};
+        Vec3(orientation.x() + pitch_speed, orientation.y() + roll_speed,
+             orientation.z() + yaw_speed);
     Vec3 scale = *transform->scale();
     if (controller_->KeyIsDown(FPLK_0)) {
-      scale = Vec3{1.0f, 1.0f, 1.0f};
+      scale = Vec3(1.0f, 1.0f, 1.0f);
       scale_speed = 0;  // to trigger returning true
     } else {
-      scale = Vec3{scale.x() * scale_speed, scale.y() * scale_speed,
-                   scale.z() * scale_speed};
+      scale = Vec3(scale.x() * scale_speed, scale.y() * scale_speed,
+                   scale.z() * scale_speed);
     }
     if (fwd_speed != 0 || right_speed != 0 || up_speed != 0 || yaw_speed != 0 ||
         roll_speed != 0 || pitch_speed != 0 || scale_speed != 1) {

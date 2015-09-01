@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <bitset>
 #include "world_editor/flatbuffer_editor.h"
 #include "flatbuffer_editor_config_generated.h"
 #include "fplbase/utilities.h"
@@ -247,7 +248,8 @@ void FlatbufferEditor::CopyTable(const void* src, std::vector<uint8_t>* dest) {
       fbb, schema_, table_def_,
       *flatbuffers::GetAnyRoot(reinterpret_cast<const uint8_t*>(src)));
   fbb.Finish(table);
-  *dest = {fbb.GetBufferPointer(), fbb.GetBufferPointer() + fbb.GetSize()};
+  *dest = std::vector<uint8_t>(fbb.GetBufferPointer(),
+                               fbb.GetBufferPointer() + fbb.GetSize());
 }
 
 void FlatbufferEditor::CommitEditsToFlatbuffer() {
@@ -711,12 +713,9 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
 }
 
 // There are way faster ways to do popcount, but this one is simple.
-static unsigned int NumBitsSet(uint64_t n) {
-  unsigned int total = 0;
-  for (uint64_t i = 0; i < 8 * sizeof(uint64_t); i++) {
-    if (n & (1L << i)) total++;
-  }
-  return total;
+static size_t NumBitsSet(uint64_t n) {
+  std::bitset<64> bits(n);
+  return bits.count();
 }
 
 std::string FlatbufferEditor::GetEnumTypeAndValue(
@@ -802,7 +801,7 @@ bool FlatbufferEditor::VisitFlatbufferString(VisitMode mode,
                                              const reflection::Field& fielddef,
                                              flatbuffers::Table& table,
                                              const std::string& id) {
-  const flatbuffers::String* str;
+  const flatbuffers::String* str = nullptr;
   std::string str_text, comment;
   if (fielddef.offset() == 0)
     comment = "(no value)";
