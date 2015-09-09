@@ -140,6 +140,8 @@ void EditorGui::Render() {
   GetVirtualResolution(&virtual_resolution);
   gui::Run(*asset_manager_, *font_manager_, *input_system_, [&]() {
     gui::SetVirtualResolution(kVirtualResolution);
+    if (config_->gui_font() != nullptr)
+      gui::SetTextFont(config_->gui_font()->c_str());
     DrawGui(virtual_resolution);
   });
   FinishRender();

@@ -48,7 +48,8 @@ namespace editor {
 class WorldEditor {
  public:
   void Initialize(const WorldEditorConfig* config,
-                  entity::EntityManager* entity_manager);
+                  entity::EntityManager* entity_manager,
+                  FontManager* font_manager);
   void AdvanceFrame(WorldTime delta_time);
   void Render(Renderer* renderer);
   void Activate();
@@ -145,7 +146,7 @@ class WorldEditor {
   entity::EntityManager* entity_manager_;
   event::EventManager* event_manager_;
   component_library::EntityFactory* entity_factory_;
-  FontManager font_manager_;
+  FontManager* font_manager_;
   // Which entity are we currently editing?
   entity::EntityRef selected_entity_;
   Shader* shader_;
