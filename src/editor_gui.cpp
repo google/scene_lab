@@ -75,7 +75,7 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
   components_to_show_[MetaComponent::GetComponentId()] = true;
   components_to_show_[TransformComponent::GetComponentId()] = true;
   for (int i = 0; i < kEditViewCount; i++) {
-    scroll_offset_[i] = mathfu::kZeros2i;
+    scroll_offset_[i] = mathfu::kZeros2f;
   }
 
   const FlatbufferEditorConfig* fbconfig = config->flatbuffer_editor_config();
@@ -116,7 +116,7 @@ void EditorGui::OnEvent(const event::EventPayload& event_payload) {
 void EditorGui::SetEditEntity(entity::EntityRef& entity) {
   if (edit_entity_ != entity) {
     ClearEntityData();
-    scroll_offset_[kEditEntity] = mathfu::kZeros2i;
+    scroll_offset_[kEditEntity] = mathfu::kZeros2f;
     edit_entity_ = entity;
   }
 }
