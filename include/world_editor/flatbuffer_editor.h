@@ -24,6 +24,7 @@
 #include "flatbuffers/util.h"
 #include "flatbuffer_editor_config_generated.h"
 #include "flatui/flatui.h"
+#include "fplbase/fpl_common.h"
 #include "mathfu/glsl_mappings.h"
 
 namespace fpl {
@@ -146,6 +147,8 @@ class FlatbufferEditor {
   const std::string& root_id() const { return root_id_; }
 
  private:
+  FPL_DISALLOW_COPY_AND_ASSIGN(FlatbufferEditor);
+
   // kCheckEdits: Traverse and check if fields have changed, but don't commit
   // any changes.
   // kDraw*: Draw the Flatbuffer. ReadOnly means use Labels instead of Edit
