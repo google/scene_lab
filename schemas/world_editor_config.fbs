@@ -53,6 +53,7 @@ table WorldEditorConfig {
   toggle_mode_button:byte = 2;
 
   gui_allow_editing:bool = true;
+  gui_prompt_for_save_on_exit:bool = true;
   gui_button_size:int = 22;
   gui_toolbar_size:int = 26;
 

@@ -45,10 +45,11 @@ static const char* const kMouseModeNames[] = {
     "Rotate Vertically", "Scale All",       "Scale X",
     "Scale Y",           "Scale Z",         nullptr};
 
-EditorGui::EditorGui(const WorldEditorConfig* config,
+EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
                      entity::EntityManager* entity_manager,
                      FontManager* font_manager, const std::string* schema_data)
     : config_(config),
+      world_editor_(world_editor),
       entity_manager_(entity_manager),
       font_manager_(font_manager),
       schema_data_(schema_data),
@@ -64,7 +65,8 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
       show_types_(false),
       expand_all_(false),
       mouse_in_window_(false),
-      keyboard_in_use_(false) {
+      keyboard_in_use_(false),
+      prompting_for_exit_(false) {
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   asset_manager_ = services->asset_manager();
   entity_factory_ = services->entity_factory();
@@ -95,6 +97,24 @@ EditorGui::EditorGui(const WorldEditorConfig* config,
   entity_manager_->GetComponent<component_library::CommonServicesComponent>()
       ->event_manager()
       ->RegisterListener(kEventSinkUnion_EditorEvent, this);
+}
+
+void EditorGui::Activate() {
+  prompting_for_exit_ = false;
+  world_editor_->set_entities_modified(false);
+}
+
+bool EditorGui::CanExit() {
+  if (!CanDeselectEntity() || keyboard_in_use() ||
+      world_editor_->entities_modified() || prompting_for_exit_) {
+    if (!prompting_for_exit_ && world_editor_->entities_modified()) {
+      prompting_for_exit_ = true;
+    }
+    return false;
+  } else {
+    // You're all clear, kid, let's blow this thing and go home.
+    return true;
+  }
 }
 
 void EditorGui::OnEvent(const event::EventPayload& event_payload) {
@@ -292,8 +312,12 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
 
   gui::Label(" World Editor", kTextSize);
 
-  TextButton("[Save World]", "we:save", kButtonSize);
-  TextButton("[Exit Editor]", "we:exit", kButtonSize);
+  if (TextButton("[Save World]", "we:save", kButtonSize) & gui::kEventWentUp) {
+    world_editor_->SaveWorld(true);
+  }
+  if (TextButton("[Exit Editor]", "we:exit", kButtonSize) & gui::kEventWentUp) {
+    world_editor_->RequestExit();
+  }
 
   if (EntityModified()) {
     if (TextButton("[Revert All Changes]", "we:revert", kButtonSize) &
@@ -333,6 +357,27 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   }
   gui::EndGroup();  // we:tools
 
+  if (prompting_for_exit_) {
+    gui::StartGroup(gui::kLayoutVerticalCenter, 10, "we:exit-prompt");
+    gui::ColorBackground(bg_toolbar_color_);
+    gui::SetMargin(20);
+    gui::Label("Save changes before exiting World Editor?", kButtonSize);
+    if (TextButton("Yes, save to disk", "we:save-to-disk", kButtonSize) &
+        gui::kEventWentUp) {
+      world_editor_->SaveWorld(true);
+      prompting_for_exit_ = false;
+    } else if (TextButton("No, but keep my changes in memory",
+                          "we:save-to-memory", kButtonSize) &
+               gui::kEventWentUp) {
+      world_editor_->SaveWorld(false);
+      prompting_for_exit_ = false;
+    } else if (TextButton("Hold on, don't exit!", "we:dont-exit", kButtonSize) &
+               gui::kEventWentUp) {
+      world_editor_->AbortExit();
+      prompting_for_exit_ = false;
+    }
+    gui::EndGroup();  // we:exit-prompt
+  }
   gui::EndGroup();  // we:overall-ui
 }
 
@@ -361,6 +406,7 @@ void EditorGui::CommitComponentData(entity::ComponentId id) {
       component->AddFromRawData(
           edit_entity_, flatbuffers::GetAnyRoot(
                             static_cast<const uint8_t*>(editor->flatbuffer())));
+      world_editor_->set_entities_modified(true);
     }
     editor->ClearFlatbufferModifiedFlag();
   }

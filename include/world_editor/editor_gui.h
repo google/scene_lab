@@ -32,11 +32,16 @@
 namespace fpl {
 namespace editor {
 
+class WorldEditor;
+
 class EditorGui : public event::EventListener {
  public:
-  EditorGui(const WorldEditorConfig* config,
+  EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
             entity::EntityManager* entity_manager, FontManager* font_manager,
             const std::string* schema_data);
+  void Activate();
+  void Deactivate() {}
+
   virtual void OnEvent(const event::EventPayload& event_payload);
 
   // Render the game, then update based on button presses. You must either call
@@ -67,6 +72,9 @@ class EditorGui : public event::EventListener {
   // Write the entity fields that were changed to the entity_data_ flatbuffer,
   // then import the changed flatbuffers back to the edit_entity_.
   void CommitEntityData();
+
+  // Should we let the editor exit? Not if there are pending changes.
+  bool CanExit();
 
   // Should we let the editor deselect this as the current entity?
   // Probably not if we've made any changes.
@@ -158,6 +166,7 @@ class EditorGui : public event::EventListener {
   void GetVirtualResolution(vec2* resolution_output);
 
   const WorldEditorConfig* config_;
+  WorldEditor* world_editor_;
   entity::EntityManager* entity_manager_;
   FontManager* font_manager_;
   const std::string* schema_data_;
@@ -203,11 +212,12 @@ class EditorGui : public event::EventListener {
   EditView edit_view_;
   float edit_width_;
   int mouse_mode_index_;
-  bool show_physics_;
-  bool show_types_;
-  bool expand_all_;
-  bool mouse_in_window_;
-  bool keyboard_in_use_;
+  bool show_physics_;        // Are we showing the selected entity's physics?
+  bool show_types_;          // Are we showing the type of each field?
+  bool expand_all_;          // Expand edit view to encompass the whole screen?
+  bool mouse_in_window_;     // Is the mouse currently over a UI element?
+  bool keyboard_in_use_;     // Is the user currently typing into an edit field?
+  bool prompting_for_exit_;  // Are we currently prompting the user to exit?
 };
 
 }  // namespace editor

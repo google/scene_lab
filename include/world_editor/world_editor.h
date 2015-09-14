@@ -71,12 +71,29 @@ class WorldEditor {
   // Save all the entities that were from this specific file into that file.
   void SaveEntitiesInFile(const std::string& filename);
 
+  // Request that the world editor exit. If you haven't saved your changes,
+  // it will prompt you to do so, keep them in memory, or abandon them. Once
+  // the world editor decides it's okay to exit, IsReadyToExit() will return
+  // true.
+  void RequestExit();
+
+  // Abort a previously-requested exit.
+  void AbortExit();
+
+  // Returns true if we are ready to exit the editor (everything is saved or
+  // discarded, etc), or false if not. Once it returns true, you can safely
+  // deactivate the editor.
+  bool IsReadyToExit();
+
   void AddComponentToUpdate(entity::ComponentId component_id) {
     components_to_update_.push_back(component_id);
   }
 
   Shader* shader() const { return shader_; }
   void set_shader(Shader* shader) { shader_ = shader; }
+
+  void set_entities_modified(bool b) { entities_modified_ = b; }
+  bool entities_modified() const { return entities_modified_; }
 
  private:
   enum InputMode { kMoving, kEditing, kDragging };
@@ -177,6 +194,10 @@ class WorldEditor {
   mathfu::vec3 drag_offset_;  // Offset between drag point and object's origin.
   mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
   mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
+
+  bool exit_requested_;
+  bool exit_ready_;
+  bool entities_modified_;
 };
 
 }  // namespace editor

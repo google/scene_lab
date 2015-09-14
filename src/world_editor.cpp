@@ -72,8 +72,8 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   controller_.reset(new EditorController(config_, input_system_));
   input_mode_ = kMoving;
   mouse_mode_ = kMoveHorizontal;
-  gui_.reset(
-      new EditorGui(config_, entity_manager_, font_manager_, &schema_data_));
+  gui_.reset(new EditorGui(config_, this, entity_manager_, font_manager_,
+                           &schema_data_));
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
@@ -225,6 +225,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       TransformDef* transform =
           flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
       if (ModifyTransformBasedOnInput(transform)) {
+        set_entities_modified(true);
         transform_component->AddFromRawData(selected_entity_, transform);
         auto physics = entity_manager_->GetComponent<PhysicsComponent>();
         if (physics->GetComponentData(selected_entity_)) {
@@ -316,6 +317,16 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   }
 
   entity_manager_->DeleteMarkedEntities();
+
+  LogInfo("exit_requested = %d", exit_requested_);
+  LogInfo("exit_ready = %d", exit_ready_);
+  LogInfo("entities_modified = %d", entities_modified_);
+  if (exit_requested_ && gui_->CanExit()) {
+    LogInfo("Exit_ready = %d", !entities_modified_);
+    exit_ready_ = !entities_modified_;
+  } else {
+    exit_ready_ = false;
+  }
 }
 
 void WorldEditor::HighlightEntity(const entity::EntityRef& entity, float tint) {
@@ -355,11 +366,6 @@ void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
 
 void WorldEditor::Render(Renderer* /*renderer*/) {
   // Render any editor-specific things
-  // if (controller_->mouse_locked()) {
-  // renderer->SetCulling(Renderer::kNoCulling);
-  // renderer->DepthTest(false);
-  // draw a reticle
-  //}
   gui_->SetEditEntity(selected_entity_);
   if (selected_entity_ && gui_->show_physics()) {
     auto physics = entity_manager_->GetComponent<PhysicsComponent>();
@@ -405,6 +411,10 @@ void WorldEditor::NotifyEntityDeleted(const entity::EntityRef& entity) const {
 }
 
 void WorldEditor::Activate() {
+  exit_requested_ = false;
+  exit_ready_ = false;
+  set_entities_modified(false);
+
   // Set up the initial camera position.
   controller_->SetFacing(camera_->facing());
   controller_->LockMouse();
@@ -416,10 +426,13 @@ void WorldEditor::Activate() {
   if (event_manager_ != nullptr) {
     event_manager_->BroadcastEvent(EditorEventPayload(EditorEventAction_Enter));
   }
+  gui_->Activate();
 }
 
 void WorldEditor::Deactivate() {
   SaveWorld(false);
+
+  gui_->Deactivate();
 
   // Raise the EditorExit event.
   if (event_manager_ != nullptr) {
@@ -454,6 +467,7 @@ void WorldEditor::SaveWorld(bool to_disk) {
               entity_buffer.size())));
     }
   }
+  set_entities_modified(false);
 }
 
 entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
@@ -857,6 +871,20 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   }
   return false;
 }
+
+void WorldEditor::RequestExit() {
+  if (gui_->CanDeselectEntity()) {
+    exit_requested_ = true;
+    exit_ready_ = false;
+    if (gui_->CanExit()) {
+      exit_ready_ = true;
+    }
+  }
+}
+
+void WorldEditor::AbortExit() { exit_requested_ = false; }
+
+bool WorldEditor::IsReadyToExit() { return exit_requested_ && exit_ready_; }
 
 }  // namespace editor
 }  // namespace fpl
