@@ -1,2 +1,10 @@
 CMakeFiles/*
 gen
+obj
+bin
+assets
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+*~
+#*#

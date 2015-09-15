@@ -89,6 +89,38 @@ set(dependencies_bulletphysics_distr_dir "${third_party_root}/bulletphysics"
 set(dependencies_component_library_dir "${dependencies_entity_dir}/component_library"
     CACHE PATH "Directory containing the entity system component library")
 
+set(world_editor_standalone_mode OFF)
+message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
+if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+  set(world_editor_standalone_mode ON)
+  message(STATUS "World Editor standalone: building with sample game")
+else()
+  message(STATUS "World Editor library: not building sample game")
+endif()
+
+option(world_editor_build_sample "Build a sample game for the world editor"
+       ${world_editor_standalone_mode})
+
+if(world_editor_standalone_mode)
+  # Include FPLBase in this project.
+  add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
+
+  # Include FlatBuffers in this project.
+  set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
+  if(NOT TARGET flatc)
+    add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
+  endif()
+
+  # Include MathFu without tests or benchmarks.
+  set(mathfu_build_benchmarks OFF CACHE BOOL "")
+  set(mathfu_build_tests OFF CACHE BOOL "")
+  add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
+
+  # Include entity system.
+  add_subdirectory("${dependencies_entity_dir}" ${tmp_dir}/entity)
+endif()
+
 set(WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR
    ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
 if(world_editor_has_parent)
@@ -111,10 +143,10 @@ foreach(flatbuffers_schema ${WORLD_EDITOR_FLATBUFFERS_SCHEMAS})
         -I ${dependencies_fplbase_dir}/schemas
         -c ${flatbuffers_schema}
     DEPENDS flatc ${flatbuffers_schema})
-  list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
+  list(APPEND WORLD_EDITOR_GENERATED_INCLUDES ${flatbuffers_include})
 endforeach()
 add_custom_target(world_editor_generated_includes
-  DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+  DEPENDS ${WORLD_EDITOR_GENERATED_INCLUDES})
 
 include_directories(src include include/world_editor)
 include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
