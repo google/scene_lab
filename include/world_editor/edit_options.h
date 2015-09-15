@@ -24,6 +24,10 @@
 namespace fpl {
 namespace editor {
 
+// WorldEditor refers to EditOptionsComponent so this needs to be forward
+// declared.
+class WorldEditor;
+
 struct EditOptionsData {
   EditOptionsData()
       : selection_option(SelectionOption_Unspecified),
@@ -36,14 +40,17 @@ struct EditOptionsData {
   bool backup_rendermesh_hidden;
 };
 
-class EditOptionsComponent : public entity::Component<EditOptionsData>,
-                             public event::EventListener {
+class EditOptionsComponent : public entity::Component<EditOptionsData> {
  public:
-  virtual void Init();
+  void EditorEnter();
+  void EditorExit();
+  void EntityCreated(entity::EntityRef entity);
+
   virtual void AddFromRawData(entity::EntityRef& entity, const void* raw_data);
   virtual RawDataUniquePtr ExportRawData(const entity::EntityRef& entity) const;
 
-  virtual void OnEvent(const event::EventPayload& event_payload);
+  // This must be called once and only once when initializing the WorldEditor.
+  void SetWorldEditorCallbacks(WorldEditor* world_editor);
 };
 
 }  // namespace editor

@@ -56,7 +56,6 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   renderer_ = services->renderer();
   input_system_ = services->input_system();
-  event_manager_ = services->event_manager();
   entity_factory_ = services->entity_factory();
 
   if (config_->gui_font() != nullptr) {
@@ -72,8 +71,14 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
   controller_.reset(new EditorController(config_, input_system_));
   input_mode_ = kMoving;
   mouse_mode_ = kMoveHorizontal;
+
   gui_.reset(new EditorGui(config_, this, entity_manager_, font_manager_,
                            &schema_data_));
+
+  auto edit_options = entity_manager_->GetComponent<EditOptionsComponent>();
+  if (edit_options) {
+    edit_options->SetWorldEditorCallbacks(this);
+  }
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
@@ -237,7 +242,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
             physics->EnablePhysics(selected_entity_);
           }
         }
-        NotifyEntityUpdated(selected_entity_);
+        NotifyUpdateEntity(selected_entity_);
       }
     }
 
@@ -246,12 +251,12 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
       entity::EntityRef new_entity = DuplicateEntity(selected_entity_);
       *entity_cycler_ = new_entity.ToIterator();
       SelectEntity(entity_cycler_->ToReference());
-      NotifyEntityUpdated(new_entity);
+      NotifyUpdateEntity(new_entity);
     }
     if (!gui_->InputCaptured() && (controller_->KeyWentDown(FPLK_DELETE) ||
                                    controller_->KeyWentDown(FPLK_x))) {
       entity::EntityRef entity = selected_entity_;
-      NotifyEntityDeleted(entity);
+      NotifyDeleteEntity(entity);
       *entity_cycler_ = entity_manager_->end();
       selected_entity_ = entity::EntityRef();
       DestroyEntity(entity);
@@ -389,24 +394,38 @@ void WorldEditor::SetInitialCamera(const CameraInterface& initial_camera) {
   camera_->set_up(initial_camera.up());
 }
 
-void WorldEditor::NotifyEntityCreated(const entity::EntityRef& entity) const {
-  if (event_manager_ != nullptr) {
-    event_manager_->BroadcastEvent(
-        EditorEventPayload(EditorEventAction_EntityCreated, entity));
+void WorldEditor::NotifyEnterEditor() const {
+  for (auto iter = on_enter_editor_callbacks_.begin();
+       iter != on_enter_editor_callbacks_.end(); ++iter) {
+    (*iter)();
   }
 }
 
-void WorldEditor::NotifyEntityUpdated(const entity::EntityRef& entity) const {
-  if (event_manager_ != nullptr) {
-    event_manager_->BroadcastEvent(
-        EditorEventPayload(EditorEventAction_EntityUpdated, entity));
+void WorldEditor::NotifyExitEditor() const {
+  for (auto iter = on_exit_editor_callbacks_.begin();
+       iter != on_exit_editor_callbacks_.end(); ++iter) {
+    (*iter)();
   }
 }
 
-void WorldEditor::NotifyEntityDeleted(const entity::EntityRef& entity) const {
-  if (event_manager_ != nullptr) {
-    event_manager_->BroadcastEvent(
-        EditorEventPayload(EditorEventAction_EntityDeleted, entity));
+void WorldEditor::NotifyCreateEntity(const entity::EntityRef& entity) const {
+  for (auto iter = on_create_entity_callbacks_.begin();
+       iter != on_create_entity_callbacks_.end(); ++iter) {
+    (*iter)(entity);
+  }
+}
+
+void WorldEditor::NotifyUpdateEntity(const entity::EntityRef& entity) const {
+  for (auto iter = on_update_entity_callbacks_.begin();
+       iter != on_update_entity_callbacks_.end(); ++iter) {
+    (*iter)(entity);
+  }
+}
+
+void WorldEditor::NotifyDeleteEntity(const entity::EntityRef& entity) const {
+  for (auto iter = on_delete_entity_callbacks_.begin();
+       iter != on_delete_entity_callbacks_.end(); ++iter) {
+    (*iter)(entity);
   }
 }
 
@@ -422,10 +441,8 @@ void WorldEditor::Activate() {
   input_mode_ = kMoving;
   *entity_cycler_ = entity_manager_->end();
 
-  // Raise the EditorStart event.
-  if (event_manager_ != nullptr) {
-    event_manager_->BroadcastEvent(EditorEventPayload(EditorEventAction_Enter));
-  }
+  NotifyEnterEditor();
+
   gui_->Activate();
 }
 
@@ -434,10 +451,7 @@ void WorldEditor::Deactivate() {
 
   gui_->Deactivate();
 
-  // Raise the EditorExit event.
-  if (event_manager_ != nullptr) {
-    event_manager_->BroadcastEvent(EditorEventPayload(EditorEventAction_Exit));
-  }
+  NotifyExitEditor();
 
   // de-select all entities
   SelectEntity(entity::EntityRef());
@@ -504,7 +518,7 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
     }
     entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
     for (size_t i = 0; i < entities_created.size(); i++) {
-      NotifyEntityCreated(entities_created[i]);
+      NotifyCreateEntity(entities_created[i]);
     }
     return entities_created[0];
   }
@@ -885,6 +899,26 @@ void WorldEditor::RequestExit() {
 void WorldEditor::AbortExit() { exit_requested_ = false; }
 
 bool WorldEditor::IsReadyToExit() { return exit_requested_ && exit_ready_; }
+
+void WorldEditor::AddOnEnterEditorCallback(EditorCallback callback) {
+  on_enter_editor_callbacks_.push_back(callback);
+}
+
+void WorldEditor::AddOnExitEditorCallback(EditorCallback callback) {
+  on_exit_editor_callbacks_.push_back(callback);
+}
+
+void WorldEditor::AddOnCreateEntityCallback(EntityCallback callback) {
+  on_create_entity_callbacks_.push_back(callback);
+}
+
+void WorldEditor::AddOnUpdateEntityCallback(EntityCallback callback) {
+  on_update_entity_callbacks_.push_back(callback);
+}
+
+void WorldEditor::AddOnDeleteEntityCallback(EntityCallback callback) {
+  on_delete_entity_callbacks_.push_back(callback);
+}
 
 }  // namespace editor
 }  // namespace fpl

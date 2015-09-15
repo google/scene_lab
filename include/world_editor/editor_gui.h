@@ -22,7 +22,6 @@
 #include <unordered_map>
 #include "component_library/entity_factory.h"
 #include "entity/entity_manager.h"
-#include "event/event_manager.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/renderer.h"
@@ -34,15 +33,14 @@ namespace editor {
 
 class WorldEditor;
 
-class EditorGui : public event::EventListener {
+class EditorGui {
  public:
   EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
             entity::EntityManager* entity_manager, FontManager* font_manager,
             const std::string* schema_data);
+
   void Activate();
   void Deactivate() {}
-
-  virtual void OnEvent(const event::EventPayload& event_payload);
 
   // Render the game, then update based on button presses. You must either call
   // this, or call DrawGui() in a FlatUI Run context, followed by
@@ -89,6 +87,8 @@ class EditorGui : public event::EventListener {
     }
     return false;
   }
+
+  void EntityUpdated(entity::EntityRef entity);
 
   // Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
@@ -173,7 +173,6 @@ class EditorGui : public event::EventListener {
 
   AssetManager* asset_manager_;
   component_library::EntityFactory* entity_factory_;
-  event::EventManager* event_manager_;
   InputSystem* input_system_;
   Renderer* renderer_;
 

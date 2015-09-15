@@ -70,7 +70,6 @@ EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   asset_manager_ = services->asset_manager();
   entity_factory_ = services->entity_factory();
-  event_manager_ = services->event_manager();
   input_system_ = services->input_system();
   renderer_ = services->renderer();
   components_to_show_.resize(entity::kMaxComponentCount, false);
@@ -94,9 +93,8 @@ EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
   text_modified_color_ = LoadColorRGBA(fbconfig->text_modified_color());
   text_error_color_ = LoadColorRGBA(fbconfig->text_error_color());
 
-  entity_manager_->GetComponent<component_library::CommonServicesComponent>()
-      ->event_manager()
-      ->RegisterListener(kEventSinkUnion_EditorEvent, this);
+  world_editor_->AddOnUpdateEntityCallback(
+      [this](const entity::EntityRef& entity) { EntityUpdated(entity); });
 }
 
 void EditorGui::Activate() {
@@ -117,19 +115,10 @@ bool EditorGui::CanExit() {
   }
 }
 
-void EditorGui::OnEvent(const event::EventPayload& event_payload) {
-  switch (event_payload.id()) {
-    case kEventSinkUnion_EditorEvent: {
-      // If the entity we are looking at was updated externally, clear out its
-      // data.
-      auto* editor_event = event_payload.ToData<editor::EditorEventPayload>();
-      if (editor_event->action == EditorEventAction_EntityUpdated &&
-          edit_entity_ == editor_event->entity) {
-        ClearEntityData();
-      }
-      break;
-    }
-    default: { assert(false); }
+void EditorGui::EntityUpdated(entity::EntityRef entity) {
+  // If the entity we are looking at was updated externally, clear out its data.
+  if (edit_entity_ == entity) {
+    ClearEntityData();
   }
 }
 
@@ -394,8 +383,7 @@ void EditorGui::CommitEntityData() {
 }
 
 void EditorGui::SendUpdateEvent() {
-  event_manager_->BroadcastEvent(
-      EditorEventPayload(EditorEventAction_EntityUpdated, edit_entity_));
+  world_editor_->NotifyUpdateEntity(edit_entity_);
 }
 
 void EditorGui::CommitComponentData(entity::ComponentId id) {

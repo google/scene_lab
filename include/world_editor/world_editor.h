@@ -29,7 +29,6 @@
 #include "editor_components_generated.h"
 #include "entity/component_interface.h"
 #include "entity/entity_manager.h"
-#include "event/event_manager.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/input.h"
@@ -44,6 +43,9 @@
 
 namespace fpl {
 namespace editor {
+
+typedef std::function<void(const entity::EntityRef& entity)> EntityCallback;
+typedef std::function<void()> EditorCallback;
 
 class WorldEditor {
  public:
@@ -95,6 +97,36 @@ class WorldEditor {
   void set_entities_modified(bool b) { entities_modified_ = b; }
   bool entities_modified() const { return entities_modified_; }
 
+  // Specify a callback to call when the editor is opened.
+  void AddOnEnterEditorCallback(EditorCallback callback);
+
+  // Specify a callback to call when the editor is exited.
+  void AddOnExitEditorCallback(EditorCallback callback);
+
+  // Specify a callback to call when an entity is created.
+  void AddOnCreateEntityCallback(EntityCallback callback);
+
+  // Specify a callback to call when an entity's data is updated.
+  void AddOnUpdateEntityCallback(EntityCallback callback);
+
+  // Specify a callback to call when an entity is deleted.
+  void AddOnDeleteEntityCallback(EntityCallback callback);
+
+  // Call all 'EditorEnter' callbacks.
+  void NotifyEnterEditor() const;
+
+  // Call all 'EditorExit' callbacks.
+  void NotifyExitEditor() const;
+
+  // Call all 'EntityCreated' callbacks.
+  void NotifyCreateEntity(const entity::EntityRef& entity) const;
+
+  // Call all 'EntityUpdated' callbacks.
+  void NotifyUpdateEntity(const entity::EntityRef& entity) const;
+
+  // Call all 'EntityDeleted' callbacks.
+  void NotifyDeleteEntity(const entity::EntityRef& entity) const;
+
  private:
   enum InputMode { kMoving, kEditing, kDragging };
   enum MouseMode {
@@ -125,9 +157,6 @@ class WorldEditor {
   entity::EntityRef DuplicateEntity(entity::EntityRef& entity);
   void DestroyEntity(entity::EntityRef& entity);
   void HighlightEntity(const entity::EntityRef& entity, float tint);
-  void NotifyEntityCreated(const entity::EntityRef& entity) const;
-  void NotifyEntityUpdated(const entity::EntityRef& entity) const;
-  void NotifyEntityDeleted(const entity::EntityRef& entity) const;
 
   // returns true if the transform was modified
   bool ModifyTransformBasedOnInput(TransformDef* transform);
@@ -161,7 +190,6 @@ class WorldEditor {
   Renderer* renderer_;
   InputSystem* input_system_;
   entity::EntityManager* entity_manager_;
-  event::EventManager* event_manager_;
   component_library::EntityFactory* entity_factory_;
   FontManager* font_manager_;
   // Which entity are we currently editing?
@@ -195,9 +223,18 @@ class WorldEditor {
   mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
   mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
 
+
   bool exit_requested_;
   bool exit_ready_;
   bool entities_modified_;
+
+  // A collection of callbacks that are called when various world editor events
+  // occur that other game systems may want to respond to.
+  std::vector<EditorCallback> on_enter_editor_callbacks_;
+  std::vector<EditorCallback> on_exit_editor_callbacks_;
+  std::vector<EntityCallback> on_create_entity_callbacks_;
+  std::vector<EntityCallback> on_update_entity_callbacks_;
+  std::vector<EntityCallback> on_delete_entity_callbacks_;
 };
 
 }  // namespace editor

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <assert.h>
 #include <string.h>
 #include "library_components_generated.h"
 #include "component_library/physics.h"
@@ -20,6 +21,7 @@
 #include "mathfu/utilities.h"
 #include "world_editor/editor_event.h"
 #include "world_editor/edit_options.h"
+#include "world_editor/world_editor.h"
 
 FPL_ENTITY_DEFINE_COMPONENT(fpl::editor::EditOptionsComponent,
                             fpl::editor::EditOptionsData)
@@ -33,10 +35,12 @@ using fpl::component_library::PhysicsData;
 using fpl::component_library::RenderMeshComponent;
 using fpl::component_library::RenderMeshData;
 
-void EditOptionsComponent::Init() {
-  entity_manager_->GetComponent<component_library::CommonServicesComponent>()
-      ->event_manager()
-      ->RegisterListener(kEventSinkUnion_EditorEvent, this);
+void EditOptionsComponent::SetWorldEditorCallbacks(WorldEditor* world_editor) {
+  assert(world_editor);
+  world_editor->AddOnEnterEditorCallback([this]() { EditorEnter(); });
+  world_editor->AddOnExitEditorCallback([this]() { EditorExit(); });
+  world_editor->AddOnCreateEntityCallback(
+      [this](const entity::EntityRef& entity) { EntityCreated(entity); });
 }
 
 void EditOptionsComponent::AddFromRawData(entity::EntityRef& entity,
@@ -73,61 +77,73 @@ EditOptionsComponent::ExportRawData(const entity::EntityRef& entity) const {
   return fbb.ReleaseBufferPointer();
 }
 
-void EditOptionsComponent::OnEvent(const event::EventPayload& event_payload) {
-  switch (event_payload.id()) {
-    case kEventSinkUnion_EditorEvent: {
-      auto render_mesh_component =
-          entity_manager_->GetComponent<RenderMeshComponent>();
-      auto physics_component =
-          entity_manager_->GetComponent<PhysicsComponent>();
-      auto* editor_event = event_payload.ToData<editor::EditorEventPayload>();
-      if (editor_event->action == EditorEventAction_Enter ||
-          (editor_event->action == EditorEventAction_EntityCreated &&
-           editor_event->entity)) {
-        for (auto iter = component_data_.begin(); iter != component_data_.end();
-             ++iter) {
-          // If editor_event->entity is set, only update that entity.
-          // Otherwise update all entities.
-          if (editor_event->entity && iter->entity != editor_event->entity)
-            continue;
-          if (iter->data.render_option == RenderOption_OnlyInEditor ||
-              iter->data.render_option == RenderOption_NotInEditor) {
-            RenderMeshData* rendermesh_data =
-                render_mesh_component->GetComponentData(iter->entity);
-            if (rendermesh_data != nullptr) {
-              bool hide =
-                  (iter->data.render_option == RenderOption_NotInEditor);
-              iter->data.backup_rendermesh_hidden =
-                  rendermesh_data->currently_hidden;
-              rendermesh_data->currently_hidden = hide;
-            }
-          }
-          if (physics_component &&
-              (iter->data.selection_option == SelectionOption_PointerOnly ||
-               iter->data.selection_option == SelectionOption_Any ||
-               iter->data.selection_option == SelectionOption_Unspecified)) {
-            entity_manager_->AddEntityToComponent<PhysicsComponent>(
-                iter->entity);
-            // Generate shapes for raycasting, setting the results to not be
-            // included on export.
-            physics_component->GenerateRaycastShape(iter->entity, false);
-          }
-        }
-      } else if (editor_event->action == EditorEventAction_Exit) {
-        for (auto iter = component_data_.begin(); iter != component_data_.end();
-             ++iter) {
-          if (iter->data.render_option == RenderOption_OnlyInEditor ||
-              iter->data.render_option == RenderOption_NotInEditor) {
-            RenderMeshData* rendermesh_data =
-                render_mesh_component->GetComponentData(iter->entity);
-            if (rendermesh_data != nullptr) {
-              rendermesh_data->currently_hidden =
-                  iter->data.backup_rendermesh_hidden;
-            }
-          }
-        }
+void EditOptionsComponent::EditorEnter() {
+  auto render_mesh_component =
+      entity_manager_->GetComponent<RenderMeshComponent>();
+  auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    entity::EntityRef entity = iter->entity;
+    if (iter->data.render_option == RenderOption_OnlyInEditor ||
+        iter->data.render_option == RenderOption_NotInEditor) {
+      RenderMeshData* rendermesh_data =
+          render_mesh_component->GetComponentData(entity);
+      if (rendermesh_data != nullptr) {
+        bool hide = (iter->data.render_option == RenderOption_NotInEditor);
+        iter->data.backup_rendermesh_hidden = rendermesh_data->currently_hidden;
+        rendermesh_data->currently_hidden = hide;
       }
-      break;
+    }
+    if (physics_component &&
+        (iter->data.selection_option == SelectionOption_PointerOnly ||
+         iter->data.selection_option == SelectionOption_Any ||
+         iter->data.selection_option == SelectionOption_Unspecified)) {
+      entity_manager_->AddEntityToComponent<PhysicsComponent>(entity);
+      // Generate shapes for raycasting, setting the results to not be
+      // included on export.
+      physics_component->GenerateRaycastShape(entity, false);
+    }
+  }
+}
+
+void EditOptionsComponent::EntityCreated(entity::EntityRef entity) {
+  auto render_mesh_component =
+      entity_manager_->GetComponent<RenderMeshComponent>();
+  auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
+  EditOptionsData* data = Data<EditOptionsData>(entity);
+  if (data->render_option == RenderOption_OnlyInEditor ||
+      data->render_option == RenderOption_NotInEditor) {
+    RenderMeshData* rendermesh_data =
+        render_mesh_component->GetComponentData(entity);
+    if (rendermesh_data != nullptr) {
+      bool hide = (data->render_option == RenderOption_NotInEditor);
+      data->backup_rendermesh_hidden = rendermesh_data->currently_hidden;
+      rendermesh_data->currently_hidden = hide;
+    }
+  }
+  if (physics_component &&
+      (data->selection_option == SelectionOption_PointerOnly ||
+       data->selection_option == SelectionOption_Any ||
+       data->selection_option == SelectionOption_Unspecified)) {
+    entity_manager_->AddEntityToComponent<PhysicsComponent>(entity);
+    // Generate shapes for raycasting, setting the results to not be
+    // included on export.
+    physics_component->GenerateRaycastShape(entity, false);
+  }
+}
+
+void EditOptionsComponent::EditorExit() {
+  auto render_mesh_component =
+      entity_manager_->GetComponent<RenderMeshComponent>();
+  for (auto iter = component_data_.begin(); iter != component_data_.end();
+       ++iter) {
+    if (iter->data.render_option == RenderOption_OnlyInEditor ||
+        iter->data.render_option == RenderOption_NotInEditor) {
+      RenderMeshData* rendermesh_data =
+          render_mesh_component->GetComponentData(iter->entity);
+      if (rendermesh_data != nullptr) {
+        rendermesh_data->currently_hidden = iter->data.backup_rendermesh_hidden;
+      }
     }
   }
 }
