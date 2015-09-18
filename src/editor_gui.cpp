@@ -20,7 +20,6 @@
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
-#include "world_editor/editor_event.h"
 #include "world_editor/editor_gui.h"
 #include "world_editor/world_editor.h"
 

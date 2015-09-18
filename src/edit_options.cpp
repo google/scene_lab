@@ -19,7 +19,6 @@
 #include "component_library/rendermesh.h"
 #include "component_library/common_services.h"
 #include "mathfu/utilities.h"
-#include "world_editor/editor_event.h"
 #include "world_editor/edit_options.h"
 #include "world_editor/world_editor.h"
 
