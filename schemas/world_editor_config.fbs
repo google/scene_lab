@@ -63,6 +63,11 @@ table WorldEditorConfig {
   flatbuffer_editor_config:FlatbufferEditorConfig;
 
   gui_font:string;
+
+  // Directory in which to save JSON files (optional), relative to the binary
+  // assets directory.
+  // If not set, it will just save JSON files into the binary assets directory.
+  json_output_directory:string;
 }
 
 root_type WorldEditorConfig;

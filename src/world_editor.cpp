@@ -597,7 +597,7 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
     size_t num_paths = config_->schema_include_paths()->size();
-    include_paths.reset(new const char*[num_paths + 1]);
+    include_paths.reset(new const char* [num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
       include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
     }
@@ -609,7 +609,13 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
       flatbuffers::GeneratorOptions options;
       options.strict_json = true;
       GenerateText(parser, entity_list.data(), options, &json);
-      if (SaveFile((filename + ".json").c_str(), json)) {
+      std::string json_path =
+          (config_->json_output_directory()
+               ? flatbuffers::ConCatPathFileName(
+                     config_->json_output_directory()->str(), filename)
+               : filename) +
+          ".json";
+      if (SaveFile(json_path.c_str(), json)) {
         LogInfo("Save (JSON) successful");
       } else {
         LogInfo("Save (JSON) failed.");
@@ -657,7 +663,7 @@ bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
   else
     *intersection_point =
         ray_origin +
-        ray_direction * distance_from_ray_origin_to_plane * 1.0f / length_ratio;
+        ray_direction* distance_from_ray_origin_to_plane * 1.0f / length_ratio;
   return true;
 }
 
