@@ -65,7 +65,8 @@ EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
       expand_all_(false),
       mouse_in_window_(false),
       keyboard_in_use_(false),
-      prompting_for_exit_(false) {
+      prompting_for_exit_(false),
+      updated_via_gui_(false) {
   auto services = entity_manager_->GetComponent<CommonServicesComponent>();
   asset_manager_ = services->asset_manager();
   entity_factory_ = services->entity_factory();
@@ -115,6 +116,7 @@ bool EditorGui::CanExit() {
 }
 
 void EditorGui::EntityUpdated(entity::EntityRef entity) {
+  if (updated_via_gui_) return;  // Ignore this event if the GUI did the update.
   // If the entity we are looking at was updated externally, clear out its data.
   if (edit_entity_ == entity) {
     ClearEntityData();
@@ -382,7 +384,9 @@ void EditorGui::CommitEntityData() {
 }
 
 void EditorGui::SendUpdateEvent() {
+  updated_via_gui_ = true;
   world_editor_->NotifyUpdateEntity(edit_entity_);
+  updated_via_gui_ = false;
 }
 
 void EditorGui::CommitComponentData(entity::ComponentId id) {

@@ -887,11 +887,17 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
 }
 
 void WorldEditor::RequestExit() {
-  if (gui_->CanDeselectEntity()) {
-    exit_requested_ = true;
-    exit_ready_ = false;
-    if (gui_->CanExit()) {
-      exit_ready_ = true;
+  if (input_mode_ != kDragging) {
+    if (gui_->CanDeselectEntity()) {
+      exit_requested_ = true;
+      exit_ready_ = false;
+      if (gui_->CanExit()) {
+        exit_ready_ = true;
+      } else {
+        if (input_mode_ != kEditing) {
+          input_mode_ = kEditing;
+        }
+      }
     }
   }
 }

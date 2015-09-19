@@ -217,6 +217,7 @@ class EditorGui {
   bool mouse_in_window_;     // Is the mouse currently over a UI element?
   bool keyboard_in_use_;     // Is the user currently typing into an edit field?
   bool prompting_for_exit_;  // Are we currently prompting the user to exit?
+  bool updated_via_gui_;     // Was the entity just updated via the GUI?
 };
 
 }  // namespace editor
