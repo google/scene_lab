@@ -18,7 +18,6 @@
 #include <set>
 #include <string>
 #include "component_library/common_services.h"
-#include "editor_events_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/reflection.h"

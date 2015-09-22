@@ -37,7 +37,7 @@ LOCAL_C_INCLUDES := \
   $(DEPENDENCIES_FLATUI_DIR)/include \
   $(DEPENDENCIES_ENTITY_DIR)/include \
   $(DEPENDENCIES_COMPONENT_LIBRARY_DIR)/include \
-  $(DEPENDENCIES_EVENT_DIR)/include \
+  $(DEPENDENCIES_BREADBOARD_DIR)/include \
   $(DEPENDENCIES_FPLBASE_DIR)/include \
   $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
   $(DEPENDENCIES_MATHFU_DIR)/include \
@@ -59,7 +59,6 @@ WORLD_EDITOR_SCHEMA_INCLUDE_DIRS := \
 
 WORLD_EDITOR_SCHEMA_FILES := \
   $(WORLD_EDITOR_SCHEMA_DIR)/editor_components.fbs \
-  $(WORLD_EDITOR_SCHEMA_DIR)/editor_events.fbs \
   $(WORLD_EDITOR_SCHEMA_DIR)/flatbuffer_editor_config.fbs \
   $(WORLD_EDITOR_SCHEMA_DIR)/world_editor_config.fbs
 
