@@ -322,9 +322,6 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
 
   entity_manager_->DeleteMarkedEntities();
 
-  LogInfo("exit_requested = %d", exit_requested_);
-  LogInfo("exit_ready = %d", exit_ready_);
-  LogInfo("entities_modified = %d", entities_modified_);
   if (exit_requested_ && gui_->CanExit()) {
     LogInfo("Exit_ready = %d", !entities_modified_);
     exit_ready_ = !entities_modified_;
