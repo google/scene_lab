@@ -69,6 +69,8 @@ set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
+set(dependencies_breadboard_dir "${fpl_root}/breadboard"
+    CACHE PATH "Directory containing the breadboard library.")
 set(dependencies_fplbase_dir "${fpl_root}/fplbase"
     CACHE PATH "Directory containing the FPLBase library.")
 set(dependencies_entity_dir "${fpl_root}/entity"
@@ -150,6 +152,7 @@ include_directories(${WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
 include_directories(${dependencies_entity_dir}/include)
 include_directories(${dependencies_component_library_dir}/include)
+include_directories(${dependencies_breadboard_dir}/include)
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplbase_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
