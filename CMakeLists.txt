@@ -69,10 +69,6 @@ set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
-set(dependencies_breadboard_dir "${fpl_root}/breadboard"
-    CACHE PATH "Directory containing the breadboard library.")
-set(dependencies_pindrop_dir "${fpl_root}/pindrop"
-    CACHE PATH "Directory containing the pindrop library.")
 set(dependencies_fplbase_dir "${fpl_root}/fplbase"
     CACHE PATH "Directory containing the FPLBase library.")
 set(dependencies_entity_dir "${fpl_root}/entity"
@@ -161,7 +157,6 @@ include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_flatui_dir}/include)
 include_directories(${dependencies_motive_dir}/include)
 include_directories(${dependencies_mathfu_dir}/include)
-include_directories(${dependencies_pindrop_dir}/include)
 
 # Detect clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
