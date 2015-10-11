@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_EDITOR_CONTROLLER_H_
-#define FPL_EDITOR_CONTROLLER_H_
+#ifndef FPL_SCENE_LAB_EDITOR_CONTROLLER_H_
+#define FPL_SCENE_LAB_EDITOR_CONTROLLER_H_
 
 #include "component_library/camera_interface.h"
 #include "fplbase/input.h"
 #include "mathfu/glsl_mappings.h"
 #include "mathfu/constants.h"
-#include "world_editor_config_generated.h"
+#include "scene_lab_config_generated.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 class EditorController {
   // Pointer and keyboard controls for the in-game editor.
@@ -30,9 +30,8 @@ class EditorController {
  public:
   static const int kNumButtons = 10;  // max buttons from fplbase/input.h
 
-  EditorController(const WorldEditorConfig* editor_config,
-                   InputSystem* input_system)
-      : editor_config_(editor_config),
+  EditorController(const SceneLabConfig* config, InputSystem* input_system)
+      : config_(config),
         input_system_(input_system),
         mouse_locked_(false),
         facing_current_(mathfu::kZeros3f),
@@ -124,7 +123,7 @@ class EditorController {
   bool mouse_locked() const { return mouse_locked_; }
 
  private:
-  const WorldEditorConfig* editor_config_;
+  const SceneLabConfig* config_;
   InputSystem* input_system_;
 
   bool mouse_locked_;
@@ -139,7 +138,7 @@ class EditorController {
   bool buttons_previous_[kNumButtons];
 };
 
-}  // editor
-}  // fpl
+}  // namespace scene_lab
+}  // namespace fpl
 
-#endif  // FPL_EDITOR_CONTROLLER_H_
+#endif  // FPL_SCENE_LAB_EDITOR_CONTROLLER_H_

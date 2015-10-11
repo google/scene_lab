@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_WORLD_EDITOR_H_
-#define FPL_WORLD_EDITOR_H_
+#ifndef SCENE_LAB_SCENE_LAB_H_
+#define SCENE_LAB_SCENE_LAB_H_
 
 #include <algorithm>
 #include <map>
@@ -35,20 +35,20 @@
 #include "fplbase/renderer.h"
 #include "fplbase/utilities.h"
 #include "mathfu/vector_3.h"
-#include "world_editor/edit_options.h"
-#include "world_editor/editor_controller.h"
-#include "world_editor/editor_gui.h"
-#include "world_editor_config_generated.h"
+#include "scene_lab/edit_options.h"
+#include "scene_lab/editor_controller.h"
+#include "scene_lab/editor_gui.h"
+#include "scene_lab_config_generated.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 typedef std::function<void(const entity::EntityRef& entity)> EntityCallback;
 typedef std::function<void()> EditorCallback;
 
-class WorldEditor {
+class SceneLab {
  public:
-  void Initialize(const WorldEditorConfig* config,
+  void Initialize(const SceneLabConfig* config,
                   entity::EntityManager* entity_manager,
                   FontManager* font_manager);
   void AdvanceFrame(WorldTime delta_time);
@@ -67,21 +67,21 @@ class WorldEditor {
   // If to_disk is true, save to .bin and .json files and update the entity
   // factory's file cache. Otherwise, just update the file cache but don't
   // physically save the files to disk.
-  void SaveWorld(bool to_disk);
-  void SaveWorld() { SaveWorld(true); }
+  void SaveScene(bool to_disk);
+  void SaveScene() { SaveScene(true); }
   // Save all the entities that were from this specific file into that file.
   void SaveEntitiesInFile(const std::string& filename);
 
-  // Request that the world editor exit. If you haven't saved your changes,
+  // Request that Scene Lab exit. If you haven't saved your changes,
   // it will prompt you to do so, keep them in memory, or abandon them. Once
-  // the world editor decides it's okay to exit, IsReadyToExit() will return
+  // Scene Lab decides it's okay to exit, IsReadyToExit() will return
   // true.
   void RequestExit();
 
   // Abort a previously-requested exit.
   void AbortExit();
 
-  // Returns true if we are ready to exit the editor (everything is saved or
+  // Returns true if we are ready to exit Scene Lab (everything is saved or
   // discarded, etc), or false if not. Once it returns true, you can safely
   // deactivate the editor.
   bool IsReadyToExit();
@@ -185,7 +185,7 @@ class WorldEditor {
 
   void LoadSchemaFiles();
 
-  const WorldEditorConfig* config_;
+  const SceneLabConfig* config_;
   Renderer* renderer_;
   InputSystem* input_system_;
   entity::EntityManager* entity_manager_;
@@ -222,12 +222,11 @@ class WorldEditor {
   mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
   mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
 
-
   bool exit_requested_;
   bool exit_ready_;
   bool entities_modified_;
 
-  // A collection of callbacks that are called when various world editor events
+  // A collection of callbacks that are called when various Scene Lab events
   // occur that other game systems may want to respond to.
   std::vector<EditorCallback> on_enter_editor_callbacks_;
   std::vector<EditorCallback> on_exit_editor_callbacks_;
@@ -236,7 +235,7 @@ class WorldEditor {
   std::vector<EntityCallback> on_delete_entity_callbacks_;
 };
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl
 
-#endif  // FPL_WORLD_EDITOR_H_
+#endif  // SCENE_LAB_SCENE_LAB_H_

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "fplbase/utilities.h"
-#include "world_editor/editor_controller.h"
+#include "scene_lab/editor_controller.h"
 
 #include <math.h>
 using mathfu::vec2i;
@@ -22,14 +22,14 @@ using mathfu::vec3;
 using mathfu::quat;
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 void EditorController::Update() {
   facing_previous_ = facing_current_;
   pointer_previous_ = pointer_current_;
   if (mouse_locked_) {
     // Mouse locked to middle of screen, track movement to change facing.
-    vec2 delta = editor_config_->mouse_sensitivity() *
+    vec2 delta = config_->mouse_sensitivity() *
                  vec2(input_system_->get_pointers()[0].mousedelta);
 
     vec3 side_axis = quat::FromAngleAxis(-static_cast<float>(M_PI) / 2.0f,
@@ -74,5 +74,5 @@ bool EditorController::GetMouseWorldRay(const CameraInterface& camera,
   return true;
 }
 
-}  // fpl_base
-}  // fpl
+}  // namespace scene_lab
+}  // namespace fpl

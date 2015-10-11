@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_FLATBUFFER_EDITOR_H_
-#define FPL_FLATBUFFER_EDITOR_H_
+#ifndef FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_
+#define FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_
 
 #include <set>
 #include <string>
@@ -28,7 +28,7 @@
 #include "mathfu/glsl_mappings.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 // An on-screen representation of a Flatbuffer, which can be edited by the user.
 // Instantiate FlatbufferEditor with a Flatbuffer you'd like it to edit. It will
@@ -363,7 +363,7 @@ class FlatbufferEditor {
   mathfu::vec4 text_error_color_;
 };
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl
 
-#endif  // FPL_FLATBUFFER_EDITOR_H_
+#endif  // FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_

@@ -13,32 +13,32 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 2.8.12)
 
-project(world_editor)
+project(scene_lab)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
-# World Editor source files.
-set(world_editor_SRCS
-    include/world_editor/edit_options.h
-    include/world_editor/editor_controller.h
-    include/world_editor/editor_gui.h
-    include/world_editor/flatbuffer_editor.h
-    include/world_editor/world_editor.h
+# Scene Lab source files.
+set(scene_lab_SRCS
+    include/scene_lab/edit_options.h
+    include/scene_lab/editor_controller.h
+    include/scene_lab/editor_gui.h
+    include/scene_lab/flatbuffer_editor.h
+    include/scene_lab/scene_lab.h
     src/edit_options.cpp
     src/editor_controller.cpp
     src/editor_gui.cpp
     src/flatbuffer_editor.cpp
-    src/world_editor.cpp
+    src/scene_lab.cpp
  )
 
 # Compile the game with the debug flag
-set(world_editor_DEBUG ON)
+set(scene_lab_DEBUG ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-get_directory_property(world_editor_has_parent PARENT_DIRECTORY)
+get_directory_property(scene_lab_has_parent PARENT_DIRECTORY)
 
 # Directory which contains the source for 3rd party libraries.
 if(NOT DEFINED third_party_root)
@@ -86,20 +86,20 @@ set(dependencies_bulletphysics_distr_dir "${third_party_root}/bulletphysics"
 set(dependencies_component_library_dir "${dependencies_entity_dir}/component_library"
     CACHE PATH "Directory containing the entity system component library")
 
-set(world_editor_standalone_mode OFF)
+set(scene_lab_standalone_mode OFF)
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
-  set(world_editor_standalone_mode ON)
-  message(STATUS "World Editor standalone: building with sample game")
+  set(scene_lab_standalone_mode ON)
+  message(STATUS "Scene Lab standalone: building with sample game")
 else()
-  message(STATUS "World Editor library: not building sample game")
+  message(STATUS "Scene Lab library: not building sample game")
 endif()
 
-option(world_editor_build_sample "Build a sample game for the world editor"
-       ${world_editor_standalone_mode})
+option(scene_lab_build_sample "Build a sample game for Scene Lab"
+       ${scene_lab_standalone_mode})
 
-if(world_editor_standalone_mode)
+if(scene_lab_standalone_mode)
   # Include FPLBase in this project.
   add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
 
@@ -118,37 +118,37 @@ if(world_editor_standalone_mode)
   add_subdirectory("${dependencies_entity_dir}" ${tmp_dir}/entity)
 endif()
 
-set(WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR
+set(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
    ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
-if(world_editor_has_parent)
-  set(WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR
-      ${WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
+if(scene_lab_has_parent)
+  set(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
+      ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
 endif()
 
-file(GLOB_RECURSE WORLD_EDITOR_FLATBUFFERS_SCHEMAS schemas/*.fbs)
+file(GLOB_RECURSE SCENE_LAB_FLATBUFFERS_SCHEMAS schemas/*.fbs)
 
-foreach(flatbuffers_schema ${WORLD_EDITOR_FLATBUFFERS_SCHEMAS})
+foreach(flatbuffers_schema ${SCENE_LAB_FLATBUFFERS_SCHEMAS})
   get_filename_component(filename ${flatbuffers_schema} NAME_WE)
-  set(flatbuffers_include
-    ${WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
+  set(scene_lab_flatbuffers_include
+    ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
   file(COPY ${flatbuffers_schema}
        DESTINATION ${CMAKE_BINARY_DIR}/assets/flatbufferschemas/)
   add_custom_command(
-    OUTPUT ${flatbuffers_include}
+    OUTPUT ${scene_lab_flatbuffers_include}
     COMMAND flatc --gen-includes --gen-mutable
-        -o ${WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR}
+        -o ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -I ${dependencies_fplbase_dir}/schemas
         -c ${flatbuffers_schema}
     DEPENDS flatc ${flatbuffers_schema})
-  list(APPEND WORLD_EDITOR_GENERATED_INCLUDES ${flatbuffers_include})
+  list(APPEND SCENE_LAB_GENERATED_INCLUDES ${scene_lab_flatbuffers_include})
 endforeach()
-add_custom_target(world_editor_generated_includes
-  DEPENDS ${WORLD_EDITOR_GENERATED_INCLUDES})
+add_custom_target(scene_lab_generated_includes
+  DEPENDS ${SCENE_LAB_GENERATED_INCLUDES})
 
-include_directories(src include include/world_editor)
+include_directories(src include include/scene_lab)
 include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
-include_directories(${WORLD_EDITOR_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
 include_directories(${dependencies_entity_dir}/include)
 include_directories(${dependencies_component_library_dir}/include)
@@ -186,10 +186,10 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
-add_library(world_editor ${world_editor_SRCS})
-add_dependencies(world_editor world_editor_generated_includes)
-add_dependencies(world_editor component_library_generated_includes)
-add_dependencies(world_editor fplbase_generated_includes)
-mathfu_configure_flags(world_editor)
+add_library(scene_lab ${scene_lab_SRCS})
+add_dependencies(scene_lab scene_lab_generated_includes)
+add_dependencies(scene_lab component_library_generated_includes)
+add_dependencies(scene_lab fplbase_generated_includes)
+mathfu_configure_flags(scene_lab)
 
 

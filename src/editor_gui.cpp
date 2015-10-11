@@ -20,11 +20,11 @@
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
-#include "world_editor/editor_gui.h"
-#include "world_editor/world_editor.h"
+#include "scene_lab/editor_gui.h"
+#include "scene_lab/scene_lab.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 using component_library::CommonServicesComponent;
 using component_library::MetaComponent;
@@ -37,18 +37,18 @@ using flatbuffers::Table;
 using flatbuffers::uoffset_t;
 using flatbuffers::Vector;
 
-// Names of the mouse modes from WorldEditor.cpp, in the same order as
+// Names of the mouse modes from SceneLab.cpp, in the same order as
 // the mouse_mode_ enum. nullptr is an end sentinel to start over at 0.
 static const char* const kMouseModeNames[] = {
     "Move Horizontally", "Move Vertically", "Rotate Horizontally",
     "Rotate Vertically", "Scale All",       "Scale X",
     "Scale Y",           "Scale Z",         nullptr};
 
-EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
+EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
                      entity::EntityManager* entity_manager,
                      FontManager* font_manager, const std::string* schema_data)
     : config_(config),
-      world_editor_(world_editor),
+      scene_lab_(scene_lab),
       entity_manager_(entity_manager),
       font_manager_(font_manager),
       schema_data_(schema_data),
@@ -93,19 +93,19 @@ EditorGui::EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
   text_modified_color_ = LoadColorRGBA(fbconfig->text_modified_color());
   text_error_color_ = LoadColorRGBA(fbconfig->text_error_color());
 
-  world_editor_->AddOnUpdateEntityCallback(
+  scene_lab_->AddOnUpdateEntityCallback(
       [this](const entity::EntityRef& entity) { EntityUpdated(entity); });
 }
 
 void EditorGui::Activate() {
   prompting_for_exit_ = false;
-  world_editor_->set_entities_modified(false);
+  scene_lab_->set_entities_modified(false);
 }
 
 bool EditorGui::CanExit() {
   if (!CanDeselectEntity() || keyboard_in_use() ||
-      world_editor_->entities_modified() || prompting_for_exit_) {
-    if (!prompting_for_exit_ && world_editor_->entities_modified()) {
+      scene_lab_->entities_modified() || prompting_for_exit_) {
+    if (!prompting_for_exit_ && scene_lab_->entities_modified()) {
       prompting_for_exit_ = true;
     }
     return false;
@@ -300,13 +300,14 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
   gui::PositionGroup(gui::kAlignLeft, gui::kAlignTop, mathfu::kZeros2f);
   CaptureMouseClicks();
 
-  gui::Label(" World Editor", kTextSize);
+  gui::Label(" Scene Lab", kTextSize);
 
-  if (TextButton("[Save World]", "we:save", kButtonSize) & gui::kEventWentUp) {
-    world_editor_->SaveWorld(true);
+  if (TextButton("[Save Scene]", "we:save", kButtonSize) & gui::kEventWentUp) {
+    scene_lab_->SaveScene(true);
   }
-  if (TextButton("[Exit Editor]", "we:exit", kButtonSize) & gui::kEventWentUp) {
-    world_editor_->RequestExit();
+  if (TextButton("[Exit Scene Lab]", "we:exit", kButtonSize) &
+      gui::kEventWentUp) {
+    scene_lab_->RequestExit();
   }
 
   if (EntityModified()) {
@@ -351,19 +352,19 @@ void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
     gui::StartGroup(gui::kLayoutVerticalCenter, 10, "we:exit-prompt");
     gui::ColorBackground(bg_toolbar_color_);
     gui::SetMargin(20);
-    gui::Label("Save changes before exiting World Editor?", kButtonSize);
+    gui::Label("Save changes before exiting Scene Lab?", kButtonSize);
     if (TextButton("Yes, save to disk", "we:save-to-disk", kButtonSize) &
         gui::kEventWentUp) {
-      world_editor_->SaveWorld(true);
+      scene_lab_->SaveScene(true);
       prompting_for_exit_ = false;
     } else if (TextButton("No, but keep my changes in memory",
                           "we:save-to-memory", kButtonSize) &
                gui::kEventWentUp) {
-      world_editor_->SaveWorld(false);
+      scene_lab_->SaveScene(false);
       prompting_for_exit_ = false;
     } else if (TextButton("Hold on, don't exit!", "we:dont-exit", kButtonSize) &
                gui::kEventWentUp) {
-      world_editor_->AbortExit();
+      scene_lab_->AbortExit();
       prompting_for_exit_ = false;
     }
     gui::EndGroup();  // we:exit-prompt
@@ -385,7 +386,7 @@ void EditorGui::CommitEntityData() {
 
 void EditorGui::SendUpdateEvent() {
   updated_via_gui_ = true;
-  world_editor_->NotifyUpdateEntity(edit_entity_);
+  scene_lab_->NotifyUpdateEntity(edit_entity_);
   updated_via_gui_ = false;
 }
 
@@ -397,7 +398,7 @@ void EditorGui::CommitComponentData(entity::ComponentId id) {
       component->AddFromRawData(
           edit_entity_, flatbuffers::GetAnyRoot(
                             static_cast<const uint8_t*>(editor->flatbuffer())));
-      world_editor_->set_entities_modified(true);
+      scene_lab_->set_entities_modified(true);
     }
     editor->ClearFlatbufferModifiedFlag();
   }
@@ -764,5 +765,5 @@ gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
   return event;
 }
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl

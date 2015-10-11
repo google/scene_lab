@@ -19,14 +19,14 @@
 #include "component_library/rendermesh.h"
 #include "component_library/common_services.h"
 #include "mathfu/utilities.h"
-#include "world_editor/edit_options.h"
-#include "world_editor/world_editor.h"
+#include "scene_lab/edit_options.h"
+#include "scene_lab/scene_lab.h"
 
-FPL_ENTITY_DEFINE_COMPONENT(fpl::editor::EditOptionsComponent,
-                            fpl::editor::EditOptionsData)
+FPL_ENTITY_DEFINE_COMPONENT(fpl::scene_lab::EditOptionsComponent,
+                            fpl::scene_lab::EditOptionsData)
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 using fpl::component_library::CommonServicesComponent;
 using fpl::component_library::PhysicsComponent;
@@ -34,11 +34,11 @@ using fpl::component_library::PhysicsData;
 using fpl::component_library::RenderMeshComponent;
 using fpl::component_library::RenderMeshData;
 
-void EditOptionsComponent::SetWorldEditorCallbacks(WorldEditor* world_editor) {
-  assert(world_editor);
-  world_editor->AddOnEnterEditorCallback([this]() { EditorEnter(); });
-  world_editor->AddOnExitEditorCallback([this]() { EditorExit(); });
-  world_editor->AddOnCreateEntityCallback(
+void EditOptionsComponent::SetSceneLabCallbacks(SceneLab* scene_lab) {
+  assert(scene_lab);
+  scene_lab->AddOnEnterEditorCallback([this]() { EditorEnter(); });
+  scene_lab->AddOnExitEditorCallback([this]() { EditorExit(); });
+  scene_lab->AddOnCreateEntityCallback(
       [this](const entity::EntityRef& entity) { EntityCreated(entity); });
 }
 
@@ -147,5 +147,5 @@ void EditOptionsComponent::EditorExit() {
   }
 }
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl

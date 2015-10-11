@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include <bitset>
-#include "world_editor/flatbuffer_editor.h"
+#include "scene_lab/flatbuffer_editor.h"
 #include "flatbuffer_editor_config_generated.h"
 #include "fplbase/utilities.h"
 #include "fplbase/flatbuffer_utils.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 using flatbuffers::uoffset_t;
 

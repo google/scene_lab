@@ -13,12 +13,12 @@
 # limitations under the License.
 
 # Locations of 3rd party and FPL libraries.
-FPL_ROOT:=$(WORLD_EDITOR_DIR)/../../libs
+FPL_ROOT:=$(SCENE_LAB_DIR)/../../libs
 # If the dependencies directory exists either as a subdirectory or as the
 # container of this project directory, assume the dependencies directory is
 # the root directory for all libraries required by this project.
-$(foreach dep_dir,$(wildcard $(WORLD_EDITOR_DIR)/dependencies) \
-                  $(wildcard $(WORLD_EDITOR_DIR)/../../dependencies),\
+$(foreach dep_dir,$(wildcard $(SCENE_LAB_DIR)/dependencies) \
+                  $(wildcard $(SCENE_LAB_DIR)/../../dependencies),\
   $(eval DEPENDENCIES_ROOT?=$(dep_dir)))
 ifneq ($(DEPENDENCIES_ROOT),)
   THIRD_PARTY_ROOT:=$(DEPENDENCIES_ROOT)
@@ -27,7 +27,7 @@ else
   THIRD_PARTY_ROOT:=$(FPL_ROOT)/../../../external
 endif
 
-WORLD_EDITOR_GENERATED_OUTPUT_DIR := $(WORLD_EDITOR_DIR)/gen/include
+SCENE_LAB_GENERATED_OUTPUT_DIR := $(SCENE_LAB_DIR)/gen/include
 
 # Location of the Flatbuffers library.
 DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers

@@ -15,9 +15,9 @@
 include "common.fbs";
 include "flatbuffer_editor_config.fbs";
 
-namespace fpl.editor;
+namespace fpl.scene_lab;
 
-table WorldEditorConfig {
+table SceneLabConfig {
   // Filename for your component schema file (in text)
   schema_file_text:string;
   // Filename for your component schema file (in binary)
@@ -70,4 +70,4 @@ table WorldEditorConfig {
   json_output_directory:string;
 }
 
-root_type WorldEditorConfig;
+root_type SceneLabConfig;

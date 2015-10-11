@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_EDITOR_GUI_H_
-#define FPL_EDITOR_GUI_H_
+#ifndef FPL_SCENE_LAB_EDITOR_GUI_H_
+#define FPL_SCENE_LAB_EDITOR_GUI_H_
 
 #include <memory>
 #include <set>
@@ -25,17 +25,17 @@
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/renderer.h"
-#include "world_editor_config_generated.h"
-#include "world_editor/flatbuffer_editor.h"
+#include "scene_lab_config_generated.h"
+#include "scene_lab/flatbuffer_editor.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
-class WorldEditor;
+class SceneLab;
 
 class EditorGui {
  public:
-  EditorGui(const WorldEditorConfig* config, WorldEditor* world_editor,
+  EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
             entity::EntityManager* entity_manager, FontManager* font_manager,
             const std::string* schema_data);
 
@@ -135,7 +135,7 @@ class EditorGui {
   // Send an EntityUpdated event to the current entity.
   void SendUpdateEvent();
 
-  // Gui helper function to capture mouse clicks and prevent the world editor
+  // Gui helper function to capture mouse clicks and prevent Scene Lab
   // from consuming them.
   void CaptureMouseClicks();
 
@@ -165,8 +165,8 @@ class EditorGui {
   // Get the virtual resolution (for FlatUI) of the whole screen.
   void GetVirtualResolution(vec2* resolution_output);
 
-  const WorldEditorConfig* config_;
-  WorldEditor* world_editor_;
+  const SceneLabConfig* config_;
+  SceneLab* scene_lab_;
   entity::EntityManager* entity_manager_;
   FontManager* font_manager_;
   const std::string* schema_data_;
@@ -220,7 +220,7 @@ class EditorGui {
   bool updated_via_gui_;     // Was the entity just updated via the GUI?
 };
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl
 
-#endif  // FPL_EDITOR_GUI_H_
+#endif  // FPL_SCENE_LAB_EDITOR_GUI_H_

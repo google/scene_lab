@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef WORLD_EDITOR_EDIT_OPTIONS_H_
-#define WORLD_EDITOR_EDIT_OPTIONS_H_
+#ifndef FPL_SCENE_LAB_EDIT_OPTIONS_H_
+#define FPL_SCENE_LAB_EDIT_OPTIONS_H_
 
 #include <set>
 #include <string>
@@ -22,11 +22,11 @@
 #include "entity/component.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
-// WorldEditor refers to EditOptionsComponent so this needs to be forward
+// SceneLab refers to EditOptionsComponent so this needs to be forward
 // declared.
-class WorldEditor;
+class SceneLab;
 
 struct EditOptionsData {
   EditOptionsData()
@@ -49,14 +49,14 @@ class EditOptionsComponent : public entity::Component<EditOptionsData> {
   virtual void AddFromRawData(entity::EntityRef& entity, const void* raw_data);
   virtual RawDataUniquePtr ExportRawData(const entity::EntityRef& entity) const;
 
-  // This must be called once and only once when initializing the WorldEditor.
-  void SetWorldEditorCallbacks(WorldEditor* world_editor);
+  // This must be called once and only once when initializing Scene Lab.
+  void SetSceneLabCallbacks(SceneLab* scene_lab);
 };
 
-}  // namespace editor
+}  // namespace scene_lab
 }  // namespace fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::editor::EditOptionsComponent,
-                              fpl::editor::EditOptionsData)
+FPL_ENTITY_REGISTER_COMPONENT(fpl::scene_lab::EditOptionsComponent,
+                              fpl::scene_lab::EditOptionsData)
 
-#endif  // WORLD_EDITOR_EDIT_OPTIONS_H_
+#endif  // FPL_scene_LAB_EDIT_OPTIONS_H_

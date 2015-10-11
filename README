@@ -1,15 +1,15 @@
-World Editor   {#world_editor_readme}
-=======
+Scene Lab   {#scene_lab_readme}
+=========
 
 ## Overview
 
-World Editor is a library that allows game developers who are using Fun Propulsion
+Scene Lab is a library that allows game developers who are using Fun Propulsion
 Labs technologies for their games to lay out objects in the game world and
 change their properties, all within the game itself.
 
 ## Features
 
-This initial release of World Editor is focused on letting you perform certain core
+This initial release of Scene Lab is focused on letting you perform certain core
 tasks needed for editing a game world:
 
   * Fly around the game world with mouse and keyboard to look at the current
@@ -25,20 +25,22 @@ tasks needed for editing a game world:
 
 ## Dependencies
 
-World Editor depends on the following libraries:
+Scene Lab depends on the following libraries:
 
-  * [Entity System][] with the included component library
+  * [CORGI][] (Component Oriented Reusable Game Interface), with the included
+    component library
   * [FPLBase][]
   * [FlatBuffers][]
   * [FlatUI][]
   * [mathfu][]
+  * [Breadboard][] (required by CORGI's included component library)
 
-This initial version of World Editor only supports desktop (Linux, Mac, Windows)
+This initial version of Scene Lab only supports desktop (Linux, Mac, Windows)
 builds.
 
-In order to use World Editor to lay out your scene, you must use Entity System
-and its included component library for your in-game objects. Your objects should
-use the following components:
+In order to use Scene Lab to lay out your scene, you must use CORGI and
+its included component library for your in-game objects. Your objects should use
+the following components:
 
   * MetaComponent (all objects must have this)
   * TransformComponent (for moving / rotating / scaling objects)
@@ -56,17 +58,18 @@ properties from those components.
 
 ## Notes
 
-For application on Google Play that integrate this tool, usage is tracked.
-This tracking is done automatically using the embedded version string
-(`kWorldEditorVersionString`), and helps us continue to optimize it.  Aside from
+For application on Google Play that integrate this tool, usage is tracked.  This
+tracking is done automatically using the embedded version string
+(`kSceneLabVersionString`), and helps us continue to optimize it.  Aside from
 consuming a few extra bytes in your application binary, it shouldn't affect your
-application at all.  We use this information to let us know if World Editor is useful
-and if we should continue to invest in it. Since this is open source, you are
-free to remove the version string but we would appreciate if you would leave it
-in.
+application at all.  We use this information to let us know if Scene Lab is
+useful and if we should continue to invest in it. Since this is open source, you
+are free to remove the version string but we would appreciate if you would leave
+it in.
 
-  [Entity System]: http://google.github.io/entity_system/
+  [CORGI]: http://google.github.io/corgi/
   [FPLBase]: http://google.github.io/fplbase/
   [FlatBuffers]: http://google.github.io/flatbuffers/
   [FlatUI]: http://google.github.io/flatui/
   [mathfu]: http://google.github.io/mathfu/
+  [Breadboard]: http://google.github.io/breadboard/

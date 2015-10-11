@@ -16,20 +16,20 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := world_editor
+LOCAL_MODULE := scene_lab
 LOCAL_ARM_MODE := arm
 LOCAL_STATIC_LIBRARIES := libfplbase libbullet libentity libcomponent_library
 LOCAL_SHARED_LIBRARIES :=
 
-WORLD_EDITOR_RELATIVE_DIR := ..
-WORLD_EDITOR_DIR := $(LOCAL_PATH)/$(WORLD_EDITOR_RELATIVE_DIR)
+SCENE_LAB_RELATIVE_DIR := ..
+SCENE_LAB_DIR := $(LOCAL_PATH)/$(SCENE_LAB_RELATIVE_DIR)
 
-include $(WORLD_EDITOR_DIR)/jni/android_config.mk
+include $(SCENE_LAB_DIR)/jni/android_config.mk
 include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
 LOCAL_EXPORT_C_INCLUDES := \
-  $(WORLD_EDITOR_DIR)/include \
-  $(WORLD_EDITOR_GENERATED_OUTPUT_DIR)
+  $(SCENE_LAB_DIR)/include \
+  $(SCENE_LAB_GENERATED_OUTPUT_DIR)
 
 LOCAL_C_INCLUDES := \
   $(LOCAL_EXPORT_C_INCLUDES) \
@@ -42,32 +42,32 @@ LOCAL_C_INCLUDES := \
   $(DEPENDENCIES_MATHFU_DIR)/include \
   $(DEPENDENCIES_MOTIVE_DIR)/include \
   $(DEPENDENCIES_BULLETPHYSICS_DIR)/src \
-  $(WORLD_EDITOR_DIR)/src
+  $(SCENE_LAB_DIR)/src
 
 LOCAL_SRC_FILES := \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/world_editor.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/edit_options.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_controller.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/editor_gui.cpp \
-  $(WORLD_EDITOR_RELATIVE_DIR)/src/flatbuffer_editor.cpp
+  $(SCENE_LAB_RELATIVE_DIR)/src/scene_lab.cpp \
+  $(SCENE_LAB_RELATIVE_DIR)/src/edit_options.cpp \
+  $(SCENE_LAB_RELATIVE_DIR)/src/editor_controller.cpp \
+  $(SCENE_LAB_RELATIVE_DIR)/src/editor_gui.cpp \
+  $(SCENE_LAB_RELATIVE_DIR)/src/flatbuffer_editor.cpp
 
-WORLD_EDITOR_SCHEMA_DIR := $(WORLD_EDITOR_DIR)/schemas
-WORLD_EDITOR_SCHEMA_INCLUDE_DIRS := \
+SCENE_LAB_SCHEMA_DIR := $(SCENE_LAB_DIR)/schemas
+SCENE_LAB_SCHEMA_INCLUDE_DIRS := \
   $(DEPENDENCIES_FPLBASE_DIR)/schemas \
   $(DEPENDENCIES_COMPONENT_LIBRARY_DIR)/schemas
 
-WORLD_EDITOR_SCHEMA_FILES := \
-  $(WORLD_EDITOR_SCHEMA_DIR)/editor_components.fbs \
-  $(WORLD_EDITOR_SCHEMA_DIR)/flatbuffer_editor_config.fbs \
-  $(WORLD_EDITOR_SCHEMA_DIR)/world_editor_config.fbs
+SCENE_LAB_SCHEMA_FILES := \
+  $(SCENE_LAB_SCHEMA_DIR)/editor_components.fbs \
+  $(SCENE_LAB_SCHEMA_DIR)/flatbuffer_editor_config.fbs \
+  $(SCENE_LAB_SCHEMA_DIR)/scene_lab_config.fbs
 
-ifeq (,$(WORLD_EDITOR_RUN_ONCE))
-WORLD_EDITOR_RUN_ONCE := 1
+ifeq (,$(SCENE_LAB_RUN_ONCE))
+SCENE_LAB_RUN_ONCE := 1
 $(call flatbuffers_header_build_rules, \
-  $(WORLD_EDITOR_SCHEMA_FILES), \
-  $(WORLD_EDITOR_SCHEMA_DIR), \
-  $(WORLD_EDITOR_GENERATED_OUTPUT_DIR), \
-  $(WORLD_EDITOR_SCHEMA_INCLUDE_DIRS), \
+  $(SCENE_LAB_SCHEMA_FILES), \
+  $(SCENE_LAB_SCHEMA_DIR), \
+  $(SCENE_LAB_GENERATED_OUTPUT_DIR), \
+  $(SCENE_LAB_SCHEMA_INCLUDE_DIRS), \
   $(LOCAL_SRC_FILES))
 endif
 

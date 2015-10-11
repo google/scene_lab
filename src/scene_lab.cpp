@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "world_editor/world_editor.h"
+#include "scene_lab/scene_lab.h"
 
 #include <math.h>
 #include <set>
@@ -27,7 +27,7 @@
 #include "mathfu/utilities.h"
 
 namespace fpl {
-namespace editor {
+namespace scene_lab {
 
 static const float kDegreesToRadians = static_cast<float>(M_PI) / 180.0f;
 
@@ -45,9 +45,9 @@ using mathfu::vec3;
 static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
-void WorldEditor::Initialize(const WorldEditorConfig* config,
-                             entity::EntityManager* entity_manager,
-                             FontManager* font_manager) {
+void SceneLab::Initialize(const SceneLabConfig* config,
+                          entity::EntityManager* entity_manager,
+                          FontManager* font_manager) {
   config_ = config;
   entity_manager_ = entity_manager;
   font_manager_ = font_manager;
@@ -76,7 +76,7 @@ void WorldEditor::Initialize(const WorldEditorConfig* config,
 
   auto edit_options = entity_manager_->GetComponent<EditOptionsComponent>();
   if (edit_options) {
-    edit_options->SetWorldEditorCallbacks(this);
+    edit_options->SetSceneLabCallbacks(this);
   }
 }
 
@@ -86,7 +86,7 @@ static inline vec3 ProjectOntoUnitVector(const vec3& v, const vec3& unit) {
   return vec3::DotProduct(v, unit) * unit;
 }
 
-void WorldEditor::AdvanceFrame(WorldTime delta_time) {
+void SceneLab::AdvanceFrame(WorldTime delta_time) {
   // Update the editor's forward and right vectors in the horizontal plane.
   // Remove the up component from the camera's facing vector.
   vec3 forward = camera_->facing() -
@@ -330,7 +330,7 @@ void WorldEditor::AdvanceFrame(WorldTime delta_time) {
   }
 }
 
-void WorldEditor::HighlightEntity(const entity::EntityRef& entity, float tint) {
+void SceneLab::HighlightEntity(const entity::EntityRef& entity, float tint) {
   if (!entity.IsValid()) return;
   auto render_data = entity_manager_->GetComponentData<RenderMeshData>(entity);
   if (render_data != nullptr) {
@@ -349,7 +349,7 @@ void WorldEditor::HighlightEntity(const entity::EntityRef& entity, float tint) {
   }
 }
 
-void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
+void SceneLab::SelectEntity(const entity::EntityRef& entity_ref) {
   if (selected_entity_.IsValid() && selected_entity_ != entity_ref) {
     // un-highlight the old one
     HighlightEntity(selected_entity_, 1);
@@ -365,7 +365,7 @@ void WorldEditor::SelectEntity(const entity::EntityRef& entity_ref) {
   selected_entity_ = entity_ref;
 }
 
-void WorldEditor::Render(Renderer* /*renderer*/) {
+void SceneLab::Render(Renderer* /*renderer*/) {
   // Render any editor-specific things
   gui_->SetEditEntity(selected_entity_);
   if (selected_entity_ && gui_->show_physics()) {
@@ -384,48 +384,48 @@ void WorldEditor::Render(Renderer* /*renderer*/) {
                           // via the gui
 }
 
-void WorldEditor::SetInitialCamera(const CameraInterface& initial_camera) {
+void SceneLab::SetInitialCamera(const CameraInterface& initial_camera) {
   camera_->set_position(initial_camera.position());
   camera_->set_facing(initial_camera.facing());
   camera_->set_up(initial_camera.up());
 }
 
-void WorldEditor::NotifyEnterEditor() const {
+void SceneLab::NotifyEnterEditor() const {
   for (auto iter = on_enter_editor_callbacks_.begin();
        iter != on_enter_editor_callbacks_.end(); ++iter) {
     (*iter)();
   }
 }
 
-void WorldEditor::NotifyExitEditor() const {
+void SceneLab::NotifyExitEditor() const {
   for (auto iter = on_exit_editor_callbacks_.begin();
        iter != on_exit_editor_callbacks_.end(); ++iter) {
     (*iter)();
   }
 }
 
-void WorldEditor::NotifyCreateEntity(const entity::EntityRef& entity) const {
+void SceneLab::NotifyCreateEntity(const entity::EntityRef& entity) const {
   for (auto iter = on_create_entity_callbacks_.begin();
        iter != on_create_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void WorldEditor::NotifyUpdateEntity(const entity::EntityRef& entity) const {
+void SceneLab::NotifyUpdateEntity(const entity::EntityRef& entity) const {
   for (auto iter = on_update_entity_callbacks_.begin();
        iter != on_update_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void WorldEditor::NotifyDeleteEntity(const entity::EntityRef& entity) const {
+void SceneLab::NotifyDeleteEntity(const entity::EntityRef& entity) const {
   for (auto iter = on_delete_entity_callbacks_.begin();
        iter != on_delete_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void WorldEditor::Activate() {
+void SceneLab::Activate() {
   exit_requested_ = false;
   exit_ready_ = false;
   set_entities_modified(false);
@@ -442,8 +442,8 @@ void WorldEditor::Activate() {
   gui_->Activate();
 }
 
-void WorldEditor::Deactivate() {
-  SaveWorld(false);
+void SceneLab::Deactivate() {
+  SaveScene(false);
 
   gui_->Deactivate();
 
@@ -455,7 +455,7 @@ void WorldEditor::Deactivate() {
   *entity_cycler_ = entity_manager_->end();
 }
 
-void WorldEditor::SaveWorld(bool to_disk) {
+void SceneLab::SaveScene(bool to_disk) {
   auto editor_component = entity_manager_->GetComponent<MetaComponent>();
   // get a list of all filenames in the world
   std::set<std::string> filenames;
@@ -480,7 +480,7 @@ void WorldEditor::SaveWorld(bool to_disk) {
   set_entities_modified(false);
 }
 
-entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
+entity::EntityRef SceneLab::DuplicateEntity(entity::EntityRef& entity) {
   std::vector<uint8_t> entity_serialized;
   if (!entity_factory_->SerializeEntity(entity, entity_manager_,
                                         &entity_serialized)) {
@@ -521,11 +521,11 @@ entity::EntityRef WorldEditor::DuplicateEntity(entity::EntityRef& entity) {
   return entity::EntityRef();
 }
 
-void WorldEditor::DestroyEntity(entity::EntityRef& entity) {
+void SceneLab::DestroyEntity(entity::EntityRef& entity) {
   entity_manager_->DeleteEntity(entity);
 }
 
-void WorldEditor::LoadSchemaFiles() {
+void SceneLab::LoadSchemaFiles() {
   const char* schema_file_text = config_->schema_file_text()->c_str();
   const char* schema_file_binary = config_->schema_file_binary()->c_str();
 
@@ -535,15 +535,15 @@ void WorldEditor::LoadSchemaFiles() {
   }
   auto schema = reflection::GetSchema(schema_data_.c_str());
   if (schema != nullptr) {
-    LogInfo("WorldEditor: Binary schema %s loaded", schema_file_binary);
+    LogInfo("SceneLab: Binary schema %s loaded", schema_file_binary);
   }
   if (LoadFile(schema_file_text, &schema_text_)) {
-    LogInfo("WorldEditor: Text schema %s loaded", schema_file_text);
+    LogInfo("SceneLab: Text schema %s loaded", schema_file_text);
   }
 }
 
-bool WorldEditor::SerializeEntitiesFromFile(const std::string& filename,
-                                            std::vector<uint8_t>* output) {
+bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
+                                         std::vector<uint8_t>* output) {
   if (filename == "") {
     LogInfo("Skipping serializing entities to blank filename.");
     return false;
@@ -573,7 +573,7 @@ bool WorldEditor::SerializeEntitiesFromFile(const std::string& filename,
   return true;
 }
 
-void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
+void SceneLab::SaveEntitiesInFile(const std::string& filename) {
   std::vector<uint8_t> entity_list;
   if (!SerializeEntitiesFromFile(filename, &entity_list)) {
     LogError("SerializeEntitiesFromFile failed.");
@@ -593,7 +593,7 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
     size_t num_paths = config_->schema_include_paths()->size();
-    include_paths.reset(new const char* [num_paths + 1]);
+    include_paths.reset(new const char*[num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
       include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
     }
@@ -624,7 +624,7 @@ void WorldEditor::SaveEntitiesInFile(const std::string& filename) {
   }
 }
 
-bool WorldEditor::PreciseMovement() const {
+bool SceneLab::PreciseMovement() const {
   // When the shift key is held, use more precise movement.
   // TODO: would be better if we used precise movement by default, and
   //       transitioned to fast movement after the key has been held for
@@ -633,17 +633,17 @@ bool WorldEditor::PreciseMovement() const {
                                      controller_->KeyIsDown(FPLK_RSHIFT)));
 }
 
-vec3 WorldEditor::GlobalFromHorizontal(float forward, float right,
-                                       float up) const {
+vec3 SceneLab::GlobalFromHorizontal(float forward, float right,
+                                    float up) const {
   return horizontal_forward_ * forward + horizontal_right_ * right +
          camera_->up() * up;
 }
 
-bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
-                                      const vec3& ray_direction,
-                                      const vec3& point_on_plane,
-                                      const vec3& plane_normal,
-                                      vec3* intersection_point) {
+bool SceneLab::IntersectRayToPlane(const vec3& ray_origin,
+                                   const vec3& ray_direction,
+                                   const vec3& point_on_plane,
+                                   const vec3& plane_normal,
+                                   vec3* intersection_point) {
   vec3 ray_origin_to_plane = ray_origin - point_on_plane;
   float distance_from_ray_origin_to_plane =
       vec3::DotProduct(ray_origin_to_plane, plane_normal);
@@ -659,14 +659,14 @@ bool WorldEditor::IntersectRayToPlane(const vec3& ray_origin,
   else
     *intersection_point =
         ray_origin +
-        ray_direction* distance_from_ray_origin_to_plane * 1.0f / length_ratio;
+        ray_direction * distance_from_ray_origin_to_plane * 1.0f / length_ratio;
   return true;
 }
 
-bool WorldEditor::ProjectPointToPlane(const vec3& point_to_project,
-                                      const vec3& point_on_plane,
-                                      const vec3& plane_normal,
-                                      vec3* point_projected) {
+bool SceneLab::ProjectPointToPlane(const vec3& point_to_project,
+                                   const vec3& point_on_plane,
+                                   const vec3& plane_normal,
+                                   vec3* point_projected) {
   // Try to intersect the point with the plane in both directions.
   if (IntersectRayToPlane(point_to_project, -plane_normal, point_on_plane,
                           plane_normal, point_projected)) {
@@ -679,7 +679,7 @@ bool WorldEditor::ProjectPointToPlane(const vec3& point_to_project,
   return false;  // Can't project the point for some reason.
 }
 
-vec3 WorldEditor::GetMovement() const {
+vec3 SceneLab::GetMovement() const {
   if (gui_->InputCaptured()) return mathfu::kZeros3f;
   // Get a movement vector to move the user forward, up, or right.
   // Movement is always relative to the camera facing, but parallel to
@@ -718,7 +718,7 @@ vec3 WorldEditor::GetMovement() const {
   return movement;
 }
 
-bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
+bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
   if (input_mode_ == kDragging) {
     vec3 start, end;
     controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
@@ -888,7 +888,7 @@ bool WorldEditor::ModifyTransformBasedOnInput(TransformDef* transform) {
   return false;
 }
 
-void WorldEditor::RequestExit() {
+void SceneLab::RequestExit() {
   if (input_mode_ != kDragging) {
     if (gui_->CanDeselectEntity()) {
       exit_requested_ = true;
@@ -904,27 +904,27 @@ void WorldEditor::RequestExit() {
   }
 }
 
-void WorldEditor::AbortExit() { exit_requested_ = false; }
+void SceneLab::AbortExit() { exit_requested_ = false; }
 
-bool WorldEditor::IsReadyToExit() { return exit_requested_ && exit_ready_; }
+bool SceneLab::IsReadyToExit() { return exit_requested_ && exit_ready_; }
 
-void WorldEditor::AddOnEnterEditorCallback(EditorCallback callback) {
+void SceneLab::AddOnEnterEditorCallback(EditorCallback callback) {
   on_enter_editor_callbacks_.push_back(callback);
 }
 
-void WorldEditor::AddOnExitEditorCallback(EditorCallback callback) {
+void SceneLab::AddOnExitEditorCallback(EditorCallback callback) {
   on_exit_editor_callbacks_.push_back(callback);
 }
 
-void WorldEditor::AddOnCreateEntityCallback(EntityCallback callback) {
+void SceneLab::AddOnCreateEntityCallback(EntityCallback callback) {
   on_create_entity_callbacks_.push_back(callback);
 }
 
-void WorldEditor::AddOnUpdateEntityCallback(EntityCallback callback) {
+void SceneLab::AddOnUpdateEntityCallback(EntityCallback callback) {
   on_update_entity_callbacks_.push_back(callback);
 }
 
-void WorldEditor::AddOnDeleteEntityCallback(EntityCallback callback) {
+void SceneLab::AddOnDeleteEntityCallback(EntityCallback callback) {
   on_delete_entity_callbacks_.push_back(callback);
 }
 

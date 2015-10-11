@@ -14,7 +14,7 @@
 
 include "common.fbs";
 
-namespace fpl.editor;
+namespace fpl.scene_lab;
 
 // Data definitions for the components used by the world editor.
 
