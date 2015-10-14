@@ -8,3 +8,5 @@ CMakeCache.txt
 cmake_install.cmake
 *~
 #*#
+docs/html/
+docs/linklint_results/

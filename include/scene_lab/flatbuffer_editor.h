@@ -30,28 +30,37 @@
 namespace fpl {
 namespace scene_lab {
 
-// An on-screen representation of a Flatbuffer, which can be edited by the user.
-// Instantiate FlatbufferEditor with a Flatbuffer you'd like it to edit. It will
-// create a copy of that Flatbuffer to manipulate, and you can get the modified
-// Flatbuffer data back out whenever you want.
+/// An on-screen representation of a Flatbuffer, which can be edited by the
+/// user. Instantiate FlatbufferEditor with a Flatbuffer you'd like it to
+/// edit. It will create a copy of that Flatbuffer to manipulate, and you can
+/// get the modified Flatbuffer data back out whenever you want.
+///
+/// When you are ready to get the Flatbuffer data from the editor, you can call
+/// one of the GetFlatbufferCopy() functions, which will return the data in
+/// different formats. These functions will copy the data out of our internal
+/// buffer using reflection (which also has the side effect of normalizing the
+/// Flatbuffer if we have made changes to it).
 class FlatbufferEditor {
  public:
-  // When you create a FlatbufferEditor, we will use reflection to
-  // copy the flatbuffer into our own internal buffer. If you want to
-  // change the Flatbuffer externally, call SetNewFlatbuffer() and
-  // pass in the new contents. If you don't have the data you want to edit
-  // yet, you can pass in nullptr, which means HasFlatbufferData() will be false
-  // and can use SetFlatbufferData later on.
-  // (And if you don't have a FlatbufferEditorConfig, just pass in nullptr and
-  // we will use default UI settings.)
+  /// Construct a FlatbufferEditor for a given schema and table definition,
+  /// and optionally initialize it with flatbuffer data (or nullptr).
+  ///
+  /// When you create a FlatbufferEditor, we will use reflection to copy the
+  /// flatbuffer into our own internal buffer. If you want to change the
+  /// Flatbuffer externally, call SetNewFlatbuffer() and pass in the new
+  /// contents. If you don't have the data you want to edit yet, you can pass in
+  /// nullptr, which means HasFlatbufferData() will be false and can use
+  /// SetFlatbufferData later on.  (And if you don't have a
+  /// FlatbufferEditorConfig, just pass in nullptr and we will use default UI
+  /// settings.)
   FlatbufferEditor(const FlatbufferEditorConfig* config,
                    const reflection::Schema& schema,
                    const reflection::Object& table_def,
                    const void* flatbuffer_data);
 
-  // Override the current Flatbuffer data with this new one. Uses reflection to
-  // copy into our own internal buffers. Will discard whatever is already in our
-  // copy of the Flatbuffer and in the edit fields.
+  /// Override the current Flatbuffer data with this new one. Uses reflection to
+  /// copy into our own internal buffers. Will discard whatever is already in
+  /// our copy of the Flatbuffer and in the edit fields.
   void SetFlatbufferData(const void* flatbuffer_data) {
     ClearEditFields();
     ClearFlatbufferModifiedFlag();
@@ -62,101 +71,127 @@ class FlatbufferEditor {
     }
   }
 
-  // If you passed in nullptr when setting the Flatbuffer data, this will be
-  // false. Otherwise it will be true, and that means there is a Flatbuffer
-  // that we are in the process of drawing / editing.
+  /// Does this FlatbufferEditor have any Flatbuffer data?
+  ///
+  /// If you passed in nullptr when setting the Flatbuffer data, this will be
+  /// false. Otherwise it will be true, and that means there is a Flatbuffer
+  /// that we are in the process of drawing / editing.
   bool HasFlatbufferData() const { return flatbuffer_.size() > 0; }
 
-  // Update the internal state. Call each frame, OUTSIDE a gui::Run
-  // context, before or after drawing.
+  /// Update the internal state. Call each frame, OUTSIDE a gui::Run
+  /// context, before or after drawing.
   void Update();
 
-  // Draw the Flatbuffer edit fields. Call this INSIDE a gui::Run context.
+  /// Draw the Flatbuffer edit fields. Call this INSIDE a gui::Run context.
   void Draw();
 
-  // Multiple ways of getting the Flatbuffer output. This will copy the data
-  // out of our internal buffer using reflection (which also has the side effect
-  // of normalizing the Flatbuffer if we have made changes to it).
-
-  // Copy the modified Flatbuffer into a vector. Returns true if successful or
-  // false if the Flatbuffer editor has no Flatbuffer to copy.
+  /// Copy the modified Flatbuffer into a vector. Returns true if successful or
+  /// false if the Flatbuffer editor has no Flatbuffer to copy.
   bool GetFlatbufferCopy(std::vector<uint8_t>* flatbuffer_output);
-  // Copy the modified Flatbuffer into a string (requires an extra
-  // copy). Returns true if successful or false if there is no Flatbuffer.
+  /// Copy the modified Flatbuffer into a string (requires an extra
+  /// copy). Returns true if successful or false if there is no Flatbuffer.
   bool GetFlatbufferCopy(std::string* flatbuffer_output);
-  // Copy the modified Flatbuffer into a generic buffer and get a pointer.
-  // Requires an extra copy.
+  /// Copy the modified Flatbuffer into a generic buffer and get a pointer.
+  /// Requires an extra copy.
   std::unique_ptr<uint8_t> GetFlatbufferCopy();
 
-  // Has the Flatbuffer data been modified? If so, you probably want to reload
-  // whatever is using it.
+  /// Has the Flatbuffer data been modified? If so, you probably want to reload
+  /// whatever is using it.
   bool flatbuffer_modified() const { return flatbuffer_modified_; }
-  // Once you have reloaded the Flatbuffer into whatever you are using it for,
-  // call this to reset the "modified" flag and the list of modified fields.
+  /// Once you have reloaded the Flatbuffer into whatever you are using it for,
+  /// call this to reset the "modified" flag and the list of modified fields.
   void ClearFlatbufferModifiedFlag();
 
+  /// Get a pointer to the Flatbuffer we are working with, in case you want to
+  /// manually copy it out.
   const void* flatbuffer() { return flatbuffer_.data(); }
 
-  // Read-only mode: If true, draw the Flatbuffer using FlatUI's Label fields
-  // instead of Edit fields, just showing the values and not allowing them to be
-  // edited. Defaults to false.
+  /// Check if we are in Read-only mode: If true, draw the Flatbuffer using
+  /// FlatUI's Label fields instead of Edit fields, just showing the values and
+  /// not allowing them to be edited. Defaults to false.
   bool config_read_only() const { return config_read_only_; }
+
+  /// Set Read-only mode. See config_read_only() for more information.
   void set_config_read_only(bool b) { config_read_only_ = b; }
 
-  // Auto-commit mode: Whenever the user edits the Flatbuffer fields,
-  // automatically update the Flatbuffer contents after the user finishes
-  // editing (presses Enter or clicks on another field). If false, show an
-  // "Apply" button next to all edited fields which will update the Flatbuffer
-  // when clicked.
+  /// Get the Auto-commit mode: If true, then whenever the user edits the
+  /// Flatbuffer fields, automatically update the Flatbuffer contents after the
+  /// user finishes editing (presses Enter or clicks on another field). If
+  /// false, show an "Apply" button next to all edited fields which will update
+  /// the Flatbuffer when clicked.
   bool config_auto_commit() const { return config_auto_commit_; }
+
+  /// Set the Auto-commit mode. See config_auto_commit().
   void set_config_auto_commit(bool b) { config_auto_commit_ = b; }
 
-  // Allow resizing of the Flatbuffer. If this is true, you can edit
-  // anything inside the Flatbuffer, including vector sizes, strings,
-  // union types, and even adding missing sub-tables.
-  // Otherwise, you are only allowed to edit scalar values.
+  /// Allow resizing of the Flatbuffer. If this is true, you can edit
+  /// anything inside the Flatbuffer, including vector sizes, strings,
+  /// union types, and even adding missing sub-tables.
+  /// Otherwise, you are only allowed to edit scalar values.
+  /// The default for this comes from FlatbufferEditorConfig.
   bool config_allow_resize() const { return config_allow_resize_; }
+
+  /// Set the "Allow resizing" config value. See config_allow_resize() for more
+  /// information.
   void set_config_allow_resize(bool b) { config_allow_resize_ = b; }
 
-  // Size of all the UI elements passed to FlatUI.
+  /// Get the size of all the UI elements passed to FlatUI. Defaults are set
+  /// in the FlatbufferEditorConfig.
   int ui_size() const { return ui_size_; }
+
+  /// Set the UI size. See ui_size().
   void set_ui_size(int s) { ui_size_ = s; }
 
-  // Spacing of all the UI elements passed to FlatUI.
+  /// Get the spacing of all the UI elements passed to FlatUI. Defaults are set
+  /// in the FlatbufferEditorConfig.
   int ui_spacing() const { return ui_spacing_; }
+
+  /// Set the UI spacing. See ui_spacing().
   void set_ui_spacing(int s) { ui_spacing_ = s; }
 
+  /// When an editable text field is blank, we force the width of the
+  /// gui Edit field to this value so that it can still be clicked on.
   int blank_field_width() const { return blank_field_width_; }
+
+  /// Set the blank field width. See blank_filed_width().
   void set_blank_field_width(int w) { blank_field_width_ = w; }
 
-  // Show the type of each table / struct?
+  /// Show the type of each subtable / struct in the Flatbuffer table?
   bool show_types() const { return show_types_; }
+
+  /// See show_types().
   void set_show_types(bool b) { show_types_ = b; }
 
-  // Expand all subtables?
+  /// Expand all subtables in the Flatbuffer table?
   bool expand_all() const { return expand_all_; }
+
+  /// See expand_all().
   void set_expand_all(bool b) { expand_all_ = b; }
 
-  // Is the keyboard in use? A field is being edited? You probably want
-  // to check this to make sure you don't use keypresses yourself.
+  /// Is the keyboard in use? A field is being edited? You probably want
+  /// to check this to make sure you don't consume those keypresses yourself.
   bool keyboard_in_use() const { return keyboard_in_use_; }
 
-  // Set a unique root ID for all edit fields, required by FlatUI. If you don't
-  // set this, it will use a unique value based on our pointer address.
+  /// Set a unique root ID for all edit fields, required by FlatUI. If you don't
+  /// set this, it will use a unique value based on our pointer address.
   void set_root_id(const std::string& id) { root_id_ = id; }
+
+  /// See set_root_id().
   const std::string& root_id() const { return root_id_; }
 
  private:
+  /// @cond SCENELAB_INTERNAL
   FPL_DISALLOW_COPY_AND_ASSIGN(FlatbufferEditor);
 
-  // kCheckEdits: Traverse and check if fields have changed, but don't commit
-  // any changes.
-  // kDraw*: Draw the Flatbuffer. ReadOnly means use Labels instead of Edit
-  // fields. Manual means use Edit fields, but require the user to explicitly
-  // save them back out to the Flatbuffer. Auto means automatically commit the
-  // values into the Flatbuffer as you edit them.
-  // kCommitEdits: Traverse, and if fields have changed, commit them to the
-  // Flatbuffer.
+  /// How VisitFlatbuffer* should traverse the table.
+  /// kCheckEdits: Traverse and check if fields have changed, but don't commit
+  /// any changes.
+  /// kDraw*: Draw the Flatbuffer. ReadOnly means use Labels instead of Edit
+  /// fields. Manual means use Edit fields, but require the user to explicitly
+  /// save them back out to the Flatbuffer. Auto means automatically commit the
+  /// values into the Flatbuffer as you edit them.
+  /// kCommitEdits: Traverse, and if fields have changed, commit them to the
+  /// Flatbuffer.
   enum VisitMode {
     kCheckEdits,      // Only check if any fields have been modified.
     kDrawEditAuto,    // Draw using edit fields that auto-update the FB.
@@ -167,113 +202,138 @@ class FlatbufferEditor {
 
   enum Button { kNone, kCommit, kRevert };
 
-  // Copy the table using reflection and the existing schema and table def.
+  /// Copy the table using reflection and the existing schema and table def.
   void CopyTable(const void* src, std::vector<uint8_t>* dest);
 
+  /// Clear all edited fields, returning them to the value from the Flatbuffer.
   void ClearEditFields() {
     edit_fields_.clear();
     edit_fields_modified_ = false;
     error_fields_.clear();
   }
 
-  // This function takes the edit_fields_ that the user has been working on, and
-  // writes them all out to the Flatbuffer.  This is an expensive operation as
-  // it may require completely invalidating the existing Flatbuffer and copying
-  // in a new one, so we only do this when the user chooses to commit their
-  // edits.
+  /// This function takes the edit_fields_ that the user has been working on,
+  /// and writes them all out to the Flatbuffer.  This is an expensive operation
+  /// as it may require completely invalidating the existing Flatbuffer and
+  /// copying in a new one, so we only do this when the user chooses to commit
+  /// their edits.
   void CommitEditsToFlatbuffer();
 
   // Functions for traversing the Flatbuffer and drawing or editing its fields.
 
-  // Visit a single field with the given name and value. The "id" should
-  // uniquely identify it in the tree of data structures.
-  //
-  // If mode is kDrawEdit, the Flatbuffer field will be drawn using a FlatUI
-  // Edit()
-  // control. kDrawReadOnly is similar, but it will use a Label() control and
-  // won't be editable.
-  //
-  // If mode is kEdit, it won't actually draw, but it apply any edits made from
-  // the previously visited fields, hitting all of the previously calculated IDs
-  // to apply the edits.
-  //
-  // Only returns true if mode = kEdit and if we applied any edits.
+  /// Visit a single field with the given name and value. The "id" should
+  /// uniquely identify it in the tree of data structures.
+  ///
+  /// If mode is kDrawEdit, the Flatbuffer field will be drawn using a FlatUI
+  /// Edit() control. kDrawReadOnly is similar, but it will use a Label()
+  /// control
+  /// and won't be editable.
+  ///
+  /// If mode is kEdit, it won't actually draw, but it apply any edits made from
+  /// the previously visited fields, hitting all of the previously calculated
+  /// IDs to apply the edits.
+  ///
+  /// Only returns true if mode = kEdit and if we applied any edits.
   bool VisitField(VisitMode mode, const std::string& name,
                   const std::string& value, const std::string& type,
                   const std::string& comment, const std::string& id);
 
-  // Visit a subtable with the given name. The "id" should uniquely identify it
-  // in the tree of data structures. If mode is kEdit, don't actually draw,
-  // but do still propagate through the tree of data structures so we can apply
-  // edits to the previously determined IDs. Returns true if kEdit and if we
-  // applied any edits.
+  /// Visit a subtable with the given name. The "id" should uniquely identify it
+  /// in the tree of data structures. If mode is kEdit, don't actually draw, but
+  /// do still propagate through the tree of data structures so we can apply
+  /// edits to the previously determined IDs. Returns true if kEdit and if we
+  /// applied any edits.
   bool VisitSubtable(VisitMode mode, const std::string& field,
                      const std::string& type, const std::string& comment,
                      const std::string& id, const reflection::Schema& schema,
                      const reflection::Object& subobjdef,
                      flatbuffers::Table& subtable);
 
-  // Helper functions for traversing flatbuffers via reflection.
-  // They may only return true if mode = kEdit and a field was edited in such a
-  // way as to force the flatbuffer to be resized, which means you'll need to
-  // start over and propagate edits again to catch the subsequent edits.
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferField(VisitMode mode, const reflection::Schema& schema,
                             const reflection::Field& fielddef,
                             const reflection::Object& objectdef,
                             flatbuffers::Table& table, const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferScalar(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
                              flatbuffers::Table& table, const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferTable(VisitMode mode, const reflection::Schema& schema,
                             const reflection::Object& objectdef,
                             flatbuffers::Table& table, const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferVector(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
                              flatbuffers::Table& table, const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferUnion(VisitMode mode, const reflection::Schema& schema,
                             const reflection::Field& fielddef,
                             const reflection::Object& objectdef,
                             flatbuffers::Table& table, const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferStruct(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
                              const reflection::Object& objectdef,
                              flatbuffers::Struct& fbstruct,
                              const std::string& id);
+  /// Helper function for traversing elements of a Flatbuffer reflection. May
+  /// only return true if mode = kEdit and a field was edited in such a way as
+  /// to force the flatbuffer to be resized, which means you'll need to start
+  /// over and propagate edits again to catch the subsequent edits.
   bool VisitFlatbufferString(VisitMode mode, const reflection::Schema& schema,
                              const reflection::Field& fielddef,
                              flatbuffers::Table& table, const std::string& id);
 
   // Utility functions for dealing with Flatbuffer data. All of them are static.
 
-  // Get the string representation of a Flatbuffers struct at a given pointer
-  // location. For example a Vec3 with x = 1.2, y = 3.4, z = 5 would show up as
-  // < 1.2, 3.4, 5 >. Set field_names_only = true to output the field names
-  // instead.
+  /// Get the string representation of a Flatbuffers struct at a given pointer
+  /// location. For example a Vec3 with x = 1.2, y = 3.4, z = 5 would show up as
+  /// < 1.2, 3.4, 5 >. Set field_names_only = true to output the field names
+  /// instead.
   static std::string StructToString(const reflection::Schema& schema,
                                     const reflection::Object& objectdef,
                                     const flatbuffers::Struct& struct_ptr,
                                     bool field_names_only);
 
-  // Parse a string that specifies a FlatBuffers struct in the format outputted
-  // above. The format is "< 1, 2, < 3.4, 5, 6.7 >, 8 >". Each number must have
-  // some combination of whitespace, comma, or angle brackets around it.
-  // If you call this with a null struct_ptr it will just check whether your
-  // string parses correctly.
+  /// Parse a string that specifies a FlatBuffers struct in the format outputted
+  /// above. The format is "< 1, 2, < 3.4, 5, 6.7 >, 8 >". Each number must have
+  /// some combination of whitespace, comma, or angle brackets around it.
+  /// If you call this with a null struct_ptr it will just check whether your
+  /// string parses correctly.
   static bool ParseStringIntoStruct(const std::string& string,
                                     const reflection::Schema& schema,
                                     const reflection::Object& objectdef,
                                     flatbuffers::Struct* struct_ptr);
 
-  // Extract an inline struct definition from a string containing a complex
-  // struct definition that may contain nested struct definitions.
-  //
-  // str is a string that starts with '<'. Returns the string in between that
-  // '<' and the matching '>' (exclusive), or empty string if there is a
-  // mismatch.
+  /// Extract an inline struct definition from a string containing a complex
+  /// struct definition that may contain nested struct definitions.
+  ///
+  /// str is a string that starts with '<'. Returns the string in between that
+  /// '<' and the matching '>' (exclusive), or empty string if there is a
+  /// mismatch.
   static std::string ExtractInlineStructDef(const std::string& str);
 
-  // If this scalar value is an enum, get its type name and the name of its
-  // value. Returns a string with the corrected integer value after parsing.
+  /// If this scalar value is an enum, get its type name and the name of its
+  /// value. Returns a string with the corrected integer value after parsing.
   static std::string GetEnumTypeAndValue(const reflection::Schema& schema,
                                          const reflection::Field& fielddef,
                                          const std::string& value,
@@ -282,31 +342,37 @@ class FlatbufferEditor {
 
   // UI helper functions
 
-  // For a string for a field name, showing optional type.
+  /// For a string for a field name, showing optional type.
   std::string FormatFieldName(const std::string& name, const std::string& type);
 
-  // Draw a text button with the given text and the given ID.
-  // Size is the vertical size of the button; the text will be smaller inside
-  // that size.
+  /// Draw a text button with the given text and the given ID.
+  /// Size is the vertical size of the button; the text will be smaller inside
+  /// that size.
   gui::Event TextButton(const char* text, const char* id, int size);
 
-  // If mode is a draw mode, draw a button to add the current field to the
-  // FlatBuffer. If mode is CommitEdits, then return true if this is the
-  // node we want to commit, so the calling code can actually add the
-  // field.
+  /// If mode is a draw mode, draw a button to add the current field to the
+  /// FlatBuffer. If mode is CommitEdits, then return true if this is the
+  /// node we want to commit, so the calling code can actually add the
+  /// field.
   bool AddFieldButton(VisitMode mode, const std::string& name,
                       const std::string& type_str, const std::string& id);
 
+  /// If the user is editing a field, keyboard_in_use is set to true.
   void set_keyboard_in_use(bool b) { keyboard_in_use_ = b; }
 
+  /// Is the VisitMode one of the ones that draws the field?
   static bool IsDraw(VisitMode mode) {
     return (mode == kDrawEditAuto || mode == kDrawEditManual ||
             mode == kDrawReadOnly);
   }
 
+  /// Is the VisitMode one of the ones that draws the field and allows it to be
+  /// modified by the user?
   static bool IsDrawEdit(VisitMode mode) {
     return (mode == kDrawEditAuto || mode == kDrawEditManual);
   }
+
+  /// @endcond
 
   const reflection::Schema& schema_;
   const reflection::Object& table_def_;

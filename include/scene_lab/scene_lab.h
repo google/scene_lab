@@ -48,82 +48,145 @@ typedef std::function<void()> EditorCallback;
 
 class SceneLab {
  public:
+  /// Initialize Scene Lab once, when starting your game.
+  ///
+  /// Call this function as soon as you have an entity manager and font
+  /// manager. Make sure you give Scene Lab a camera via SetCamera() as well.
   void Initialize(const SceneLabConfig* config,
                   entity::EntityManager* entity_manager,
                   FontManager* font_manager);
-  void AdvanceFrame(WorldTime delta_time);
-  void Render(Renderer* renderer);
-  void Activate();
-  void Deactivate();
-  void SetInitialCamera(const CameraInterface& initial_camera);
+
+  /// Give Scene Lab a camera that it can use.
+  ///
+  /// Scene Lab will take over ownership of `camera`.
   void SetCamera(std::unique_ptr<CameraInterface> camera) {
     camera_ = std::move(camera);
   }
 
+  /// While Scene Lab is active, you must call this once a frame, every frame.
+  void AdvanceFrame(WorldTime delta_time);
+
+  /// Render Scene Lab and its GUI; only call this when Scene Lab is active.
+  ///
+  /// While Scene Lab is running, you are still responsible for rendering your
+  /// own game world. Call GetCamera() to get the camera you should use for
+  /// rendering.
+  ///
+  /// Warning: if you are actively using FlatUI elsewhere in your code while
+  /// Scene Lab is running, you will need to modify this function to not render
+  /// the GUI here, and call EditorGui::StartRender(), EditorGui::DrawGui(), and
+  /// EditorGui::FinishRender() yourself.
+  void Render(Renderer* renderer);
+
+  /// Activate Scene Lab. Once you call this, you should start calling
+  /// AdvanceFrame and Render each frame, and stop calling
+  /// EntityManager::UpdateComponents() yourself.
+  void Activate();
+
+  /// Immediately deactivate Scene Lab. The preferred way to exit the editor is
+  /// to use RequestExit, however, as that will give the user a chance to save
+  /// their changes to the world.
+  void Deactivate();
+
+  /// When you activate the editor, you can pass in the camera position so the
+  /// user can seamlessly be positioned at the same place they were during the
+  /// game.
+  void SetInitialCamera(const CameraInterface& initial_camera);
+
+  /// Get the Scene Lab camera, so you can render the scene properly.
   const CameraInterface* GetCamera() const { return camera_.get(); }
 
+  /// Highlight the specified entity, so that you can change its properties.
   void SelectEntity(const entity::EntityRef& entity_ref);
 
-  // If to_disk is true, save to .bin and .json files and update the entity
-  // factory's file cache. Otherwise, just update the file cache but don't
-  // physically save the files to disk.
+  /// Save the current positions and properties of all entities.
+  ///
+  /// If `to_disk` is true, save to .bin and .json files and update the entity
+  /// factory's file cache. Otherwise, just update the file cache but don't
+  /// physically save the files to disk.
+  ///
+  /// If you are saving to disk, entities will be saved to the files they were
+  /// initially loaded from.
   void SaveScene(bool to_disk);
+
+  /// Save the current positions and properties to disk.
+  ///
+  /// See SaveScene(bool to_disk) for more details.
   void SaveScene() { SaveScene(true); }
-  // Save all the entities that were from this specific file into that file.
+
+  /// Save all the entities that were from a specific file to that file on disk.
+  ///
+  /// Called by SaveScene() when saving to disk, but you could always call
+  /// this directly.
   void SaveEntitiesInFile(const std::string& filename);
 
-  // Request that Scene Lab exit. If you haven't saved your changes,
-  // it will prompt you to do so, keep them in memory, or abandon them. Once
-  // Scene Lab decides it's okay to exit, IsReadyToExit() will return
-  // true.
+  /// Request that Scene Lab exit.
+  ///
+  /// If you haven't saved your changes, it will prompt you to do so, keep them
+  /// in memory, or abandon them. Once Scene Lab decides it's okay to exit,
+  /// IsReadyToExit() will return true.
+  ///
+  /// After you've exited, you can always get back into Scene Lab by calling
+  /// Activate() again.
   void RequestExit();
 
-  // Abort a previously-requested exit.
+  /// Abort a previously-requested exit, which hides the confirmation dialog.
   void AbortExit();
 
-  // Returns true if we are ready to exit Scene Lab (everything is saved or
-  // discarded, etc), or false if not. Once it returns true, you can safely
-  // deactivate the editor.
+  /// Returns true if we are ready to exit Scene Lab (everything is saved or
+  /// discarded, etc), or false if not. Once it returns true, you can safely
+  /// deactivate the editor.
   bool IsReadyToExit();
 
+  /// Add a component to the list of components Scene Lab updates each frame.
+  ///
+  /// While Scene Lab is activated, you should no longer be calling
+  /// EntityManager::UpdateComponents(); you should let Scene Lab update only
+  /// the components it cares about. If you have any components you are sure you
+  /// also want updated while editing the scene, add them to the list by calling
+  /// this function.
   void AddComponentToUpdate(entity::ComponentId component_id) {
     components_to_update_.push_back(component_id);
   }
 
-  Shader* shader() const { return shader_; }
-  void set_shader(Shader* shader) { shader_ = shader; }
-
+  /// Externally mark that some entities have been modified.
+  ///
+  /// Generally used by Scene Lab's GUI, but if you change an entity's
+  /// properties some other way, call this function to ensure the user will be
+  /// prompted to save on exiting the editor.
   void set_entities_modified(bool b) { entities_modified_ = b; }
+
+  /// Have entities been modified? If so, prompt the user to save before exit.
   bool entities_modified() const { return entities_modified_; }
 
-  // Specify a callback to call when the editor is opened.
+  /// Specify a callback to call when the editor is opened.
   void AddOnEnterEditorCallback(EditorCallback callback);
 
-  // Specify a callback to call when the editor is exited.
+  /// Specify a callback to call when the editor is exited.
   void AddOnExitEditorCallback(EditorCallback callback);
 
-  // Specify a callback to call when an entity is created.
+  /// Specify a callback to call when an entity is created.
   void AddOnCreateEntityCallback(EntityCallback callback);
 
-  // Specify a callback to call when an entity's data is updated.
+  /// Specify a callback to call when an entity's data is updated.
   void AddOnUpdateEntityCallback(EntityCallback callback);
 
-  // Specify a callback to call when an entity is deleted.
+  /// Specify a callback to call when an entity is deleted.
   void AddOnDeleteEntityCallback(EntityCallback callback);
 
-  // Call all 'EditorEnter' callbacks.
+  /// Call all 'EditorEnter' callbacks.
   void NotifyEnterEditor() const;
 
-  // Call all 'EditorExit' callbacks.
+  /// Call all 'EditorExit' callbacks.
   void NotifyExitEditor() const;
 
-  // Call all 'EntityCreated' callbacks.
+  /// Call all 'EntityCreated' callbacks.
   void NotifyCreateEntity(const entity::EntityRef& entity) const;
 
-  // Call all 'EntityUpdated' callbacks.
+  /// Call all 'EntityUpdated' callbacks.
   void NotifyUpdateEntity(const entity::EntityRef& entity) const;
 
-  // Call all 'EntityDeleted' callbacks.
+  /// Call all 'EntityDeleted' callbacks.
   void NotifyDeleteEntity(const entity::EntityRef& entity) const;
 
  private:
@@ -193,7 +256,6 @@ class SceneLab {
   FontManager* font_manager_;
   // Which entity are we currently editing?
   entity::EntityRef selected_entity_;
-  Shader* shader_;
 
   InputMode input_mode_;
   MouseMode mouse_mode_;

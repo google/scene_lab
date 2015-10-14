@@ -24,12 +24,15 @@
 namespace fpl {
 namespace scene_lab {
 
+/// Pointer and keyboard controls for Scene Lab. This class provides a simple
+/// interface for button and key presses, and for tracking the camera's facing
+/// when the mouse moves like in a first-person shooter.
+/// TODO: Add gamepad and virtual thumbstick support.
 class EditorController {
-  // Pointer and keyboard controls for the in-game editor.
-  // TODO(jsimantov): Add gamepad support.
  public:
   static const int kNumButtons = 10;  // max buttons from fplbase/input.h
 
+  /// Initialize the controller.
   EditorController(const SceneLabConfig* config, InputSystem* input_system)
       : config_(config),
         input_system_(input_system),
@@ -43,83 +46,86 @@ class EditorController {
     }
   }
 
-  // Call this every frame to update the *WentDown() functions.
+  /// Call this every frame to update the *WentDown() functions.
   void Update();
 
-  // ButtonWentDown() returns true only on the first frame the given button is
-  // being pressed. Buttons are numbered 0 thru kNumButtons-1. The primary
-  // button is number 0.
+  /// ButtonWentDown() returns true only on the first frame the given button is
+  /// being pressed. Buttons are numbered 0 thru kNumButtons-1. The primary
+  /// button is number 0.
   bool ButtonWentDown(int button) const {
     return buttons_current_[button] && !buttons_previous_[button];
   }
-  // ButtonWentUp() returns true only on the first frame the given button has
-  // stopped being pressed.
+  /// ButtonWentUp() returns true only on the first frame the given button has
+  /// stopped being pressed.
   bool ButtonWentUp(int button) const {
     return buttons_previous_[button] && !buttons_current_[button];
   }
-  // ButtonIsDown() returns true while the given button is being held down.
+  /// ButtonIsDown() returns true while the given button is being held down.
   bool ButtonIsDown(int button) const { return buttons_current_[button]; }
-  // ButtonIsUp() returns true while the given button is not being held down.
-  // Equivalent to ButtonIsDown(button);
+  /// ButtonIsUp() returns true while the given button is not being held down.
+  /// Equivalent to ButtonIsDown(button);
   bool ButtonIsUp(int button) const { return !buttons_current_[button]; }
 
-  // KeyWentDown() returns true on the first frame a given key is being pressed.
+  /// KeyWentDown() returns true on the first frame a given key is being
+  /// pressed.
   bool KeyWentDown(FPL_Keycode key) const {
     return input_system_->GetButton(key).went_down();
   }
-  // KeyWentUp() returns true on the first frame after a given key has stopped
-  // being pressed.
+  /// KeyWentUp() returns true on the first frame after a given key has stopped
+  /// being pressed.
   bool KeyWentUp(FPL_Keycode key) const {
     return input_system_->GetButton(key).went_up();
   }
-  // KeyIsDown() returns true while the given key is being held down.
+  /// KeyIsDown() returns true while the given key is being held down.
   bool KeyIsDown(FPL_Keycode key) const {
     return input_system_->GetButton(key).is_down();
   }
-  // KeyIsUp() returns true while the given key is not being held down.
-  // Equivalent to !KeyIsDown(key).
+  /// KeyIsUp() returns true while the given key is not being held down.
+  /// Equivalent to !KeyIsDown(key).
   bool KeyIsUp(FPL_Keycode key) const {
     return !input_system_->GetButton(key).is_down();
   }
 
-  // Get the direction we are facing. If the mouse is locked, then moving it
-  // will cause your facing to change like in a first-person shooter.
+  /// Get the direction we are facing. If the mouse is locked, then moving it
+  /// will cause your facing to change like in a first-person shooter.
   const mathfu::vec3& GetFacing() const { return facing_current_; }
 
-  // Set the current facing to a specific value.
+  /// Set the current facing to a specific value.
   void SetFacing(const mathfu::vec3& facing) {
     facing_current_ = facing_previous_ = facing;
   }
 
-  // Get the on-screen pointer position. This is probably only useful is the
-  // mouse is unlocked.
+  /// Get the on-screen pointer position. This is probably only useful is the
+  /// mouse is unlocked.
   const mathfu::vec2& GetPointer() const { return pointer_current_; }
 
-  // Get the delta in on-screen pointer position from the previous update.
+  /// Get the delta in on-screen pointer position from the previous update.
   mathfu::vec2 GetPointerDelta() const {
     return pointer_current_ - pointer_previous_;
   }
 
-  // Lock the mouse into the middle of the screen, which will start updating
-  // facing.
+  /// Lock the mouse into the middle of the screen, which will start updating
+  /// facing.
   void LockMouse() {
     mouse_locked_ = true;
     input_system_->SetRelativeMouseMode(true);
   }
 
-  // Stop locking the mouse to the middle of the screen; it will no longer
-  // update facing, but will update pointer location instead.
+  /// Stop locking the mouse to the middle of the screen; it will no longer
+  /// update facing, but will update pointer location instead.
   void UnlockMouse() {
     mouse_locked_ = false;
     input_system_->SetRelativeMouseMode(false);
   }
 
-  // Get the pointer position in the world, as a ray from the near to far
-  // clipping plane. Returns true if the calculation succeeded.
+  /// Get the pointer position in the world, as a ray from the near to far
+  /// clipping plane. Returns true if the calculation succeeded.
   bool GetMouseWorldRay(const CameraInterface& camera,
                         const mathfu::vec2i& screen_size, mathfu::vec3* near,
                         mathfu::vec3* far) const;
 
+  /// Is the mouse locked? If so, moving the mouse changes our facing. If not,
+  /// moving the mouse moves the mouse pointer.
   bool mouse_locked() const { return mouse_locked_; }
 
  private:
