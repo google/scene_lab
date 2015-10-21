@@ -30,6 +30,10 @@ table SceneLabConfig {
 
   // Camera movement speed, in units per frame.
   camera_movement_speed:float;
+  // Set the default camera movement mode (configurable in Settings):
+  // If true, camera movement via WASD will be parallel to the ground.
+  // If false, camera movement will be in the actual camera direction.
+  camera_movement_parallel_to_ground:bool = true;
 
   // Object movement speed, in units per frame.
   object_movement_speed:float;

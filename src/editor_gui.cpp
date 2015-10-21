@@ -93,6 +93,8 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
   text_modified_color_ = LoadColorRGBA(fbconfig->text_modified_color());
   text_error_color_ = LoadColorRGBA(fbconfig->text_error_color());
 
+  lock_camera_height_ = config->camera_movement_parallel_to_ground();
+
   scene_lab_->AddOnUpdateEntityCallback(
       [this](const entity::EntityRef& entity) { EntityUpdated(entity); });
 }
@@ -260,6 +262,10 @@ void EditorGui::FinishRender() {
     }
     case kTogglePhysics: {
       show_physics_ = !show_physics_;
+      break;
+    }
+    case kToggleLockCameraHeight: {
+      lock_camera_height_ = !lock_camera_height_;
       break;
     }
     case kEntityCommit: {
@@ -521,6 +527,11 @@ void EditorGui::DrawSettingsUI() {
                  "we:expand", kButtonSize) &
       gui::kEventWentUp)
     button_pressed_ = kToggleExpandAll;
+  if (TextButton(lock_camera_height_ ? "[Ground Parallel Camera: On]"
+                                     : "[Ground Parallel Camera: Off]",
+                 "we:lock-camera-height", kButtonSize) &
+      gui::kEventWentUp)
+    button_pressed_ = kToggleLockCameraHeight;
   if (edit_window_state_ == kNormal) {
     if (TextButton("[Maximize View]", "we:maximize", kButtonSize) &
         gui::kEventWentUp)

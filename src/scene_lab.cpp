@@ -705,17 +705,23 @@ vec3 SceneLab::GetMovement() const {
   if (controller_->KeyIsDown(FPLK_a)) {
     right_speed -= move_speed;
   }
-  if (controller_->KeyIsDown(FPLK_r)) {
-    up_speed += move_speed;
+  if (gui_->lock_camera_height()) {
+    // Camera movement is locked to the horizontal plane, so we need to have
+    // a way for the user to move up and down.
+    if (controller_->KeyIsDown(FPLK_r)) {
+      up_speed += move_speed;
+    }
+    if (controller_->KeyIsDown(FPLK_f)) {
+      up_speed -= move_speed;
+    }
+    // Translate the keypresses into movement parallel to the ground plane.
+    return GlobalFromHorizontal(forward_speed, right_speed, up_speed);
+  } else {
+    // Just move relative to the direction of the camera.
+    // forward-vector X up-vector = right-vector
+    return camera_->facing() * forward_speed +
+           vec3::CrossProduct(camera_->facing(), camera_->up()) * right_speed;
   }
-  if (controller_->KeyIsDown(FPLK_f)) {
-    up_speed -= move_speed;
-  }
-
-  // Translate the keypresses into movement parallel to the ground plane.
-  const vec3 movement =
-      GlobalFromHorizontal(forward_speed, right_speed, up_speed);
-  return movement;
 }
 
 bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {

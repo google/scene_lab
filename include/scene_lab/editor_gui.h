@@ -87,6 +87,10 @@ class EditorGui {
   /// input.
   bool keyboard_in_use() const { return keyboard_in_use_; }
 
+  /// Should camera movement in Scene Lab be parallel to the ground, so your
+  /// camera's height doesn't change unless you want it to?
+  bool lock_camera_height() const { return lock_camera_height_; }
+
   /// Choose which entity we are currently editing.
   void SetEditEntity(entity::EntityRef& entity);
   /// Get the entity we are currently editing.
@@ -139,6 +143,7 @@ class EditorGui {
     kToggleDataTypes,
     kToggleExpandAll,
     kTogglePhysics,
+    kToggleLockCameraHeight,
     kEntityCommit,
     kEntityRevert
   };
@@ -254,6 +259,7 @@ class EditorGui {
   bool keyboard_in_use_;     // Is the user currently typing into an edit field?
   bool prompting_for_exit_;  // Are we currently prompting the user to exit?
   bool updated_via_gui_;     // Was the entity just updated via the GUI?
+  bool lock_camera_height_;  // Should camera movement be parallel to ground?
 };
 
 }  // namespace scene_lab
