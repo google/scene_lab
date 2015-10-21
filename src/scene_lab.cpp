@@ -434,6 +434,17 @@ void SceneLab::Activate() {
   controller_->SetFacing(camera_->facing());
   controller_->LockMouse();
 
+  // Disable distance culling, if enabled.
+  auto render_mesh_component =
+      entity_manager_->GetComponent<RenderMeshComponent>();
+  if (render_mesh_component != nullptr) {
+    rendermesh_culling_distance_squared_ =
+        render_mesh_component->culling_distance_squared();
+    // Only cull past the far clipping plane.
+    render_mesh_component->set_culling_distance_squared(
+        camera_->viewport_far_plane() * camera_->viewport_far_plane());
+  }
+
   input_mode_ = kMoving;
   *entity_cycler_ = entity_manager_->end();
 
@@ -446,6 +457,14 @@ void SceneLab::Deactivate() {
   SaveScene(false);
 
   gui_->Deactivate();
+
+  // Restore previous distance culling setting.
+  auto render_mesh_component =
+      entity_manager_->GetComponent<RenderMeshComponent>();
+  if (render_mesh_component != nullptr) {
+    render_mesh_component->set_culling_distance_squared(
+        rendermesh_culling_distance_squared_);
+  }
 
   NotifyExitEditor();
 

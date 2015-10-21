@@ -284,6 +284,8 @@ class SceneLab {
   mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
   mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
 
+  float rendermesh_culling_distance_squared_;
+
   bool exit_requested_;
   bool exit_ready_;
   bool entities_modified_;
