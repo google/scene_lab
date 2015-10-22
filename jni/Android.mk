@@ -68,7 +68,8 @@ $(call flatbuffers_header_build_rules, \
   $(SCENE_LAB_SCHEMA_DIR), \
   $(SCENE_LAB_GENERATED_OUTPUT_DIR), \
   $(SCENE_LAB_SCHEMA_INCLUDE_DIRS), \
-  $(LOCAL_SRC_FILES))
+  $(LOCAL_SRC_FILES), \
+  scene_lab_generated_includes)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
