@@ -234,7 +234,7 @@ void SceneLab::AdvanceFrame(WorldTime delta_time) {
         auto physics = entity_manager_->GetComponent<PhysicsComponent>();
         if (physics->GetComponentData(selected_entity_)) {
           physics->UpdatePhysicsFromTransform(selected_entity_);
-          if (physics->GetComponentData(selected_entity_)->enabled) {
+          if (physics->GetComponentData(selected_entity_)->enabled()) {
             // Workaround for an issue with the physics library where modifying
             // a raycast physics volume causes raycasts to stop working on it.
             physics->DisablePhysics(selected_entity_);
