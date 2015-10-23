@@ -120,10 +120,6 @@ endif()
 
 set(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
    ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
-if(scene_lab_has_parent)
-  set(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
-      ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
-endif()
 
 file(GLOB_RECURSE SCENE_LAB_FLATBUFFERS_SCHEMAS schemas/*.fbs)
 
@@ -135,7 +131,7 @@ foreach(flatbuffers_schema ${SCENE_LAB_FLATBUFFERS_SCHEMAS})
        DESTINATION ${CMAKE_BINARY_DIR}/assets/flatbufferschemas/)
   add_custom_command(
     OUTPUT ${scene_lab_flatbuffers_include}
-    COMMAND flatc --gen-includes --gen-mutable
+    COMMAND flatc --gen-mutable
         -o ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR}
         -I ${dependencies_fplbase_dir}/schemas
         -c ${flatbuffers_schema}
@@ -144,10 +140,19 @@ foreach(flatbuffers_schema ${SCENE_LAB_FLATBUFFERS_SCHEMAS})
 endforeach()
 add_custom_target(scene_lab_generated_includes
   DEPENDS ${SCENE_LAB_GENERATED_INCLUDES})
+set_property(TARGET scene_lab_generated_includes PROPERTY SCENE_LAB_DIR
+  ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 
 include_directories(src include include/scene_lab)
+get_property(FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR
+             TARGET fplbase_generated_includes PROPERTY FPLBASE_DIR)
 include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+get_property(COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR
+             TARGET component_library_generated_includes
+             PROPERTY COMPONENT_LIBRARY_DIR)
 include_directories(${COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+get_property(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
+             TARGET scene_lab_generated_includes PROPERTY SCENE_LAB_DIR)
 include_directories(${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
 include_directories(${dependencies_entity_dir}/include)
