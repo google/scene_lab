@@ -89,8 +89,8 @@ void EditOptionsComponent::EditorEnter() {
           render_mesh_component->GetComponentData(entity);
       if (rendermesh_data != nullptr) {
         bool hide = (iter->data.render_option == RenderOption_NotInEditor);
-        iter->data.backup_rendermesh_hidden = rendermesh_data->currently_hidden;
-        rendermesh_data->currently_hidden = hide;
+        iter->data.backup_rendermesh_hidden = !rendermesh_data->visible;
+        rendermesh_data->visible = !hide;
       }
     }
     if (physics_component &&
@@ -116,8 +116,8 @@ void EditOptionsComponent::EntityCreated(entity::EntityRef entity) {
         render_mesh_component->GetComponentData(entity);
     if (rendermesh_data != nullptr) {
       bool hide = (data->render_option == RenderOption_NotInEditor);
-      data->backup_rendermesh_hidden = rendermesh_data->currently_hidden;
-      rendermesh_data->currently_hidden = hide;
+      data->backup_rendermesh_hidden = !rendermesh_data->visible;
+      rendermesh_data->visible = !hide;
     }
   }
   if (physics_component &&
@@ -141,7 +141,7 @@ void EditOptionsComponent::EditorExit() {
       RenderMeshData* rendermesh_data =
           render_mesh_component->GetComponentData(iter->entity);
       if (rendermesh_data != nullptr) {
-        rendermesh_data->currently_hidden = iter->data.backup_rendermesh_hidden;
+        rendermesh_data->visible = !iter->data.backup_rendermesh_hidden;
       }
     }
   }
