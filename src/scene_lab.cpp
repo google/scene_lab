@@ -25,6 +25,7 @@
 #include "fplbase/utilities.h"
 #include "library_components_generated.h"
 #include "mathfu/utilities.h"
+#include "scene_lab/basic_camera.h"
 
 namespace scene_lab {
 
@@ -92,6 +93,8 @@ static inline vec3 ProjectOntoUnitVector(const vec3& v, const vec3& unit) {
 }
 
 void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
+  assert(camera_ != nullptr);
+
   // Update the editor's forward and right vectors in the horizontal plane.
   // Remove the up component from the camera's facing vector.
   vec3 forward = camera_->facing() -
@@ -384,9 +387,19 @@ void SceneLab::Render(fpl::Renderer* /*renderer*/) {
 }
 
 void SceneLab::SetInitialCamera(const fpl::CameraInterface& initial_camera) {
+  if (camera_ == nullptr) {
+    CreateDefaultCamera();
+  }
   camera_->set_position(initial_camera.position());
   camera_->set_facing(initial_camera.facing());
   camera_->set_up(initial_camera.up());
+}
+
+fpl::CameraInterface* SceneLab::GetCamera() {
+  if (camera_ == nullptr) {
+    CreateDefaultCamera();
+  }
+  return camera_.get();
 }
 
 void SceneLab::NotifyEnterEditor() const {
@@ -425,6 +438,9 @@ void SceneLab::NotifyDeleteEntity(const fpl::entity::EntityRef& entity) const {
 }
 
 void SceneLab::Activate() {
+  if (camera_ == nullptr) {
+    CreateDefaultCamera();
+  }
   exit_requested_ = false;
   exit_ready_ = false;
   set_entities_modified(false);
@@ -464,7 +480,10 @@ void SceneLab::Deactivate() {
     render_mesh_component->set_culling_distance_squared(
         rendermesh_culling_distance_squared_);
   }
-
+  auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
+  if (physics_component != nullptr) {
+    physics_component->AwakenAllEntities();
+  }
   NotifyExitEditor();
 
   // de-select all entities
@@ -559,6 +578,12 @@ void SceneLab::LoadSchemaFiles() {
   if (fpl::LoadFile(schema_file_text, &schema_text_)) {
     fpl::LogInfo("SceneLab: Text schema %s loaded", schema_file_text);
   }
+}
+
+void SceneLab::CreateDefaultCamera() {
+  fpl::LogInfo("Creating a default BasicCamera for Scene Lab");
+  std::unique_ptr<fpl::CameraInterface> basic_camera(new BasicCamera());
+  SetCamera(std::move(basic_camera));
 }
 
 const char* SceneLab::BinaryEntityFileExtension() const {

@@ -1,0 +1,115 @@
+{
+  surfaces: [
+    // north
+    {
+      indices: [ 0, 2, 1, 2, 3, 1 ],
+      material: "materials/box3.fplmat"
+    },
+
+    // east
+    {
+      indices: [ 4, 5, 6, 5, 7, 6 ],
+      material: "materials/box3.fplmat"
+    },
+
+    // south
+    {
+      indices: [ 8, 10, 9, 10, 11, 9 ],
+      material: "materials/box3.fplmat"
+    },
+
+    // west
+    {
+      indices: [ 12, 14, 13, 14, 15, 13 ],
+      material: "materials/box3.fplmat"
+    },
+
+    // up
+    {
+      indices: [ 16, 18, 17, 18, 19, 17 ],
+      material: "materials/box3.fplmat"
+    },
+
+    // down
+    {
+      indices: [ 20, 21, 22, 21, 23, 22 ],
+      material: "materials/box3.fplmat"
+    }
+  ],
+
+  positions: [
+    // north
+    { x: -1, y: 1,  z: -1 },
+    { x: 1,  y: 1,  z: -1 },
+    { x: -1, y: 1,  z: 1 },
+    { x: 1,  y: 1,  z: 1 },
+
+    // east
+    { x: 1,  y: -1, z: -1 },
+    { x: 1,  y: 1,  z: -1 },
+    { x: 1,  y: -1, z: 1 },
+    { x: 1,  y: 1,  z: 1 },
+
+    // south
+    { x: 1,  y: -1, z: -1 },
+    { x: -1, y: -1, z: -1 },
+    { x: 1,  y: -1, z: 1 },
+    { x: -1, y: -1, z: 1 },
+
+    // west
+    { x: -1, y: -1, z: -1 },
+    { x: -1, y: 1,  z: -1 },
+    { x: -1, y: -1, z: 1 },
+    { x: -1, y: 1,  z: 1 },
+
+    // up
+    { x: -1, y: -1, z: 1 },
+    { x: -1, y: 1,  z: 1 },
+    { x: 1,  y: -1, z: 1 },
+    { x: 1,  y: 1,  z: 1 },
+
+    // down
+    { x: -1, y: -1, z: -1 },
+    { x: -1, y: 1,  z: -1 },
+    { x: 1,  y: -1, z: -1 },
+    { x: 1,  y: 1,  z: -1 }
+  ],
+
+  texcoords: [
+    // north
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+
+    // east
+    { x: 1, y: 1 },
+    { x: 0, y: 1 },
+    { x: 1, y: 0 },
+    { x: 0, y: 0 },
+
+    // south
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+
+    // west
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+
+    // up
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+
+    // down
+    { x: 0, y: 1 },
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 1, y: 0 }
+  ]
+}

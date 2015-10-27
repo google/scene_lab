@@ -51,12 +51,13 @@ class SceneLab {
   /// Initialize Scene Lab once, when starting your game.
   ///
   /// Call this function as soon as you have an entity manager and font
-  /// manager. Make sure you give Scene Lab a camera via SetCamera() as well.
+  /// manager. Consider giving Scene Lab a camera via SetCamera() as well.
   void Initialize(const SceneLabConfig* config,
                   fpl::entity::EntityManager* entity_manager,
                   fpl::FontManager* font_manager);
 
-  /// Give Scene Lab a camera that it can use.
+  /// Give Scene Lab a camera that it can use. If you don't call this, it will
+  /// create its own BasicCamera instead.
   ///
   /// Scene Lab will take over ownership of `camera`.
   void SetCamera(std::unique_ptr<fpl::CameraInterface> camera) {
@@ -88,13 +89,19 @@ class SceneLab {
   /// their changes to the world.
   void Deactivate();
 
-  /// When you activate the editor, you can pass in the camera position so the
+  /// When you activate the editor, you can pass in your game's camera so the
   /// user can seamlessly be positioned at the same place they were during the
-  /// game.
+  /// game. Note that if you do not yet have a Scene Lab camera set when you
+  /// call this method, a BasicCamera will be created for you.
+  ///
+  /// You can also set the initial camera by calling GetCamera()->set_position()
+  /// and/or GetCamera()->set_facing().
   void SetInitialCamera(const fpl::CameraInterface& initial_camera);
 
-  /// Get the Scene Lab camera, so you can render the scene properly.
-  const fpl::CameraInterface* GetCamera() const { return camera_.get(); }
+  /// Get the Scene Lab camera, so you can render the scene properly
+  /// or change its position. If you do not have a camera, a
+  /// BasicCamera will be created for you.
+  fpl::CameraInterface* GetCamera();
 
   /// Highlight the specified entity, so that you can change its properties.
   void SelectEntity(const fpl::entity::EntityRef& entity_ref);
@@ -223,34 +230,40 @@ class SceneLab {
   // returns true if the transform was modified
   bool ModifyTransformBasedOnInput(fpl::TransformDef* transform);
 
-  // Find the intersection between a ray and a plane.
-  // Ensure ray_direction and plane_normal are both normalized.
-  // Returns true if it intersects with the plane, and sets the
-  // intersection point.
+  /// Find the intersection between a ray and a plane.
+  /// Ensure ray_direction and plane_normal are both normalized.
+  /// Returns true if it intersects with the plane, and sets the
+  /// intersection point.
   static bool IntersectRayToPlane(const mathfu::vec3& ray_origin,
                                   const mathfu::vec3& ray_direction,
                                   const mathfu::vec3& point_on_plane,
                                   const mathfu::vec3& plane_normal,
                                   mathfu::vec3* intersection_point);
 
-  // Take a point, and project it onto a plane in the direction of the plane
-  // normal. Ensure plane_normal is normalized. Returns true if was able to
-  // project the point, false if it wasn't (which would be a weird situation).
+  /// Take a point, and project it onto a plane in the direction of the plane
+  /// normal. Ensure plane_normal is normalized. Returns true if was able to
+  /// project the point, false if it wasn't (which would be a weird situation).
   static bool ProjectPointToPlane(const mathfu::vec3& point_to_project,
                                   const mathfu::vec3& point_on_plane,
                                   const mathfu::vec3& plane_normal,
                                   mathfu::vec3* point_projected);
 
-  // Serialize the entities from the given file into the given vector.
-  // Returns true if it succeeded, false if there was an error.
+  /// Serialize the entities from the given file into the given vector.
+  /// Returns true if it succeeded, false if there was an error.
   bool SerializeEntitiesFromFile(const std::string& filename,
                                  std::vector<uint8_t>* output);
 
+  /// Load binary and (optionally) text schema files into memory, for
+  /// importing and exporting of entity data.
   void LoadSchemaFiles();
 
-  // Get a pointer to the file extension to use for binary files. Default is
-  // ".bin" but can be overridden in the scene lab config. The output does NOT
-  // include the ".".
+  /// If you try to do anything that requires a camera but have not set one yet,
+  /// a default one will be created via this method.
+  void CreateDefaultCamera();
+
+  /// Get a pointer to the file extension to use for binary files. Default is
+  /// ".bin" but can be overridden in the scene lab config. The output does NOT
+  /// include the ".".
   const char* BinaryEntityFileExtension() const;
 
   const SceneLabConfig* config_;

@@ -1,0 +1,92 @@
+{
+  "entity_list": [
+    {
+      "component_list": [
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "Cube",
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100.0,
+                "restitution": 0.3,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Projectile",
+                  "Ground",
+                  "Raycast"
+                ]
+              }
+            ]
+          }
+        },
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "Cube1Proto",
+            "prototype": "CubeProto",
+          }
+        },
+        {
+          "data_type": "RenderMeshDef",
+          "data" : {
+            "source_file":"meshes/cube2.fplmesh",
+            "shader": "shaders/textured",
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100.0,
+                "restitution": 0.3,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Projectile",
+                  "Ground",
+                  "Raycast"
+                ]
+              }
+            ]
+          }
+        },
+      ]
+    }
+  ]
+}

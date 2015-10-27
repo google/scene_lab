@@ -16,23 +16,28 @@ cmake_minimum_required(VERSION 2.8.12)
 project(scene_lab)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
 # Scene Lab source files.
 set(scene_lab_SRCS
+    include/scene_lab/basic_camera.h
     include/scene_lab/edit_options.h
     include/scene_lab/editor_controller.h
     include/scene_lab/editor_gui.h
     include/scene_lab/flatbuffer_editor.h
     include/scene_lab/scene_lab.h
+    include/scene_lab/util.h
+    src/basic_camera.cpp
     src/edit_options.cpp
     src/editor_controller.cpp
     src/editor_gui.cpp
     src/flatbuffer_editor.cpp
     src/scene_lab.cpp
- )
+    src/util.cpp
+    )
 
 # Compile the game with the debug flag
 set(scene_lab_DEBUG ON)
@@ -97,49 +102,78 @@ endif()
 option(scene_lab_build_sample "Build a sample game for Scene Lab"
        ${scene_lab_standalone_mode})
 
+option(scene_lab_build_cwebp "Build cwebp for Scene Lab from source." OFF)
+
 if(scene_lab_standalone_mode)
-  # Include FPLBase in this project.
-  add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
+  if(NOT TARGET fplbase)
+    # Include FPLBase in this project.
+    set(fplbase_build_mesh_pipeline OFF CACHE BOOL "")
+    add_subdirectory("${dependencies_fplbase_dir}" ${tmp_dir}/fplbase)
+  endif()
 
   # Include FlatBuffers in this project.
-  set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
   if(NOT TARGET flatc)
+    set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
     add_subdirectory("${dependencies_flatbuffers_dir}" ${tmp_dir}/flatbuffers)
   endif()
 
-  # Include MathFu without tests or benchmarks.
-  set(mathfu_build_benchmarks OFF CACHE BOOL "")
-  set(mathfu_build_tests OFF CACHE BOOL "")
-  add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
+  if (NOT TARGET mathfu)
+    # Include MathFu without tests or benchmarks.
+    set(mathfu_build_benchmarks OFF CACHE BOOL "")
+    set(mathfu_build_tests OFF CACHE BOOL "")
+    add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
+  endif()
 
-  # Include entity system.
-  add_subdirectory("${dependencies_entity_dir}" ${tmp_dir}/entity)
+  if(NOT TARGET entity)
+    # Include entity system.
+    add_subdirectory("${dependencies_entity_dir}" ${tmp_dir}/entity)
+  endif()
+
+  if(NOT TARGET flatui)
+    # Include FlatUI UI system.
+    add_subdirectory("${dependencies_flatui_dir}" ${tmp_dir}/flatui)
+  endif()
+
+  if(NOT TARGET breadboard)
+    # Include Breadboard event system.
+    add_subdirectory("${dependencies_breadboard_dir}" ${tmp_dir}/breadboard)
+  endif()
+
+  if (NOT TARGET motive)
+    # Include Motive animation system.
+    set(motive_build_samples OFF CACHE BOOL "")
+    set(motive_build_tests OFF CACHE BOOL "")
+    add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
+  endif()
+
+  if(NOT TARGET pindrop)
+    # Include Pindrop audio system.
+    set(pindrop_build_demo OFF CACHE BOOL "")
+    set(pindrop_build_tests OFF CACHE BOOL "")
+    add_subdirectory("${dependencies_pindrop_dir}" ${tmp_dir}/pindrop)
+  endif()
 endif()
 
-set(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
-   ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
+set(scene_lab_flatbuffers_generated_includes_dir
+   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
 
-file(GLOB_RECURSE SCENE_LAB_FLATBUFFERS_SCHEMAS schemas/*.fbs)
+file(GLOB_RECURSE scene_lab_flatbuffers_schemas schemas/*.fbs)
 
-foreach(flatbuffers_schema ${SCENE_LAB_FLATBUFFERS_SCHEMAS})
-  get_filename_component(filename ${flatbuffers_schema} NAME_WE)
-  set(scene_lab_flatbuffers_include
-    ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
-  file(COPY ${flatbuffers_schema}
-       DESTINATION ${CMAKE_BINARY_DIR}/assets/flatbufferschemas/)
-  add_custom_command(
-    OUTPUT ${scene_lab_flatbuffers_include}
-    COMMAND flatc --gen-mutable
-        -o ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -I ${dependencies_fplbase_dir}/schemas
-        -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema})
-  list(APPEND SCENE_LAB_GENERATED_INCLUDES ${scene_lab_flatbuffers_include})
-endforeach()
-add_custom_target(scene_lab_generated_includes
-  DEPENDS ${SCENE_LAB_GENERATED_INCLUDES})
-set_property(TARGET scene_lab_generated_includes PROPERTY SCENE_LAB_DIR
-  ${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+set(scene_lab_schema_include_dirs
+  ${CMAKE_SOURCE_DIR}/schemas
+  ${dependencies_component_library_dir}/schemas
+  ${dependencies_fplbase_dir}/schemas
+  ${dependencies_motive_dir}/schemas
+  ${dependencies_pindrop_dir}/schemas
+  )
+
+build_flatbuffers("${scene_lab_flatbuffers_schemas}"
+                  "${scene_lab_schema_include_dirs}"
+                  "scene_lab_generated_includes"
+                  ""
+                  "${scene_lab_flatbuffers_generated_includes_dir}"
+                  ""
+                  "")
 
 include_directories(src include include/scene_lab)
 get_property(FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR
@@ -149,9 +183,6 @@ get_property(COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR
              TARGET component_library_generated_includes
              PROPERTY COMPONENT_LIBRARY_DIR)
 include_directories(${COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
-get_property(SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR
-             TARGET scene_lab_generated_includes PROPERTY SCENE_LAB_DIR)
-include_directories(${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
 include_directories(${dependencies_entity_dir}/include)
 include_directories(${dependencies_component_library_dir}/include)
@@ -161,6 +192,10 @@ include_directories(${dependencies_fplbase_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_flatui_dir}/include)
 include_directories(${dependencies_mathfu_dir}/include)
+include_directories(${dependencies_pindrop_dir}/include)
+
+# SDL includes.
+include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
 # Detect clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -194,4 +229,7 @@ add_dependencies(scene_lab component_library_generated_includes)
 add_dependencies(scene_lab fplbase_generated_includes)
 mathfu_configure_flags(scene_lab)
 
+if(scene_lab_build_sample AND NOT TARGET scene_lab_sample)
+  add_subdirectory(sample)
+endif()
 

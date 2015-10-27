@@ -1,0 +1,653 @@
+{
+  "entity_list": [
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/skybox.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "CycleOnly"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 100,
+              "y": 100,
+              "z": 100
+            },
+            "orientation": {
+              "x": 0,
+              "y": -0,
+              "z": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/ground.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletStaticPlaneDef",
+                "data": {
+                  "normal": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 0,
+                "restitution": 1,
+                "collision_type": "Ground",
+                "collides_with": [
+                  "Projectile"
+                ],
+                "user_tag": ""
+              }
+            ],
+            "kinematic": true
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "Ground Physics"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -100,
+              "y": -100,
+              "z": 0
+            },
+            "scale": {
+              "x": 200,
+              "y": 200,
+              "z": 200
+            },
+            "orientation": {
+              "x": 0,
+              "y": -0,
+              "z": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube2.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$bd25-7c51-2a75-2697"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -1.280664,
+              "y": 18.410997,
+              "z": 5.987223
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "orientation": {
+              "x": -90.76622,
+              "y": -24.977793,
+              "z": 90.468742
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$9749-1c1b-d053-9605"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": 0.247575,
+              "y": 18.71636,
+              "z": 30.772932
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5,
+              "z": 1.5
+            },
+            "orientation": {
+              "x": 89.999985,
+              "y": -10.404872,
+              "z": -180
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$52bc-01e3-c78e-e368"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -0.463252,
+              "y": 17.831947,
+              "z": 1.493764
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5,
+              "z": 1.5
+            },
+            "orientation": {
+              "x": -0.009108,
+              "y": -0.061631,
+              "z": -16.552746
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube4.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$ab3b-8576-5dae-4a59"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -1.411669,
+              "y": 19.121807,
+              "z": 10.994927
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "orientation": {
+              "x": -92.739197,
+              "y": -55.908539,
+              "z": 92.097176
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube3.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$c17c-3710-0aee-d688"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": 0.353684,
+              "y": 17.254679,
+              "z": 10.929227
+            },
+            "scale": {
+              "x": 0.798164,
+              "y": 1,
+              "z": 1
+            },
+            "orientation": {
+              "x": 89.43158,
+              "y": -20.972422,
+              "z": 178.802795
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube4.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$2b4a-2c27-ac70-8ca6"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -0.722542,
+              "y": 19.038677,
+              "z": 3.988986
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "orientation": {
+              "x": 88.31012,
+              "y": 71.616364,
+              "z": 178.830414
+            }
+          }
+        }
+      ]
+    },
+    {
+      "component_list": [
+        {
+          "data_type": "RenderMeshDef",
+          "data": {
+            "source_file": "meshes/cube.fplmesh",
+            "shader": "shaders/textured",
+            "render_pass": [
+              "Opaque"
+            ]
+          }
+        },
+        {
+          "data_type": "PhysicsDef",
+          "data": {
+            "shapes": [
+              {
+                "data_type": "BulletBoxDef",
+                "data": {
+                  "half_extents": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                  }
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "mass": 100,
+                "restitution": 0.1,
+                "collision_type": "Projectile",
+                "collides_with": [
+                  "Raycast",
+                  "Projectile",
+                  "Ground"
+                ],
+                "user_tag": ""
+              }
+            ]
+          }
+        },
+        {
+          "data_type": "MetaDef",
+          "data": {
+            "entity_id": "$e332-a52b-01ad-736a"
+          }
+        },
+        {
+          "data_type": "EditOptionsDef",
+          "data": {
+            "selection_option": "Any"
+          }
+        },
+        {
+          "data_type": "TransformDef",
+          "data": {
+            "position": {
+              "x": -0.506335,
+              "y": 18.545166,
+              "z": 8.470726
+            },
+            "scale": {
+              "x": 1.5,
+              "y": 1.5,
+              "z": 1.5
+            },
+            "orientation": {
+              "x": 89.359436,
+              "y": -12.07631,
+              "z": 178.920929
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
