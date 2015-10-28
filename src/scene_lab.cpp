@@ -86,7 +86,7 @@ static inline vec3 ProjectOntoUnitVector(const vec3& v, const vec3& unit) {
   return vec3::DotProduct(v, unit) * unit;
 }
 
-void SceneLab::AdvanceFrame(WorldTime delta_time) {
+void SceneLab::AdvanceFrame(entity::WorldTime delta_time) {
   // Update the editor's forward and right vectors in the horizontal plane.
   // Remove the up component from the camera's facing vector.
   vec3 forward = camera_->facing() -

@@ -64,7 +64,7 @@ class SceneLab {
   }
 
   /// While Scene Lab is active, you must call this once a frame, every frame.
-  void AdvanceFrame(WorldTime delta_time);
+  void AdvanceFrame(entity::WorldTime delta_time);
 
   /// Render Scene Lab and its GUI; only call this when Scene Lab is active.
   ///
