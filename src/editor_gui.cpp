@@ -426,17 +426,17 @@ void EditorGui::BeginDrawEditView() {
   gui::StartScroll(vec2(edit_width_, virtual_resolution_.y() -
                                          2 * config_->gui_toolbar_size()),
                    &scroll_offset_[edit_view_]);
-  CaptureMouseClicks();
   gui::ColorBackground(bg_edit_ui_color_);
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-v");
+  CaptureMouseClicks();
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing);
   gui::SetMargin(gui::Margin(edit_width_, 1, 0, 0));
   gui::EndGroup();
   gui::StartGroup(gui::kLayoutHorizontalTop, kSpacing, "we:edit-ui-h");
+  CaptureMouseClicks();
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing);
   gui::SetMargin(gui::Margin(1, virtual_resolution_.y(), 0, 0));
   gui::EndGroup();
-
   gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:edit-ui-scroll");
   gui::SetMargin(gui::Margin(10, 10));
 }
