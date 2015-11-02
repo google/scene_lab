@@ -248,6 +248,11 @@ class SceneLab {
 
   void LoadSchemaFiles();
 
+  // Get a pointer to the file extension to use for binary files. Default is
+  // ".bin" but can be overridden in the scene lab config. The output does NOT
+  // include the ".".
+  const char* BinaryEntityFileExtension() const;
+
   const SceneLabConfig* config_;
   Renderer* renderer_;
   InputSystem* input_system_;

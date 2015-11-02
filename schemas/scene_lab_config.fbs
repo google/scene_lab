@@ -66,6 +66,11 @@ table SceneLabConfig {
 
   flatbuffer_editor_config:FlatbufferEditorConfig;
 
+  // File extension to use for outputting binary entity files. If you don't
+  // specify an extension, "bin" will be used. DO NOT include the "." in this
+  // string.
+  binary_entity_file_ext:string;
+
   gui_font:string;
 
   // Directory in which to save JSON files (optional), relative to the binary

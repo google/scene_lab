@@ -45,6 +45,8 @@ using mathfu::vec3;
 static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
+static const char kDefaultBinaryEntityFileExtension[] = "bin";
+
 void SceneLab::Initialize(const SceneLabConfig* config,
                           entity::EntityManager* entity_manager,
                           FontManager* font_manager) {
@@ -490,7 +492,7 @@ void SceneLab::SaveScene(bool to_disk) {
     std::vector<uint8_t> entity_buffer;
     if (SerializeEntitiesFromFile(filename, &entity_buffer)) {
       entity_factory_->OverrideCachedFile(
-          (filename + ".bin").c_str(),
+          (filename + "." + BinaryEntityFileExtension()).c_str(),
           std::unique_ptr<std::string>(new std::string(
               reinterpret_cast<const char*>(entity_buffer.data()),
               entity_buffer.size())));
@@ -561,6 +563,14 @@ void SceneLab::LoadSchemaFiles() {
   }
 }
 
+const char* SceneLab::BinaryEntityFileExtension() const {
+  if (config_ != nullptr && config_->binary_entity_file_ext() != nullptr) {
+    return config_->binary_entity_file_ext()->c_str();
+  } else {
+    return kDefaultBinaryEntityFileExtension;
+  }
+}
+
 bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
                                          std::vector<uint8_t>* output) {
   if (filename == "") {
@@ -599,8 +609,8 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     return;
   }
   LogInfo("Saving entities in file: '%s'", filename.c_str());
-  if (SaveFile((filename + ".bin").c_str(), entity_list.data(),
-               entity_list.size())) {
+  if (SaveFile((filename + "." + BinaryEntityFileExtension()).c_str(),
+               entity_list.data(), entity_list.size())) {
     LogInfo("Save (binary) successful.");
   } else {
     LogInfo("Save (binary) failed.");
