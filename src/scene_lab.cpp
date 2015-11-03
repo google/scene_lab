@@ -673,17 +673,19 @@ bool SceneLab::IntersectRayToPlane(const vec3& ray_origin,
                                    const vec3& point_on_plane,
                                    const vec3& plane_normal,
                                    vec3* intersection_point) {
+  const float kEpsilon = 0.001f;
   vec3 ray_origin_to_plane = ray_origin - point_on_plane;
   float distance_from_ray_origin_to_plane =
       vec3::DotProduct(ray_origin_to_plane, plane_normal);
-  // vec3 nearest_point_on_plane_to_ray_origin =
-  //     plane_normal * -distance_from_ray_origin_to_plane;
-  // ratio of diagonal / distance_from_ray_origin_to_plane
+  // Nearest point on plane to ray origin =
+  //     plane_normal . -distance_from_ray_origin_to_plane.
   float length_ratio = vec3::DotProduct(ray_direction, -plane_normal);
+  // Ratio of diagonal / distance_from_ray_origin_to_plane.
   // float diagonal = length_ratio * distance_from_ray_origin_to_plane;
-  if (distance_from_ray_origin_to_plane < 0.001)
+  if (distance_from_ray_origin_to_plane < kEpsilon &&
+      distance_from_ray_origin_to_plane > -kEpsilon)
     *intersection_point = ray_origin_to_plane;
-  else if (length_ratio < 0.001)
+  else if (length_ratio < kEpsilon && length_ratio > -kEpsilon)
     return false;
   else
     *intersection_point =
