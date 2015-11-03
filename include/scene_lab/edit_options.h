@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_SCENE_LAB_EDIT_OPTIONS_H_
-#define FPL_SCENE_LAB_EDIT_OPTIONS_H_
+#ifndef SCENE_LAB_EDIT_OPTIONS_H_
+#define SCENE_LAB_EDIT_OPTIONS_H_
 
 #include <set>
 #include <string>
@@ -21,7 +21,6 @@
 #include "editor_components_generated.h"
 #include "entity/component.h"
 
-namespace fpl {
 namespace scene_lab {
 
 // SceneLab refers to EditOptionsComponent so this needs to be forward
@@ -40,23 +39,24 @@ struct EditOptionsData {
   bool backup_rendermesh_hidden;
 };
 
-class EditOptionsComponent : public entity::Component<EditOptionsData> {
+class EditOptionsComponent : public fpl::entity::Component<EditOptionsData> {
  public:
   void EditorEnter();
   void EditorExit();
-  void EntityCreated(entity::EntityRef entity);
+  void EntityCreated(fpl::entity::EntityRef entity);
 
-  virtual void AddFromRawData(entity::EntityRef& entity, const void* raw_data);
-  virtual RawDataUniquePtr ExportRawData(const entity::EntityRef& entity) const;
+  virtual void AddFromRawData(fpl::entity::EntityRef& entity,
+                              const void* raw_data);
+  virtual RawDataUniquePtr ExportRawData(
+      const fpl::entity::EntityRef& entity) const;
 
   // This must be called once and only once when initializing Scene Lab.
   void SetSceneLabCallbacks(SceneLab* scene_lab);
 };
 
 }  // namespace scene_lab
-}  // namespace fpl
 
-FPL_ENTITY_REGISTER_COMPONENT(fpl::scene_lab::EditOptionsComponent,
-                              fpl::scene_lab::EditOptionsData)
+FPL_ENTITY_REGISTER_COMPONENT(scene_lab::EditOptionsComponent,
+                              scene_lab::EditOptionsData)
 
-#endif  // FPL_scene_LAB_EDIT_OPTIONS_H_
+#endif  // SCENE_LAB_EDIT_OPTIONS_H_

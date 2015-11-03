@@ -13,15 +13,20 @@
 // limitations under the License.
 
 #include <bitset>
-#include "scene_lab/flatbuffer_editor.h"
 #include "flatbuffer_editor_config_generated.h"
-#include "fplbase/utilities.h"
 #include "fplbase/flatbuffer_utils.h"
+#include "fplbase/utilities.h"
+#include "scene_lab/flatbuffer_editor.h"
 
-namespace fpl {
 namespace scene_lab {
 
 using flatbuffers::uoffset_t;
+using fpl::ColorRGBA;
+using mathfu::vec2;
+using mathfu::vec4;
+
+// TODO: remove this line when the gui namespace is moved out of fpl.
+namespace gui = fpl::gui;
 
 // Default UI layout, override in Flatbuffers.
 static const int kDefaultUISize = 20;
@@ -61,7 +66,6 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
   const vec4 default_fg(kDefaultFGColor);
   if (config == nullptr) {
     // Default colors.
-    LogInfo("Color defaults.");
     ui_size_ = kDefaultUISize;
     ui_spacing_ = kDefaultUISpacing;
     blank_field_width_ = kDefaultBlankStringWidth;
@@ -335,7 +339,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
     const reflection::Object& objectdef, flatbuffers::Struct* struct_ptr) {
   std::string str = ExtractInlineStructDef(struct_def);
   if (str.length() == 0) {
-    LogInfo("Struct parse error: overall struct def");
+    fpl::LogError("Struct parse error: overall struct def");
     return false;
   }
 
@@ -348,7 +352,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
         // Scalar value.
         std::string new_str = ConsumeNumber(str);
         if (new_str == str) {
-          LogInfo("Struct parse error: scalar. str = '%s'", str.c_str());
+          fpl::LogError("Struct parse error: scalar. str = '%s'", str.c_str());
           return false;
         }
         if (struct_ptr != nullptr)
@@ -362,8 +366,9 @@ bool FlatbufferEditor::ParseStringIntoStruct(
         if (subobjdef.is_struct()) {
           std::string substr = ExtractInlineStructDef(str);
           if (substr.length() == 0) {
-            LogInfo("Struct parse error: extracting substruct. str = '%s'",
-                    str.c_str());
+            fpl::LogError(
+                "Struct parse error: extracting substruct. str = '%s'",
+                str.c_str());
             return false;
           }
           flatbuffers::Struct* sub_struct =
@@ -372,7 +377,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
                         *struct_ptr, fielddef)
                   : nullptr;
           if (!ParseStringIntoStruct(substr, schema, subobjdef, sub_struct)) {
-            LogInfo("Struct parse error: substruct");
+            fpl::LogError("Struct parse error: substruct");
             return false;
           }
           str = str.substr(substr.length());
@@ -469,8 +474,6 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
       edit_fields_modified_ = true;
       if (mode == kCommitEdits &&
           (force_commit_field_ == "" || force_commit_field_ == id)) {
-        LogInfo("VisitField: Setting '%s' to '%s' (was: '%s')", id.c_str(),
-                edit_fields_[id].c_str(), value.c_str());
         committed_fields_.insert(id);
         return true;  // Return true if the field was changed.
       }
@@ -627,7 +630,7 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
           const uint8_t* new_data = flatbuffers::AddFlatBuffer(
               flatbuffer_, fbb.GetBufferPointer(), fbb.GetSize());
           if (!SetFieldT(&table, fielddef, new_data)) {
-            LogError("Couldn't add new string value to Flatbuffer!");
+            fpl::LogError("Couldn't add new string value to Flatbuffer!");
           }
           flatbuffer_modified_ = true;
           return true;
@@ -834,21 +837,17 @@ bool FlatbufferEditor::VisitFlatbufferStruct(
           objectdef.name()->str(),
           show_types() ? StructToString(schema, objectdef, fbstruct, true) : "",
           id)) {
-    LogInfo("Struct %s edited, new value is %s", id.c_str(),
-            edit_fields_[id].c_str());
     // Check if the field is valid first.
     bool valid =
         ParseStringIntoStruct(edit_fields_[id], schema, objectdef, nullptr);
     if (valid) {
-      LogInfo("Struct '%s' WAS valid for %s.", edit_fields_[id].c_str(),
-              id.c_str());
       ParseStringIntoStruct(edit_fields_[id], schema, objectdef, &fbstruct);
       flatbuffer_modified_ = true;
       if (error_fields_.find(id) != error_fields_.end())
         error_fields_.erase(id);
     } else {
-      LogInfo("Struct '%s' was not valid for %s.", edit_fields_[id].c_str(),
-              id.c_str());
+      fpl::LogError("Struct '%s' was not valid for %s.",
+                    edit_fields_[id].c_str(), id.c_str());
       error_fields_.insert(id);
       // TODO: mark invalid fields in red.
     }
@@ -982,4 +981,3 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
 }
 
 }  // namespace editor
-}  // namespace fpl

@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_SCENE_LAB_EDITOR_CONTROLLER_H_
-#define FPL_SCENE_LAB_EDITOR_CONTROLLER_H_
+#ifndef SCENE_LAB_EDITOR_CONTROLLER_H_
+#define SCENE_LAB_EDITOR_CONTROLLER_H_
 
 #include "component_library/camera_interface.h"
 #include "fplbase/input.h"
-#include "mathfu/glsl_mappings.h"
 #include "mathfu/constants.h"
+#include "mathfu/glsl_mappings.h"
 #include "scene_lab_config_generated.h"
 
-namespace fpl {
 namespace scene_lab {
 
 /// Pointer and keyboard controls for Scene Lab. This class provides a simple
@@ -33,7 +32,7 @@ class EditorController {
   static const int kNumButtons = 10;  // max buttons from fplbase/input.h
 
   /// Initialize the controller.
-  EditorController(const SceneLabConfig* config, InputSystem* input_system)
+  EditorController(const SceneLabConfig* config, fpl::InputSystem* input_system)
       : config_(config),
         input_system_(input_system),
         mouse_locked_(false),
@@ -68,21 +67,21 @@ class EditorController {
 
   /// KeyWentDown() returns true on the first frame a given key is being
   /// pressed.
-  bool KeyWentDown(FPL_Keycode key) const {
+  bool KeyWentDown(fpl::FPL_Keycode key) const {
     return input_system_->GetButton(key).went_down();
   }
   /// KeyWentUp() returns true on the first frame after a given key has stopped
   /// being pressed.
-  bool KeyWentUp(FPL_Keycode key) const {
+  bool KeyWentUp(fpl::FPL_Keycode key) const {
     return input_system_->GetButton(key).went_up();
   }
   /// KeyIsDown() returns true while the given key is being held down.
-  bool KeyIsDown(FPL_Keycode key) const {
+  bool KeyIsDown(fpl::FPL_Keycode key) const {
     return input_system_->GetButton(key).is_down();
   }
   /// KeyIsUp() returns true while the given key is not being held down.
   /// Equivalent to !KeyIsDown(key).
-  bool KeyIsUp(FPL_Keycode key) const {
+  bool KeyIsUp(fpl::FPL_Keycode key) const {
     return !input_system_->GetButton(key).is_down();
   }
 
@@ -120,7 +119,7 @@ class EditorController {
 
   /// Get the pointer position in the world, as a ray from the near to far
   /// clipping plane. Returns true if the calculation succeeded.
-  bool GetMouseWorldRay(const CameraInterface& camera,
+  bool GetMouseWorldRay(const fpl::CameraInterface& camera,
                         const mathfu::vec2i& screen_size, mathfu::vec3* near,
                         mathfu::vec3* far) const;
 
@@ -130,7 +129,7 @@ class EditorController {
 
  private:
   const SceneLabConfig* config_;
-  InputSystem* input_system_;
+  fpl::InputSystem* input_system_;
 
   bool mouse_locked_;
 
@@ -145,6 +144,5 @@ class EditorController {
 };
 
 }  // namespace scene_lab
-}  // namespace fpl
 
-#endif  // FPL_SCENE_LAB_EDITOR_CONTROLLER_H_
+#endif  // SCENE_LAB_EDITOR_CONTROLLER_H_

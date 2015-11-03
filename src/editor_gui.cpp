@@ -23,19 +23,22 @@
 #include "scene_lab/editor_gui.h"
 #include "scene_lab/scene_lab.h"
 
-namespace fpl {
 namespace scene_lab {
 
-using component_library::CommonServicesComponent;
-using component_library::MetaComponent;
-using component_library::MetaData;
-using component_library::TransformComponent;
-using component_library::TransformData;
+using fpl::component_library::CommonServicesComponent;
+using fpl::component_library::MetaComponent;
+using fpl::component_library::MetaData;
+using fpl::component_library::TransformComponent;
+using fpl::component_library::TransformData;
 using flatbuffers::Offset;
 using flatbuffers::NumToString;
 using flatbuffers::Table;
 using flatbuffers::uoffset_t;
 using flatbuffers::Vector;
+using mathfu::vec2;
+
+// TODO: remove this line when the gui namespace is moved out of fpl.
+namespace gui = fpl::gui;
 
 // Names of the mouse modes from SceneLab.cpp, in the same order as
 // the mouse_mode_ enum. nullptr is an end sentinel to start over at 0.
@@ -45,8 +48,9 @@ static const char* const kMouseModeNames[] = {
     "Scale Y",           "Scale Z",         nullptr};
 
 EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
-                     entity::EntityManager* entity_manager,
-                     FontManager* font_manager, const std::string* schema_data)
+                     fpl::entity::EntityManager* entity_manager,
+                     fpl::FontManager* font_manager,
+                     const std::string* schema_data)
     : config_(config),
       scene_lab_(scene_lab),
       entity_manager_(entity_manager),
@@ -72,7 +76,7 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
   entity_factory_ = services->entity_factory();
   input_system_ = services->input_system();
   renderer_ = services->renderer();
-  components_to_show_.resize(entity::kMaxComponentCount, false);
+  components_to_show_.resize(fpl::entity::kMaxComponentCount, false);
   components_to_show_[MetaComponent::GetComponentId()] = true;
   components_to_show_[TransformComponent::GetComponentId()] = true;
   for (int i = 0; i < kEditViewCount; i++) {
@@ -96,7 +100,7 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
   lock_camera_height_ = config->camera_movement_parallel_to_ground();
 
   scene_lab_->AddOnUpdateEntityCallback(
-      [this](const entity::EntityRef& entity) { EntityUpdated(entity); });
+      [this](const fpl::entity::EntityRef& entity) { EntityUpdated(entity); });
 }
 
 void EditorGui::Activate() {
@@ -117,7 +121,7 @@ bool EditorGui::CanExit() {
   }
 }
 
-void EditorGui::EntityUpdated(entity::EntityRef entity) {
+void EditorGui::EntityUpdated(fpl::entity::EntityRef entity) {
   if (updated_via_gui_) return;  // Ignore this event if the GUI did the update.
   // If the entity we are looking at was updated externally, clear out its data.
   if (edit_entity_ == entity) {
@@ -125,7 +129,7 @@ void EditorGui::EntityUpdated(entity::EntityRef entity) {
   }
 }
 
-void EditorGui::SetEditEntity(entity::EntityRef& entity) {
+void EditorGui::SetEditEntity(fpl::entity::EntityRef& entity) {
   if (edit_entity_ != entity) {
     ClearEntityData();
     scroll_offset_[kEditEntity] = mathfu::kZeros2f;
@@ -148,7 +152,7 @@ void EditorGui::GetVirtualResolution(vec2* resolution_output) {
 
 void EditorGui::Render() {
   StartRender();
-  mathfu::vec2 virtual_resolution;
+  vec2 virtual_resolution;
   GetVirtualResolution(&virtual_resolution);
   gui::Run(*asset_manager_, *font_manager_, *input_system_, [&]() {
     gui::SetVirtualResolution(kVirtualResolution);
@@ -186,10 +190,11 @@ void EditorGui::FinishRender() {
     // Delete and recreate the entity, but with one component's data replaced.
     auto meta_component = entity_manager_->GetComponent<MetaComponent>();
 
-    std::vector<entity::ComponentInterface::RawDataUniquePtr> exported_data;
+    std::vector<fpl::entity::ComponentInterface::RawDataUniquePtr>
+        exported_data;
     std::vector<const void*> exported_pointers;  // Indexed by component ID.
     exported_pointers.resize(entity_factory_->max_component_id() + 1, nullptr);
-    for (entity::ComponentId component_id = 0;
+    for (fpl::entity::ComponentId component_id = 0;
          component_id <= entity_factory_->max_component_id(); component_id++) {
       const MetaData* meta_data =
           meta_component->GetComponentData(edit_entity_);
@@ -198,7 +203,7 @@ void EditorGui::FinishRender() {
             component_guis_[auto_recreate_component_]->flatbuffer();
       } else if (meta_data->components_from_prototype.find(component_id) ==
                  meta_data->components_from_prototype.end()) {
-        entity::ComponentInterface* component =
+        fpl::entity::ComponentInterface* component =
             entity_manager_->GetComponent(component_id);
         if (component != nullptr) {
           exported_data.push_back(component->ExportRawData(edit_entity_));
@@ -216,7 +221,7 @@ void EditorGui::FinishRender() {
       std::vector<uint8_t> entity_list_def;
       if (entity_factory_->SerializeEntityList(entity_defs, &entity_list_def)) {
         // create a new copy of the entity...
-        std::vector<entity::EntityRef> entities_created;
+        std::vector<fpl::entity::EntityRef> entities_created;
         if (entity_factory_->LoadEntityListFromMemory(entity_list_def.data(),
                                                       entity_manager_,
                                                       &entities_created) > 0) {
@@ -226,7 +231,7 @@ void EditorGui::FinishRender() {
             meta_data->source_file = old_source_file;
           }
           // delete the old entity...
-          entity::EntityRef old_entity = edit_entity_;
+          fpl::entity::EntityRef old_entity = edit_entity_;
           SetEditEntity(entities_created[0]);
           entity_manager_->DeleteEntityImmediately(old_entity);
           entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
@@ -280,7 +285,7 @@ void EditorGui::FinishRender() {
   button_pressed_ = kNone;
 }
 
-void EditorGui::DrawGui(const mathfu::vec2& virtual_resolution) {
+void EditorGui::DrawGui(const vec2& virtual_resolution) {
   virtual_resolution_ = virtual_resolution;
 
   if (edit_window_state_ == kMaximized)
@@ -396,8 +401,9 @@ void EditorGui::SendUpdateEvent() {
   updated_via_gui_ = false;
 }
 
-void EditorGui::CommitComponentData(entity::ComponentId id) {
-  entity::ComponentInterface* component = entity_manager_->GetComponent(id);
+void EditorGui::CommitComponentData(fpl::entity::ComponentId id) {
+  fpl::entity::ComponentInterface* component =
+      entity_manager_->GetComponent(id);
   if (component_guis_.find(id) != component_guis_.end()) {
     FlatbufferEditor* editor = component_guis_[id].get();
     if (editor->flatbuffer_modified()) {
@@ -549,10 +555,10 @@ void EditorGui::DrawEditEntityUI() {
   if (!edit_entity_) {
     gui::Label("No entity selected!", config_->gui_button_size());
   } else {
-    changed_edit_entity_ = entity::EntityRef();
+    changed_edit_entity_ = fpl::entity::EntityRef();
 
-    for (entity::ComponentId id = 0; id <= entity_factory_->max_component_id();
-         id++) {
+    for (fpl::entity::ComponentId id = 0;
+         id <= entity_factory_->max_component_id(); id++) {
       DrawEntityComponent(id);
     }
     DrawEntityFamily();
@@ -561,19 +567,19 @@ void EditorGui::DrawEditEntityUI() {
       // Something during the course of rendering the UI caused the selected
       // entity to change, so let's select the new entity.
       SetEditEntity(changed_edit_entity_);
-      changed_edit_entity_ = entity::EntityRef();
+      changed_edit_entity_ = fpl::entity::EntityRef();
     }
   }
 }
 
 void EditorGui::DrawEntityListUI() {
-  changed_edit_entity_ = entity::EntityRef();
+  changed_edit_entity_ = fpl::entity::EntityRef();
 
   gui::StartGroup(gui::kLayoutHorizontalCenter, kSpacing,
                   "ws:entity-list-filter");
   gui::SetTextColor(text_normal_color_);
   gui::Label("Filter:", config_->gui_button_size());
-  mathfu::vec2 size_vec =
+  vec2 size_vec =
       entity_list_filter_.length() > 0 ? vec2(0, 0) : vec2(kBlankEditWidth, 0);
   gui::SetTextColor(text_editable_color_);
   if (gui::Edit(config_->gui_button_size(), size_vec, "ws:entity-list-edit",
@@ -596,23 +602,24 @@ void EditorGui::DrawEntityListUI() {
       EntityButton(e.ToReference(), config_->gui_button_size());
     }
   }
-  if (changed_edit_entity_ != entity::EntityRef()) {
+  if (changed_edit_entity_ != fpl::entity::EntityRef()) {
     // select new entity
     if (changed_edit_entity_ == edit_entity_) {
       // select the same entity again, so change the tab mode
       edit_view_ = kEditEntity;
     }
     SetEditEntity(changed_edit_entity_);
-    changed_edit_entity_ = entity::EntityRef();
+    changed_edit_entity_ = fpl::entity::EntityRef();
   }
 }
 
-void EditorGui::DrawEntityComponent(entity::ComponentId id) {
+void EditorGui::DrawEntityComponent(fpl::entity::ComponentId id) {
   const int kTableNameSize = 30;
   const int kTableButtonSize = kTableNameSize - 8;
 
   // Check if we have a FlatbufferEditor for this component.
-  entity::ComponentInterface* component = entity_manager_->GetComponent(id);
+  fpl::entity::ComponentInterface* component =
+      entity_manager_->GetComponent(id);
   if (component != nullptr &&
       component->GetComponentDataAsVoid(edit_entity_) != nullptr) {
     std::string table_name = entity_factory_->ComponentIdToTableName(id);
@@ -723,7 +730,7 @@ void EditorGui::DrawEntityFamily() {
     bool has_child = false;
     for (auto iter = transform_data->children.begin();
          iter != transform_data->children.end(); ++iter) {
-      entity::EntityRef& child = iter->owner;
+      fpl::entity::EntityRef& child = iter->owner;
       if (!has_child) {
         has_child = true;
         gui::StartGroup(gui::kLayoutVerticalLeft, kSpacing, "we:children");
@@ -737,12 +744,12 @@ void EditorGui::DrawEntityFamily() {
   }
 }
 
-void EditorGui::EntityButton(const entity::EntityRef& entity, int size) {
+void EditorGui::EntityButton(const fpl::entity::EntityRef& entity, int size) {
   MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(entity);
   std::string entity_id =
       meta_data
           ? entity_manager_->GetComponent<MetaComponent>()->GetEntityID(
-                const_cast<entity::EntityRef&>(entity))
+                const_cast<fpl::entity::EntityRef&>(entity))
           : "Unknown entity ID";
   if (meta_data) {
     entity_id += "  (";
@@ -777,4 +784,3 @@ gui::Event EditorGui::TextButton(const char* text, const char* id, int size) {
 }
 
 }  // namespace scene_lab
-}  // namespace fpl

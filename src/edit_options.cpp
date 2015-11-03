@@ -14,18 +14,17 @@
 
 #include <assert.h>
 #include <string.h>
-#include "library_components_generated.h"
+#include "component_library/common_services.h"
 #include "component_library/physics.h"
 #include "component_library/rendermesh.h"
-#include "component_library/common_services.h"
+#include "library_components_generated.h"
 #include "mathfu/utilities.h"
 #include "scene_lab/edit_options.h"
 #include "scene_lab/scene_lab.h"
 
-FPL_ENTITY_DEFINE_COMPONENT(fpl::scene_lab::EditOptionsComponent,
-                            fpl::scene_lab::EditOptionsData)
+FPL_ENTITY_DEFINE_COMPONENT(scene_lab::EditOptionsComponent,
+                            scene_lab::EditOptionsData)
 
-namespace fpl {
 namespace scene_lab {
 
 using fpl::component_library::CommonServicesComponent;
@@ -39,10 +38,10 @@ void EditOptionsComponent::SetSceneLabCallbacks(SceneLab* scene_lab) {
   scene_lab->AddOnEnterEditorCallback([this]() { EditorEnter(); });
   scene_lab->AddOnExitEditorCallback([this]() { EditorExit(); });
   scene_lab->AddOnCreateEntityCallback(
-      [this](const entity::EntityRef& entity) { EntityCreated(entity); });
+      [this](const fpl::entity::EntityRef& entity) { EntityCreated(entity); });
 }
 
-void EditOptionsComponent::AddFromRawData(entity::EntityRef& entity,
+void EditOptionsComponent::AddFromRawData(fpl::entity::EntityRef& entity,
                                           const void* raw_data) {
   const EditOptionsDef* edit_def = static_cast<const EditOptionsDef*>(raw_data);
   EditOptionsData* edit_data = AddEntity(entity);
@@ -56,8 +55,9 @@ void EditOptionsComponent::AddFromRawData(entity::EntityRef& entity,
   }
 }
 
-entity::ComponentInterface::RawDataUniquePtr
-EditOptionsComponent::ExportRawData(const entity::EntityRef& entity) const {
+fpl::entity::ComponentInterface::RawDataUniquePtr
+EditOptionsComponent::ExportRawData(
+    const fpl::entity::EntityRef& entity) const {
   const EditOptionsData* data = GetComponentData(entity);
   if (data == nullptr) return nullptr;
 
@@ -82,7 +82,7 @@ void EditOptionsComponent::EditorEnter() {
   auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
   for (auto iter = component_data_.begin(); iter != component_data_.end();
        ++iter) {
-    entity::EntityRef entity = iter->entity;
+    fpl::entity::EntityRef entity = iter->entity;
     if (iter->data.render_option == RenderOption_OnlyInEditor ||
         iter->data.render_option == RenderOption_NotInEditor) {
       RenderMeshData* rendermesh_data =
@@ -105,7 +105,7 @@ void EditOptionsComponent::EditorEnter() {
   }
 }
 
-void EditOptionsComponent::EntityCreated(entity::EntityRef entity) {
+void EditOptionsComponent::EntityCreated(fpl::entity::EntityRef entity) {
   auto render_mesh_component =
       entity_manager_->GetComponent<RenderMeshComponent>();
   auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
@@ -148,4 +148,3 @@ void EditOptionsComponent::EditorExit() {
 }
 
 }  // namespace scene_lab
-}  // namespace fpl

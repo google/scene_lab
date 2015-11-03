@@ -40,10 +40,10 @@
 #include "scene_lab/editor_gui.h"
 #include "scene_lab_config_generated.h"
 
-namespace fpl {
 namespace scene_lab {
 
-typedef std::function<void(const entity::EntityRef& entity)> EntityCallback;
+typedef std::function<void(const fpl::entity::EntityRef& entity)>
+    EntityCallback;
 typedef std::function<void()> EditorCallback;
 
 class SceneLab {
@@ -53,18 +53,18 @@ class SceneLab {
   /// Call this function as soon as you have an entity manager and font
   /// manager. Make sure you give Scene Lab a camera via SetCamera() as well.
   void Initialize(const SceneLabConfig* config,
-                  entity::EntityManager* entity_manager,
-                  FontManager* font_manager);
+                  fpl::entity::EntityManager* entity_manager,
+                  fpl::FontManager* font_manager);
 
   /// Give Scene Lab a camera that it can use.
   ///
   /// Scene Lab will take over ownership of `camera`.
-  void SetCamera(std::unique_ptr<CameraInterface> camera) {
+  void SetCamera(std::unique_ptr<fpl::CameraInterface> camera) {
     camera_ = std::move(camera);
   }
 
   /// While Scene Lab is active, you must call this once a frame, every frame.
-  void AdvanceFrame(entity::WorldTime delta_time);
+  void AdvanceFrame(fpl::entity::WorldTime delta_time);
 
   /// Render Scene Lab and its GUI; only call this when Scene Lab is active.
   ///
@@ -76,7 +76,7 @@ class SceneLab {
   /// Scene Lab is running, you will need to modify this function to not render
   /// the GUI here, and call EditorGui::StartRender(), EditorGui::DrawGui(), and
   /// EditorGui::FinishRender() yourself.
-  void Render(Renderer* renderer);
+  void Render(fpl::Renderer* renderer);
 
   /// Activate Scene Lab. Once you call this, you should start calling
   /// AdvanceFrame and Render each frame, and stop calling
@@ -91,13 +91,13 @@ class SceneLab {
   /// When you activate the editor, you can pass in the camera position so the
   /// user can seamlessly be positioned at the same place they were during the
   /// game.
-  void SetInitialCamera(const CameraInterface& initial_camera);
+  void SetInitialCamera(const fpl::CameraInterface& initial_camera);
 
   /// Get the Scene Lab camera, so you can render the scene properly.
-  const CameraInterface* GetCamera() const { return camera_.get(); }
+  const fpl::CameraInterface* GetCamera() const { return camera_.get(); }
 
   /// Highlight the specified entity, so that you can change its properties.
-  void SelectEntity(const entity::EntityRef& entity_ref);
+  void SelectEntity(const fpl::entity::EntityRef& entity_ref);
 
   /// Save the current positions and properties of all entities.
   ///
@@ -145,7 +145,7 @@ class SceneLab {
   /// the components it cares about. If you have any components you are sure you
   /// also want updated while editing the scene, add them to the list by calling
   /// this function.
-  void AddComponentToUpdate(entity::ComponentId component_id) {
+  void AddComponentToUpdate(fpl::entity::ComponentId component_id) {
     components_to_update_.push_back(component_id);
   }
 
@@ -181,13 +181,13 @@ class SceneLab {
   void NotifyExitEditor() const;
 
   /// Call all 'EntityCreated' callbacks.
-  void NotifyCreateEntity(const entity::EntityRef& entity) const;
+  void NotifyCreateEntity(const fpl::entity::EntityRef& entity) const;
 
   /// Call all 'EntityUpdated' callbacks.
-  void NotifyUpdateEntity(const entity::EntityRef& entity) const;
+  void NotifyUpdateEntity(const fpl::entity::EntityRef& entity) const;
 
   /// Call all 'EntityDeleted' callbacks.
-  void NotifyDeleteEntity(const entity::EntityRef& entity) const;
+  void NotifyDeleteEntity(const fpl::entity::EntityRef& entity) const;
 
  private:
   enum InputMode { kMoving, kEditing, kDragging };
@@ -216,30 +216,30 @@ class SceneLab {
   // get camera movement via W-A-S-D
   mathfu::vec3 GetMovement() const;
 
-  entity::EntityRef DuplicateEntity(entity::EntityRef& entity);
-  void DestroyEntity(entity::EntityRef& entity);
-  void HighlightEntity(const entity::EntityRef& entity, float tint);
+  fpl::entity::EntityRef DuplicateEntity(fpl::entity::EntityRef& entity);
+  void DestroyEntity(fpl::entity::EntityRef& entity);
+  void HighlightEntity(const fpl::entity::EntityRef& entity, float tint);
 
   // returns true if the transform was modified
-  bool ModifyTransformBasedOnInput(TransformDef* transform);
+  bool ModifyTransformBasedOnInput(fpl::TransformDef* transform);
 
   // Find the intersection between a ray and a plane.
   // Ensure ray_direction and plane_normal are both normalized.
   // Returns true if it intersects with the plane, and sets the
   // intersection point.
-  static bool IntersectRayToPlane(const vec3& ray_origin,
-                                  const vec3& ray_direction,
-                                  const vec3& point_on_plane,
-                                  const vec3& plane_normal,
-                                  vec3* intersection_point);
+  static bool IntersectRayToPlane(const mathfu::vec3& ray_origin,
+                                  const mathfu::vec3& ray_direction,
+                                  const mathfu::vec3& point_on_plane,
+                                  const mathfu::vec3& plane_normal,
+                                  mathfu::vec3* intersection_point);
 
   // Take a point, and project it onto a plane in the direction of the plane
   // normal. Ensure plane_normal is normalized. Returns true if was able to
   // project the point, false if it wasn't (which would be a weird situation).
-  static bool ProjectPointToPlane(const vec3& point_to_project,
-                                  const vec3& point_on_plane,
-                                  const vec3& plane_normal,
-                                  vec3* point_projected);
+  static bool ProjectPointToPlane(const mathfu::vec3& point_to_project,
+                                  const mathfu::vec3& point_on_plane,
+                                  const mathfu::vec3& plane_normal,
+                                  mathfu::vec3* point_projected);
 
   // Serialize the entities from the given file into the given vector.
   // Returns true if it succeeded, false if there was an error.
@@ -254,29 +254,29 @@ class SceneLab {
   const char* BinaryEntityFileExtension() const;
 
   const SceneLabConfig* config_;
-  Renderer* renderer_;
-  InputSystem* input_system_;
-  entity::EntityManager* entity_manager_;
-  component_library::EntityFactory* entity_factory_;
-  FontManager* font_manager_;
+  fpl::Renderer* renderer_;
+  fpl::InputSystem* input_system_;
+  fpl::entity::EntityManager* entity_manager_;
+  fpl::component_library::EntityFactory* entity_factory_;
+  fpl::FontManager* font_manager_;
   // Which entity are we currently editing?
-  entity::EntityRef selected_entity_;
+  fpl::entity::EntityRef selected_entity_;
 
   InputMode input_mode_;
   MouseMode mouse_mode_;
 
   // Temporary solution to let us cycle through all entities.
-  std::unique_ptr<entity::EntityManager::EntityStorageContainer::Iterator>
+  std::unique_ptr<fpl::entity::EntityManager::EntityStorageContainer::Iterator>
       entity_cycler_;
 
   // For storing the FlatBuffers schema we use for exporting.
   std::string schema_data_;
   std::string schema_text_;
 
-  std::vector<entity::ComponentId> components_to_update_;
+  std::vector<fpl::entity::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
   std::unique_ptr<EditorGui> gui_;
-  std::unique_ptr<CameraInterface> camera_;
+  std::unique_ptr<fpl::CameraInterface> camera_;
 
   // Camera angles, projected onto the horizontal plane, as defined by the
   // camera's `up()` direction.
@@ -305,6 +305,5 @@ class SceneLab {
 };
 
 }  // namespace scene_lab
-}  // namespace fpl
 
 #endif  // SCENE_LAB_SCENE_LAB_H_

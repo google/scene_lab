@@ -15,7 +15,7 @@
 include "common.fbs";
 include "flatbuffer_editor_config.fbs";
 
-namespace fpl.scene_lab;
+namespace scene_lab;
 
 table SceneLabConfig {
   // Filename for your component schema file (in text)

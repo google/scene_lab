@@ -12,23 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_SCENE_LAB_EDITOR_GUI_H_
-#define FPL_SCENE_LAB_EDITOR_GUI_H_
+#ifndef SCENE_LAB_EDITOR_GUI_H_
+#define SCENE_LAB_EDITOR_GUI_H_
 
+#include <string.h>
 #include <memory>
 #include <set>
 #include <string>
-#include <string.h>
 #include <unordered_map>
 #include "component_library/entity_factory.h"
 #include "entity/entity_manager.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/renderer.h"
-#include "scene_lab_config_generated.h"
 #include "scene_lab/flatbuffer_editor.h"
+#include "scene_lab_config_generated.h"
 
-namespace fpl {
 namespace scene_lab {
 
 class SceneLab;
@@ -43,8 +42,8 @@ class EditorGui {
   /// present the data. EditorGui will load its own font (specified in the
   /// config) into an existing FontManager.
   EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
-            entity::EntityManager* entity_manager, FontManager* font_manager,
-            const std::string* schema_data);
+            fpl::entity::EntityManager* entity_manager,
+            fpl::FontManager* font_manager, const std::string* schema_data);
 
   /// Turn on the GUI. This should be called when Scene Lab is activated.
   void Activate();
@@ -92,9 +91,9 @@ class EditorGui {
   bool lock_camera_height() const { return lock_camera_height_; }
 
   /// Choose which entity we are currently editing.
-  void SetEditEntity(entity::EntityRef& entity);
+  void SetEditEntity(fpl::entity::EntityRef& entity);
   /// Get the entity we are currently editing.
-  entity::EntityRef edit_entity() const { return edit_entity_; }
+  fpl::entity::EntityRef edit_entity() const { return edit_entity_; }
 
   /// Clear all cached or modified data that we have for the edit entity. Call
   /// this if you change any entity data externally, so we can reload data
@@ -123,7 +122,7 @@ class EditorGui {
 
   /// "Entity Updated" callback for Scene Lab; if the entity is updated
   /// externally, we reload its data by calling ClearEntityData().
-  void EntityUpdated(entity::EntityRef entity);
+  void EntityUpdated(fpl::entity::EntityRef entity);
 
   /// Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
@@ -169,7 +168,7 @@ class EditorGui {
   static const int kButtonMargin = 5;
 
   /// Commit only the requested component flatbuffer to the entity.
-  void CommitComponentData(entity::ComponentId id);
+  void CommitComponentData(fpl::entity::ComponentId id);
 
   /// Send an EntityUpdated event to the current entity.
   void SendUpdateEvent();
@@ -185,7 +184,7 @@ class EditorGui {
   /// Draw an interface for changing editor settings.
   void DrawSettingsUI();
   /// Draw a list of all of the component data that this entity has.
-  void DrawEntityComponent(entity::ComponentId id);
+  void DrawEntityComponent(fpl::entity::ComponentId id);
   /// Draw a list of the entity's parent and children, if any.
   void DrawEntityFamily();
 
@@ -198,35 +197,35 @@ class EditorGui {
   void FinishDrawEditView();
 
   /// Create a text button; call this inside a gui::Run.
-  gui::Event TextButton(const char* text, const char* id, int size);
+  fpl::gui::Event TextButton(const char* text, const char* id, int size);
 
   /// Show a button that, if you click on it, selects an entity.
-  void EntityButton(const entity::EntityRef& entity, int size);
+  void EntityButton(const fpl::entity::EntityRef& entity, int size);
 
   /// Get the virtual resolution (for FlatUI) of the whole screen.
-  void GetVirtualResolution(vec2* resolution_output);
+  void GetVirtualResolution(mathfu::vec2* resolution_output);
 
   const SceneLabConfig* config_;
   SceneLab* scene_lab_;
-  entity::EntityManager* entity_manager_;
-  FontManager* font_manager_;
+  fpl::entity::EntityManager* entity_manager_;
+  fpl::FontManager* font_manager_;
   const std::string* schema_data_;
 
-  AssetManager* asset_manager_;
-  component_library::EntityFactory* entity_factory_;
-  InputSystem* input_system_;
-  Renderer* renderer_;
+  fpl::AssetManager* asset_manager_;
+  fpl::component_library::EntityFactory* entity_factory_;
+  fpl::InputSystem* input_system_;
+  fpl::Renderer* renderer_;
 
   // Which entity we are editing right now.
-  entity::EntityRef edit_entity_;
+  fpl::entity::EntityRef edit_entity_;
   // We're changing which entity to select; this will take effect at the
   // end of rendering.
-  entity::EntityRef changed_edit_entity_;
-  std::unordered_map<entity::ComponentId, std::unique_ptr<FlatbufferEditor>>
-      component_guis_;
-  entity::ComponentId auto_commit_component_;
-  entity::ComponentId auto_revert_component_;
-  entity::ComponentId auto_recreate_component_;
+  fpl::entity::EntityRef changed_edit_entity_;
+  std::unordered_map<fpl::entity::ComponentId,
+                     std::unique_ptr<FlatbufferEditor>> component_guis_;
+  fpl::entity::ComponentId auto_commit_component_;
+  fpl::entity::ComponentId auto_revert_component_;
+  fpl::entity::ComponentId auto_recreate_component_;
 
   std::vector<bool> components_to_show_;  // Components to display on screen.
 
@@ -263,6 +262,5 @@ class EditorGui {
 };
 
 }  // namespace scene_lab
-}  // namespace fpl
 
-#endif  // FPL_SCENE_LAB_EDITOR_GUI_H_
+#endif  // SCENE_LAB_EDITOR_GUI_H_

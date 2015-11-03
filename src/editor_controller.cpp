@@ -21,7 +21,6 @@ using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::quat;
 
-namespace fpl {
 namespace scene_lab {
 
 void EditorController::Update() {
@@ -51,7 +50,7 @@ void EditorController::Update() {
   }
 }
 
-bool EditorController::GetMouseWorldRay(const CameraInterface& camera,
+bool EditorController::GetMouseWorldRay(const fpl::CameraInterface& camera,
                                         const vec2i& screen_size, vec3* near,
                                         vec3* far) const {
   float fov_y_tan = 2 * tan(camera.viewport_angle() * 0.5f);
@@ -75,4 +74,3 @@ bool EditorController::GetMouseWorldRay(const CameraInterface& camera,
 }
 
 }  // namespace scene_lab
-}  // namespace fpl

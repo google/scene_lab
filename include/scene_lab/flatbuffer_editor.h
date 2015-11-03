@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_
-#define FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_
+#ifndef SCENE_LAB_FLATBUFFER_EDITOR_H_
+#define SCENE_LAB_FLATBUFFER_EDITOR_H_
 
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "flatbuffer_editor_config_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "flatbuffers/util.h"
-#include "flatbuffer_editor_config_generated.h"
 #include "flatui/flatui.h"
 #include "fplbase/fpl_common.h"
 #include "mathfu/glsl_mappings.h"
 
-namespace fpl {
 namespace scene_lab {
 
 /// An on-screen representation of a Flatbuffer, which can be edited by the
@@ -348,7 +347,7 @@ class FlatbufferEditor {
   /// Draw a text button with the given text and the given ID.
   /// Size is the vertical size of the button; the text will be smaller inside
   /// that size.
-  gui::Event TextButton(const char* text, const char* id, int size);
+  fpl::gui::Event TextButton(const char* text, const char* id, int size);
 
   /// If mode is a draw mode, draw a button to add the current field to the
   /// FlatBuffer. If mode is CommitEdits, then return true if this is the
@@ -430,6 +429,5 @@ class FlatbufferEditor {
 };
 
 }  // namespace scene_lab
-}  // namespace fpl
 
-#endif  // FPL_SCENE_LAB_FLATBUFFER_EDITOR_H_
+#endif  // SCENE_LAB_FLATBUFFER_EDITOR_H_
