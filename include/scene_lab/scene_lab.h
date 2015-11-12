@@ -42,7 +42,7 @@
 
 namespace scene_lab {
 
-typedef std::function<void(const fpl::entity::EntityRef& entity)>
+typedef std::function<void(const corgi::EntityRef& entity)>
     EntityCallback;
 typedef std::function<void()> EditorCallback;
 
@@ -53,19 +53,19 @@ class SceneLab {
   /// Call this function as soon as you have an entity manager and font
   /// manager. Consider giving Scene Lab a camera via SetCamera() as well.
   void Initialize(const SceneLabConfig* config,
-                  fpl::entity::EntityManager* entity_manager,
-                  fpl::FontManager* font_manager);
+                  corgi::EntityManager* entity_manager,
+                  flatui::FontManager* font_manager);
 
   /// Give Scene Lab a camera that it can use. If you don't call this, it will
   /// create its own BasicCamera instead.
   ///
   /// Scene Lab will take over ownership of `camera`.
-  void SetCamera(std::unique_ptr<fpl::CameraInterface> camera) {
+  void SetCamera(std::unique_ptr<corgi::CameraInterface> camera) {
     camera_ = std::move(camera);
   }
 
   /// While Scene Lab is active, you must call this once a frame, every frame.
-  void AdvanceFrame(fpl::entity::WorldTime delta_time);
+  void AdvanceFrame(corgi::WorldTime delta_time);
 
   /// Render Scene Lab and its GUI; only call this when Scene Lab is active.
   ///
@@ -77,7 +77,7 @@ class SceneLab {
   /// Scene Lab is running, you will need to modify this function to not render
   /// the GUI here, and call EditorGui::StartRender(), EditorGui::DrawGui(), and
   /// EditorGui::FinishRender() yourself.
-  void Render(fpl::Renderer* renderer);
+  void Render(fplbase::Renderer* renderer);
 
   /// Activate Scene Lab. Once you call this, you should start calling
   /// AdvanceFrame and Render each frame, and stop calling
@@ -96,15 +96,15 @@ class SceneLab {
   ///
   /// You can also set the initial camera by calling GetCamera()->set_position()
   /// and/or GetCamera()->set_facing().
-  void SetInitialCamera(const fpl::CameraInterface& initial_camera);
+  void SetInitialCamera(const corgi::CameraInterface& initial_camera);
 
   /// Get the Scene Lab camera, so you can render the scene properly
   /// or change its position. If you do not have a camera, a
   /// BasicCamera will be created for you.
-  fpl::CameraInterface* GetCamera();
+  corgi::CameraInterface* GetCamera();
 
   /// Highlight the specified entity, so that you can change its properties.
-  void SelectEntity(const fpl::entity::EntityRef& entity_ref);
+  void SelectEntity(const corgi::EntityRef& entity_ref);
 
   /// Save the current positions and properties of all entities.
   ///
@@ -152,7 +152,7 @@ class SceneLab {
   /// the components it cares about. If you have any components you are sure you
   /// also want updated while editing the scene, add them to the list by calling
   /// this function.
-  void AddComponentToUpdate(fpl::entity::ComponentId component_id) {
+  void AddComponentToUpdate(corgi::ComponentId component_id) {
     components_to_update_.push_back(component_id);
   }
 
@@ -188,16 +188,20 @@ class SceneLab {
   void NotifyExitEditor() const;
 
   /// Call all 'EntityCreated' callbacks.
-  void NotifyCreateEntity(const fpl::entity::EntityRef& entity) const;
+  void NotifyCreateEntity(const corgi::EntityRef& entity) const;
 
   /// Call all 'EntityUpdated' callbacks.
-  void NotifyUpdateEntity(const fpl::entity::EntityRef& entity) const;
+  void NotifyUpdateEntity(const corgi::EntityRef& entity) const;
 
   /// Call all 'EntityDeleted' callbacks.
-  void NotifyDeleteEntity(const fpl::entity::EntityRef& entity) const;
+  void NotifyDeleteEntity(const corgi::EntityRef& entity) const;
 
  private:
-  enum InputMode { kMoving, kEditing, kDragging };
+  enum InputMode {
+    kMoving,
+    kEditing,
+    kDragging
+  };
   enum MouseMode {
     kMoveHorizontal,    // Move along the ground.
     kMoveVertical,      // Move along a plane perpendicular to the ground and
@@ -223,12 +227,13 @@ class SceneLab {
   // get camera movement via W-A-S-D
   mathfu::vec3 GetMovement() const;
 
-  fpl::entity::EntityRef DuplicateEntity(fpl::entity::EntityRef& entity);
-  void DestroyEntity(fpl::entity::EntityRef& entity);
-  void HighlightEntity(const fpl::entity::EntityRef& entity, float tint);
+  corgi::EntityRef DuplicateEntity(
+      corgi::EntityRef& entity);
+  void DestroyEntity(corgi::EntityRef& entity);
+  void HighlightEntity(const corgi::EntityRef& entity, float tint);
 
   // returns true if the transform was modified
-  bool ModifyTransformBasedOnInput(fpl::TransformDef* transform);
+  bool ModifyTransformBasedOnInput(corgi::TransformDef* transform);
 
   /// Find the intersection between a ray and a plane.
   /// Ensure ray_direction and plane_normal are both normalized.
@@ -267,29 +272,30 @@ class SceneLab {
   const char* BinaryEntityFileExtension() const;
 
   const SceneLabConfig* config_;
-  fpl::Renderer* renderer_;
-  fpl::InputSystem* input_system_;
-  fpl::entity::EntityManager* entity_manager_;
-  fpl::component_library::EntityFactory* entity_factory_;
-  fpl::FontManager* font_manager_;
+  fplbase::Renderer* renderer_;
+  fplbase::InputSystem* input_system_;
+  corgi::EntityManager* entity_manager_;
+  corgi::component_library::EntityFactory* entity_factory_;
+  flatui::FontManager* font_manager_;
   // Which entity are we currently editing?
-  fpl::entity::EntityRef selected_entity_;
+  corgi::EntityRef selected_entity_;
 
   InputMode input_mode_;
   MouseMode mouse_mode_;
 
   // Temporary solution to let us cycle through all entities.
-  std::unique_ptr<fpl::entity::EntityManager::EntityStorageContainer::Iterator>
+  std::unique_ptr<
+      corgi::EntityManager::EntityStorageContainer::Iterator>
       entity_cycler_;
 
   // For storing the FlatBuffers schema we use for exporting.
   std::string schema_data_;
   std::string schema_text_;
 
-  std::vector<fpl::entity::ComponentId> components_to_update_;
+  std::vector<corgi::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
   std::unique_ptr<EditorGui> gui_;
-  std::unique_ptr<fpl::CameraInterface> camera_;
+  std::unique_ptr<corgi::CameraInterface> camera_;
 
   // Camera angles, projected onto the horizontal plane, as defined by the
   // camera's `up()` direction.

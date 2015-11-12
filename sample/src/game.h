@@ -59,7 +59,7 @@ class Game {
   /// @cond SCENELAB_INTERNAL
 
   /// Update the game state. Call this once per frame.
-  virtual bool Update(fpl::entity::WorldTime delta_time);
+  virtual bool Update(corgi::WorldTime delta_time);
 
   /// Render the game at the current game state. Call this once per frame after
   /// updating.
@@ -81,7 +81,7 @@ class Game {
   /// Set the component type for each component based on the enum. If you are
   /// using a different Flatbuffers enum definition, you should override this
   /// method to refer to the enum names you use.
-  virtual void SetComponentType(fpl::entity::ComponentId component_id,
+  virtual void SetComponentType(corgi::ComponentId component_id,
                                 size_t enum_id);
 
   /// @endcond
@@ -90,35 +90,35 @@ class Game {
   std::string config_;
 
   // Hold rendering context.
-  fpl::Renderer renderer_;
+  fplbase::Renderer renderer_;
 
   // Load and own rendering resources.
-  fpl::AssetManager asset_manager_;
+  fplbase::AssetManager asset_manager_;
 
-  fpl::entity::EntityManager entity_manager_;
-  fpl::FontManager font_manager_;
-  fpl::InputSystem input_;
+  corgi::EntityManager entity_manager_;
+  flatui::FontManager font_manager_;
+  fplbase::InputSystem input_;
 
   // Manage ownership and playing of audio assets.
   pindrop::AudioEngine audio_engine_;
 
   // World time of previous update.
-  fpl::entity::WorldTime prev_world_time_;
+  corgi::WorldTime prev_world_time_;
 
   std::unique_ptr<scene_lab::SceneLab> scene_lab_;
 
-  std::unique_ptr<fpl::component_library::EntityFactory> entity_factory_;
+  std::unique_ptr<corgi::component_library::EntityFactory> entity_factory_;
 
   std::vector<scene_lab::AssetLoader> asset_loaders_;
   time_t prev_asset_load_time_;
 
   // Components we are using
-  fpl::component_library::AnimationComponent animation_component_;
-  fpl::component_library::CommonServicesComponent common_services_component_;
-  fpl::component_library::MetaComponent meta_component_;
-  fpl::component_library::PhysicsComponent physics_component_;
-  fpl::component_library::RenderMeshComponent render_mesh_component_;
-  fpl::component_library::TransformComponent transform_component_;
+  corgi::component_library::AnimationComponent animation_component_;
+  corgi::component_library::CommonServicesComponent common_services_component_;
+  corgi::component_library::MetaComponent meta_component_;
+  corgi::component_library::PhysicsComponent physics_component_;
+  corgi::component_library::RenderMeshComponent render_mesh_component_;
+  corgi::component_library::TransformComponent transform_component_;
   scene_lab::EditOptionsComponent edit_options_component_;
 
   bool in_editor_;

@@ -41,15 +41,15 @@ static const float kBackgroundColor[] = {0.5f, 0.5f, 0.5f, 1.0f};
 Game::Game() : asset_manager_(renderer_) {}
 
 bool Game::Initialize(const char* const binary_directory) {
-  if (!fpl::ChangeToUpstreamDir(binary_directory, kAssetsDir)) {
-    fpl::LogError("Couldn't find assets directory: %s", kAssetsDir);
+  if (!fplbase::ChangeToUpstreamDir(binary_directory, kAssetsDir)) {
+    fplbase::LogError("Couldn't find assets directory: %s", kAssetsDir);
     return false;
   }
 
   srand(time(nullptr));
 
-  if (!fpl::LoadFile("scene_lab_config.bin", &config_)) {
-    fpl::LogError("Couldn't load scene_lab_config.bin from %s", kAssetsDir);
+  if (!fplbase::LoadFile("scene_lab_config.bin", &config_)) {
+    fplbase::LogError("Couldn't load scene_lab_config.bin from %s", kAssetsDir);
     return false;
   }
 
@@ -60,7 +60,7 @@ bool Game::Initialize(const char* const binary_directory) {
 
   input_.Initialize();
 
-  entity_factory_.reset(new fpl::component_library::DefaultEntityFactory());
+  entity_factory_.reset(new corgi::component_library::DefaultEntityFactory());
   entity_manager_.set_entity_factory(entity_factory_.get());
   font_manager_.SetRenderer(renderer_);
 
@@ -108,8 +108,8 @@ bool Game::Initialize(const char* const binary_directory) {
   return true;
 }
 
-bool Game::Update(fpl::entity::WorldTime delta_time) {
-  if (input_.GetButton(fpl::FPLK_F5).went_down()) {
+bool Game::Update(corgi::WorldTime delta_time) {
+  if (input_.GetButton(fplbase::FPLK_F5).went_down()) {
     // Check assets path to see if any new files were added, and load them if
     // so.
     LoadNewAssets();
@@ -120,8 +120,8 @@ bool Game::Update(fpl::entity::WorldTime delta_time) {
   if (in_editor_) {
     scene_lab_->AdvanceFrame(delta_time);
 
-    if (input_.GetButton(fpl::FPLK_F10).went_down() ||
-        input_.GetButton(fpl::FPLK_ESCAPE).went_down()) {
+    if (input_.GetButton(fplbase::FPLK_F10).went_down() ||
+        input_.GetButton(fplbase::FPLK_ESCAPE).went_down()) {
       scene_lab_->RequestExit();
     }
     if (scene_lab_->IsReadyToExit()) {
@@ -131,11 +131,11 @@ bool Game::Update(fpl::entity::WorldTime delta_time) {
   } else {
     entity_manager_.UpdateComponents(delta_time);
 
-    if (input_.GetButton(fpl::FPLK_F10).went_down()) {
+    if (input_.GetButton(fplbase::FPLK_F10).went_down()) {
       in_editor_ = true;
       scene_lab_->Activate();
     }
-    if (input_.GetButton(fpl::FPLK_ESCAPE).went_down()) {
+    if (input_.GetButton(fplbase::FPLK_ESCAPE).went_down()) {
       return false;  // exit
     }
   }
@@ -143,11 +143,11 @@ bool Game::Update(fpl::entity::WorldTime delta_time) {
 }
 
 void Game::Render() {
-  fpl::CameraInterface* camera = scene_lab_->GetCamera();
+  corgi::CameraInterface* camera = scene_lab_->GetCamera();
 
   camera->set_viewport_resolution(mathfu::vec2(renderer_.window_size()));
 
-  fpl::mat4 camera_transform = camera->GetTransformMatrix();
+  mathfu::mat4 camera_transform = camera->GetTransformMatrix();
   renderer_.set_color(mathfu::kOnes4f);
   renderer_.ClearFrameBuffer(mathfu::vec4(kBackgroundColor));  // 50% gray
   renderer_.DepthTest(true);
@@ -166,12 +166,12 @@ void Game::Render() {
 
 void Game::RenderInGameGui() {
   // Tell the user how to activate edit mode.
-  fpl::gui::Run(asset_manager_, font_manager_, input_, [&]() {
-    fpl::gui::StartGroup(fpl::gui::kLayoutOverlay, 10, "help");
-    fpl::gui::ColorBackground(mathfu::vec4(0, 0, 0, 1));
-    fpl::gui::Label(
+  flatui::Run(asset_manager_, font_manager_, input_, [&]() {
+    flatui::StartGroup(flatui::kLayoutOverlay, 10, "help");
+    flatui::ColorBackground(mathfu::vec4(0, 0, 0, 1));
+    flatui::Label(
         "Game is active. Press F10 to activate Scene Lab or ESC to exit.", 20);
-    fpl::gui::EndGroup();
+    flatui::EndGroup();
   });
 }
 
@@ -180,8 +180,8 @@ void Game::Run() {
   prev_world_time_ = (int)(input_.Time() * 1000) - kMinUpdateTime;
 
   while (!input_.exit_requested()) {
-    const fpl::entity::WorldTime world_time = (int)(input_.Time() * 1000);
-    const fpl::entity::WorldTime delta_time =
+    const corgi::WorldTime world_time = (int)(input_.Time() * 1000);
+    const corgi::WorldTime delta_time =
         std::min(world_time - prev_world_time_, kMaxUpdateTime);
     prev_world_time_ = world_time;
 
@@ -202,7 +202,7 @@ void Game::LoadNewAssets() {
   }
 }
 
-void Game::SetComponentType(fpl::entity::ComponentId component_id,
+void Game::SetComponentType(corgi::ComponentId component_id,
                             size_t enum_id) {
   entity_factory_->SetComponentType(component_id, enum_id,
                                     EnumNamesComponentDataUnion()[enum_id]);
@@ -234,9 +234,9 @@ void Game::SetupComponents() {
                    ComponentDataUnion_TransformDef);
 
   scene_lab_->AddComponentToUpdate(
-      fpl::component_library::TransformComponent::GetComponentId());
+      corgi::component_library::TransformComponent::GetComponentId());
   scene_lab_->AddComponentToUpdate(
-      fpl::component_library::RenderMeshComponent::GetComponentId());
+      corgi::component_library::RenderMeshComponent::GetComponentId());
 }
 
 }  // namespace scene_lab_sample

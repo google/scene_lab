@@ -50,7 +50,7 @@ void EditorController::Update() {
   }
 }
 
-bool EditorController::GetMouseWorldRay(const fpl::CameraInterface& camera,
+bool EditorController::GetMouseWorldRay(const corgi::CameraInterface& camera,
                                         const vec2i& screen_size, vec3* near,
                                         vec3* far) const {
   float fov_y_tan = 2 * tan(camera.viewport_angle() * 0.5f);

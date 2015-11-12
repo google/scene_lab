@@ -27,21 +27,21 @@ FPL_ENTITY_DEFINE_COMPONENT(scene_lab::EditOptionsComponent,
 
 namespace scene_lab {
 
-using fpl::component_library::CommonServicesComponent;
-using fpl::component_library::PhysicsComponent;
-using fpl::component_library::PhysicsData;
-using fpl::component_library::RenderMeshComponent;
-using fpl::component_library::RenderMeshData;
+using corgi::component_library::CommonServicesComponent;
+using corgi::component_library::PhysicsComponent;
+using corgi::component_library::PhysicsData;
+using corgi::component_library::RenderMeshComponent;
+using corgi::component_library::RenderMeshData;
 
 void EditOptionsComponent::SetSceneLabCallbacks(SceneLab* scene_lab) {
   assert(scene_lab);
   scene_lab->AddOnEnterEditorCallback([this]() { EditorEnter(); });
   scene_lab->AddOnExitEditorCallback([this]() { EditorExit(); });
-  scene_lab->AddOnCreateEntityCallback(
-      [this](const fpl::entity::EntityRef& entity) { EntityCreated(entity); });
+  scene_lab->AddOnCreateEntityCallback([this](
+      const corgi::EntityRef& entity) { EntityCreated(entity); });
 }
 
-void EditOptionsComponent::AddFromRawData(fpl::entity::EntityRef& entity,
+void EditOptionsComponent::AddFromRawData(corgi::EntityRef& entity,
                                           const void* raw_data) {
   const EditOptionsDef* edit_def = static_cast<const EditOptionsDef*>(raw_data);
   EditOptionsData* edit_data = AddEntity(entity);
@@ -55,9 +55,9 @@ void EditOptionsComponent::AddFromRawData(fpl::entity::EntityRef& entity,
   }
 }
 
-fpl::entity::ComponentInterface::RawDataUniquePtr
-EditOptionsComponent::ExportRawData(
-    const fpl::entity::EntityRef& entity) const {
+corgi::ComponentInterface::RawDataUniquePtr
+EditOptionsComponent::ExportRawData(const corgi::EntityRef& entity)
+    const {
   const EditOptionsData* data = GetComponentData(entity);
   if (data == nullptr) return nullptr;
 
@@ -82,7 +82,7 @@ void EditOptionsComponent::EditorEnter() {
   auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
   for (auto iter = component_data_.begin(); iter != component_data_.end();
        ++iter) {
-    fpl::entity::EntityRef entity = iter->entity;
+    corgi::EntityRef entity = iter->entity;
     if (iter->data.render_option == RenderOption_OnlyInEditor ||
         iter->data.render_option == RenderOption_NotInEditor) {
       RenderMeshData* rendermesh_data =
@@ -105,7 +105,7 @@ void EditOptionsComponent::EditorEnter() {
   }
 }
 
-void EditOptionsComponent::EntityCreated(fpl::entity::EntityRef entity) {
+void EditOptionsComponent::EntityCreated(corgi::EntityRef entity) {
   auto render_mesh_component =
       entity_manager_->GetComponent<RenderMeshComponent>();
   auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();

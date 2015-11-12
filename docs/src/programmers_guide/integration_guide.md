@@ -218,14 +218,14 @@ implement these functions.
   [MetaComponent]: https://google.github.io/corgi/meta_component.html
   [EntityFactory]: https://google.github.io/corgi/entity_factory.html
   [FlatBuffers]: https://google.github.io/flatbuffers/
-  [SceneLab]: @ref fpl::scene_lab::SceneLab
-  [Initialize()]: @ref fpl::scene_lab::SceneLab::Initialize
-  [SetCamera()]: @ref fpl::scene_lab::SceneLab::SetCamera
-  [AddComponentToUpdate()]: @ref fpl::scene_lab::SceneLab::AddComponentToUpdate
-  [Activate()]: @ref fpl::scene_lab::SceneLab::Activate
-  [AdvanceFrame()]: @ref fpl::scene_lab::SceneLab::AdvanceFrame
-  [Render()]: @ref fpl::scene_lab::SceneLab::Render
-  [Deactivate()]: @ref fpl::scene_lab::SceneLab::Deactivate
-  [SaveScene()]: @ref fpl::scene_lab::SceneLab::SaveScene
-  [RequestExit()]: @ref fpl::scene_lab::SceneLab::RequestExit
-  [IsReadyToExit()]: @ref fpl::scene_lab::SceneLab::IsReadyToExit
+  [SceneLab]: @ref scene_lab::SceneLab
+  [Initialize()]: @ref scene_lab::SceneLab::Initialize
+  [SetCamera()]: @ref scene_lab::SceneLab::SetCamera
+  [AddComponentToUpdate()]: @ref scene_lab::SceneLab::AddComponentToUpdate
+  [Activate()]: @ref scene_lab::SceneLab::Activate
+  [AdvanceFrame()]: @ref scene_lab::SceneLab::AdvanceFrame
+  [Render()]: @ref scene_lab::SceneLab::Render
+  [Deactivate()]: @ref scene_lab::SceneLab::Deactivate
+  [SaveScene()]: @ref scene_lab::SceneLab::SaveScene
+  [RequestExit()]: @ref scene_lab::SceneLab::RequestExit
+  [IsReadyToExit()]: @ref scene_lab::SceneLab::IsReadyToExit

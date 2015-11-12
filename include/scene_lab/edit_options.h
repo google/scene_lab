@@ -39,16 +39,17 @@ struct EditOptionsData {
   bool backup_rendermesh_hidden;
 };
 
-class EditOptionsComponent : public fpl::entity::Component<EditOptionsData> {
+class EditOptionsComponent
+    : public corgi::Component<EditOptionsData> {
  public:
   void EditorEnter();
   void EditorExit();
-  void EntityCreated(fpl::entity::EntityRef entity);
+  void EntityCreated(corgi::EntityRef entity);
 
-  virtual void AddFromRawData(fpl::entity::EntityRef& entity,
+  virtual void AddFromRawData(corgi::EntityRef& entity,
                               const void* raw_data);
   virtual RawDataUniquePtr ExportRawData(
-      const fpl::entity::EntityRef& entity) const;
+      const corgi::EntityRef& entity) const;
 
   // This must be called once and only once when initializing Scene Lab.
   void SetSceneLabCallbacks(SceneLab* scene_lab);

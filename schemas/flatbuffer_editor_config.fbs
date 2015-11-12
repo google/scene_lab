@@ -31,31 +31,31 @@ table FlatbufferEditorConfig {
   blank_field_width: byte = 8;
 
   // Background color for the background of buttons. Recommended: Darkest.
-  bg_button_color:fpl.ColorRGBA;
+  bg_button_color:fplbase.ColorRGBA;
   // Background color for the hover state of buttons. Recommended: Less dark.
-  bg_button_hover_color:fpl.ColorRGBA;
+  bg_button_hover_color:fplbase.ColorRGBA;
   // Background color for the click state of buttons. Recommended: Even less dark.
-  bg_button_click_color:fpl.ColorRGBA;
+  bg_button_click_color:fplbase.ColorRGBA;
 
   // Text color for normal non-editable text. Recommended: White.
-  text_normal_color:fpl.ColorRGBA;
+  text_normal_color:fplbase.ColorRGBA;
   // Text color for comments describing each field. Recommended: White.
-  text_comment_color:fpl.ColorRGBA;
+  text_comment_color:fplbase.ColorRGBA;
   // Color for text on buttons. Recommended: White.
-  text_button_color:fpl.ColorRGBA;
+  text_button_color:fplbase.ColorRGBA;
   // Color for disabled controls. Recommended: Gray.
-  text_disabled_color:fpl.ColorRGBA;
+  text_disabled_color:fplbase.ColorRGBA;
   // Color for fields you are allowed to edit. Recommended: Green.
-  text_editable_color:fpl.ColorRGBA;
+  text_editable_color:fplbase.ColorRGBA;
   // Color for fields you are currently editing. Recommended: Yellow.
-  text_editing_color:fpl.ColorRGBA;
+  text_editing_color:fplbase.ColorRGBA;
   // Color for fields you have modified from the original. Recommended: Yellow.
-  text_modified_color:fpl.ColorRGBA;
+  text_modified_color:fplbase.ColorRGBA;
   // Color for fields that had modified values committed into the Flatbuffer.
   // Recommended: Yellow.
-  text_committed_color:fpl.ColorRGBA;
+  text_committed_color:fplbase.ColorRGBA;
   // Color for fields you have modified to an invalid value. Recommended: Red.
-  text_error_color:fpl.ColorRGBA;
+  text_error_color:fplbase.ColorRGBA;
 }
 
 root_type FlatbufferEditorConfig;

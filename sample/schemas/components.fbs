@@ -21,13 +21,13 @@ namespace scene_lab_sample;
 // Data for defining the entities themselves:
 // Union containing every component data type.
 union ComponentDataUnion {
-  fpl.CommonServicesDef,
-  fpl.AnimationDef,
-  fpl.GraphDef,
-  fpl.MetaDef,
-  fpl.PhysicsDef,
-  fpl.RenderMeshDef,
-  fpl.TransformDef,
+  corgi.CommonServicesDef,
+  corgi.AnimationDef,
+  corgi.GraphDef,
+  corgi.MetaDef,
+  corgi.PhysicsDef,
+  corgi.RenderMeshDef,
+  corgi.TransformDef,
   scene_lab.EditOptionsDef,
 }
 
