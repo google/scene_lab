@@ -33,6 +33,8 @@ SCENE_LAB_GENERATED_OUTPUT_DIR := $(SCENE_LAB_DIR)/gen/include
 DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
 # Location of the fplutil library.
 DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
+# Location of the fplbase library.
+DEPENDENCIES_FPLBASE_DIR?=$(FPL_ROOT)/fplbase
 # Location of the googletest library.
 DEPENDENCIES_GTEST_DIR?=$(FPL_ROOT)/googletest
 # Location of the MathFu library.
@@ -44,7 +46,8 @@ DEPENDENCIES_ENTITY_DIR?=$(FPL_ROOT)/entity
 # Location of the FlatUI library.
 DEPENDENCIES_FLATUI_DIR?=$(FPL_ROOT)/flatui
 # Location of the Entity Component Library.
-DEPENDENCIES_COMPONENT_LIBRARY_DIR?=$(DEPENDENCIES_ENTITY_DIR)/component_library
+DEPENDENCIES_COMPONENT_LIBRARY_DIR?=\
+  $(DEPENDENCIES_ENTITY_DIR)/component_library
 # Location of the Bullet Physics library.
 DEPENDENCIES_BULLETPHYSICS_DIR?=$(THIRD_PARTY_ROOT)/bulletphysics
 

@@ -79,8 +79,6 @@ set(dependencies_flatui_dir "${fpl_root}/flatui"
     CACHE PATH "Directory containing the FlatUI library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
-set(dependencies_motive_dir "${fpl_root}/motive"
-    CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_bulletphysics_distr_dir "${third_party_root}/bulletphysics"
     CACHE PATH "Directory containing the Bullet Physics distribution.")
 set(dependencies_component_library_dir "${dependencies_entity_dir}/component_library"
@@ -162,7 +160,6 @@ include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplbase_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_flatui_dir}/include)
-include_directories(${dependencies_motive_dir}/include)
 include_directories(${dependencies_mathfu_dir}/include)
 
 # Detect clang
