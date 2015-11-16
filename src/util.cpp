@@ -13,16 +13,20 @@
 // limitations under the License.
 
 #include "scene_lab/util.h"
-#include <dirent.h>
 #include <sys/stat.h>
+#include <cassert>
 #include <fstream>
+#if !defined(_MSC_VER)
+#include <dirent.h>
+#endif  // !defined(_MSC_VER)
 
 namespace scene_lab {
 
 std::unordered_map<std::string, time_t> ScanDirectory(
     const std::string& directory, const std::string& file_ext) {
-  const char* kDirSep = "/";
   std::unordered_map<std::string, time_t> file_list;
+#if !defined(_MSC_VER)
+  const char* kDirSep = "/";
   DIR* dir = opendir(directory.length() == 0 ? "." : directory.c_str());
   if (dir == NULL) return file_list;
 
@@ -43,6 +47,12 @@ std::unordered_map<std::string, time_t> ScanDirectory(
     }
   }
   closedir(dir);
+#else
+  // dirent.h functionality not supported on Windows.
+  (void)directory;
+  (void)fil_ext;
+  assert(false);
+#endif  // !defined(_MSC_VER)
   return file_list;
 }
 
