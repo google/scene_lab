@@ -177,11 +177,12 @@ build_flatbuffers("${scene_lab_flatbuffers_schemas}"
 
 include_directories(src include include/scene_lab)
 get_property(FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-             TARGET fplbase_generated_includes PROPERTY FPLBASE_DIR)
+             TARGET fplbase_generated_includes
+             PROPERTY GENERATED_INCLUDES_DIR)
 include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 get_property(COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR
              TARGET component_library_generated_includes
-             PROPERTY COMPONENT_LIBRARY_DIR)
+             PROPERTY GENERATED_INCLUDES_DIR)
 include_directories(${COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
 include_directories(${dependencies_entity_dir}/include)
