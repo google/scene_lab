@@ -61,8 +61,8 @@ table SceneLabConfig {
   gui_button_size:int = 22;
   gui_toolbar_size:int = 26;
 
-  gui_bg_toolbar_color:fpl.ColorRGBA;
-  gui_bg_edit_ui_color:fpl.ColorRGBA;
+  gui_bg_toolbar_color:fplbase.ColorRGBA;
+  gui_bg_edit_ui_color:fplbase.ColorRGBA;
 
   flatbuffer_editor_config:FlatbufferEditorConfig;
 

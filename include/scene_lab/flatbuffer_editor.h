@@ -347,7 +347,7 @@ class FlatbufferEditor {
   /// Draw a text button with the given text and the given ID.
   /// Size is the vertical size of the button; the text will be smaller inside
   /// that size.
-  fpl::gui::Event TextButton(const char* text, const char* id, int size);
+  flatui::Event TextButton(const char* text, const char* id, int size);
 
   /// If mode is a draw mode, draw a button to add the current field to the
   /// FlatBuffer. If mode is CommitEdits, then return true if this is the

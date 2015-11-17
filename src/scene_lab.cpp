@@ -31,17 +31,17 @@ namespace scene_lab {
 
 static const float kDegreesToRadians = static_cast<float>(M_PI) / 180.0f;
 
-using fpl::component_library::CommonServicesComponent;
-using fpl::component_library::MetaComponent;
-using fpl::component_library::MetaData;
-using fpl::component_library::PhysicsComponent;
-using fpl::component_library::RenderMeshComponent;
-using fpl::component_library::RenderMeshData;
-using fpl::component_library::TransformComponent;
-using fpl::component_library::TransformData;
-using fpl::component_library::EntityFactory;
-using fpl::TransformDef;
-using fpl::Vec3;
+using corgi::component_library::CommonServicesComponent;
+using corgi::component_library::MetaComponent;
+using corgi::component_library::MetaData;
+using corgi::component_library::PhysicsComponent;
+using corgi::component_library::RenderMeshComponent;
+using corgi::component_library::RenderMeshData;
+using corgi::component_library::TransformComponent;
+using corgi::component_library::TransformData;
+using corgi::component_library::EntityFactory;
+using corgi::TransformDef;
+using fplbase::Vec3;
 using mathfu::mat4;
 using mathfu::vec3;
 using mathfu::vec4;
@@ -52,8 +52,8 @@ static const float kMinValidDistance = 0.00001f;
 static const char kDefaultBinaryEntityFileExtension[] = "bin";
 
 void SceneLab::Initialize(const SceneLabConfig* config,
-                          fpl::entity::EntityManager* entity_manager,
-                          fpl::FontManager* font_manager) {
+                          corgi::EntityManager* entity_manager,
+                          flatui::FontManager* font_manager) {
   config_ = config;
   entity_manager_ = entity_manager;
   font_manager_ = font_manager;
@@ -68,7 +68,7 @@ void SceneLab::Initialize(const SceneLabConfig* config,
   }
 
   entity_cycler_.reset(
-      new fpl::entity::EntityManager::EntityStorageContainer::Iterator(
+      new corgi::EntityManager::EntityStorageContainer::Iterator(
           entity_manager->end()));
   LoadSchemaFiles();
   horizontal_forward_ = mathfu::kAxisY3f;
@@ -92,9 +92,8 @@ static inline vec3 ProjectOntoUnitVector(const vec3& v, const vec3& unit) {
   return vec3::DotProduct(v, unit) * unit;
 }
 
-void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
+void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   assert(camera_ != nullptr);
-
   // Update the editor's forward and right vectors in the horizontal plane.
   // Remove the up component from the camera's facing vector.
   vec3 forward = camera_->facing() -
@@ -144,7 +143,7 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
   do {
     if (gui_->CanDeselectEntity()) {
       if (!gui_->InputCaptured() &&
-          controller_->KeyWentDown(fpl::FPLK_RIGHTBRACKET)) {
+          controller_->KeyWentDown(fplbase::FPLK_RIGHTBRACKET)) {
         // select next entity to edit
         if (*entity_cycler_ != entity_manager_->end()) {
           (*entity_cycler_)++;
@@ -155,7 +154,7 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
         entity_changed = true;
       }
       if (!gui_->InputCaptured() &&
-          controller_->KeyWentDown(fpl::FPLK_LEFTBRACKET)) {
+          controller_->KeyWentDown(fplbase::FPLK_LEFTBRACKET)) {
         if (*entity_cycler_ == entity_manager_->begin()) {
           *entity_cycler_ = entity_manager_->end();
         }
@@ -164,7 +163,7 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
       }
     }
     if (entity_changed) {
-      fpl::entity::EntityRef entity_ref = entity_cycler_->ToReference();
+      corgi::EntityRef entity_ref = entity_cycler_->ToReference();
       auto data =
           entity_manager_->GetComponentData<EditOptionsData>(entity_ref);
       if (data != nullptr) {
@@ -192,7 +191,7 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
       vec3 dir = (end - start).Normalized();
       end = start + (dir * camera_->viewport_far_plane());
     }
-    fpl::entity::EntityRef result =
+    corgi::EntityRef result =
         entity_manager_->GetComponent<PhysicsComponent>()->RaycastSingle(
             start, end, &drag_point_);
     if (result.IsValid()) {
@@ -201,12 +200,12 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
     } else {
       // deselet entity
       *entity_cycler_ = entity_manager_->end();
-      SelectEntity(fpl::entity::EntityRef());
+      SelectEntity(corgi::EntityRef());
     }
   }
   bool start_dragging = false;
   if (entity_changed) {
-    fpl::entity::EntityRef entity_ref = entity_cycler_->ToReference();
+    corgi::EntityRef entity_ref = entity_cycler_->ToReference();
     if (input_mode_ == kEditing && entity_ref == selected_entity_) {
       start_dragging = true;
     } else {
@@ -249,19 +248,21 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
       }
     }
 
-    if (!gui_->InputCaptured() && (controller_->KeyWentDown(fpl::FPLK_INSERT) ||
-                                   controller_->KeyWentDown(fpl::FPLK_v))) {
-      fpl::entity::EntityRef new_entity = DuplicateEntity(selected_entity_);
+    if (!gui_->InputCaptured() &&
+        (controller_->KeyWentDown(fplbase::FPLK_INSERT) ||
+         controller_->KeyWentDown(fplbase::FPLK_v))) {
+      corgi::EntityRef new_entity = DuplicateEntity(selected_entity_);
       *entity_cycler_ = new_entity.ToIterator();
       SelectEntity(entity_cycler_->ToReference());
       NotifyUpdateEntity(new_entity);
     }
-    if (!gui_->InputCaptured() && (controller_->KeyWentDown(fpl::FPLK_DELETE) ||
-                                   controller_->KeyWentDown(fpl::FPLK_x))) {
-      fpl::entity::EntityRef entity = selected_entity_;
+    if (!gui_->InputCaptured() &&
+        (controller_->KeyWentDown(fplbase::FPLK_DELETE) ||
+         controller_->KeyWentDown(fplbase::FPLK_x))) {
+      corgi::EntityRef entity = selected_entity_;
       NotifyDeleteEntity(entity);
       *entity_cycler_ = entity_manager_->end();
-      selected_entity_ = fpl::entity::EntityRef();
+      selected_entity_ = corgi::EntityRef();
       DestroyEntity(entity);
     }
   }
@@ -333,7 +334,7 @@ void SceneLab::AdvanceFrame(fpl::entity::WorldTime delta_time) {
   }
 }
 
-void SceneLab::HighlightEntity(const fpl::entity::EntityRef& entity,
+void SceneLab::HighlightEntity(const corgi::EntityRef& entity,
                                float tint) {
   if (!entity.IsValid()) return;
   auto render_data = entity_manager_->GetComponentData<RenderMeshData>(entity);
@@ -353,7 +354,7 @@ void SceneLab::HighlightEntity(const fpl::entity::EntityRef& entity,
   }
 }
 
-void SceneLab::SelectEntity(const fpl::entity::EntityRef& entity_ref) {
+void SceneLab::SelectEntity(const corgi::EntityRef& entity_ref) {
   if (selected_entity_.IsValid() && selected_entity_ != entity_ref) {
     // un-highlight the old one
     HighlightEntity(selected_entity_, 1);
@@ -367,7 +368,7 @@ void SceneLab::SelectEntity(const fpl::entity::EntityRef& entity_ref) {
   selected_entity_ = entity_ref;
 }
 
-void SceneLab::Render(fpl::Renderer* /*renderer*/) {
+void SceneLab::Render(fplbase::Renderer* /*renderer*/) {
   // Render any editor-specific things
   gui_->SetEditEntity(selected_entity_);
   if (selected_entity_ && gui_->show_physics()) {
@@ -386,7 +387,7 @@ void SceneLab::Render(fpl::Renderer* /*renderer*/) {
                           // via the gui
 }
 
-void SceneLab::SetInitialCamera(const fpl::CameraInterface& initial_camera) {
+void SceneLab::SetInitialCamera(const corgi::CameraInterface& initial_camera) {
   if (camera_ == nullptr) {
     CreateDefaultCamera();
   }
@@ -395,7 +396,7 @@ void SceneLab::SetInitialCamera(const fpl::CameraInterface& initial_camera) {
   camera_->set_up(initial_camera.up());
 }
 
-fpl::CameraInterface* SceneLab::GetCamera() {
+corgi::CameraInterface* SceneLab::GetCamera() {
   if (camera_ == nullptr) {
     CreateDefaultCamera();
   }
@@ -416,21 +417,24 @@ void SceneLab::NotifyExitEditor() const {
   }
 }
 
-void SceneLab::NotifyCreateEntity(const fpl::entity::EntityRef& entity) const {
+void SceneLab::NotifyCreateEntity(const corgi::EntityRef& entity)
+    const {
   for (auto iter = on_create_entity_callbacks_.begin();
        iter != on_create_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyUpdateEntity(const fpl::entity::EntityRef& entity) const {
+void SceneLab::NotifyUpdateEntity(const corgi::EntityRef& entity)
+    const {
   for (auto iter = on_update_entity_callbacks_.begin();
        iter != on_update_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyDeleteEntity(const fpl::entity::EntityRef& entity) const {
+void SceneLab::NotifyDeleteEntity(const corgi::EntityRef& entity)
+    const {
   for (auto iter = on_delete_entity_callbacks_.begin();
        iter != on_delete_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
@@ -487,7 +491,7 @@ void SceneLab::Deactivate() {
   NotifyExitEditor();
 
   // de-select all entities
-  SelectEntity(fpl::entity::EntityRef());
+  SelectEntity(corgi::EntityRef());
 
   *entity_cycler_ = entity_manager_->end();
 }
@@ -517,20 +521,20 @@ void SceneLab::SaveScene(bool to_disk) {
   set_entities_modified(false);
 }
 
-fpl::entity::EntityRef SceneLab::DuplicateEntity(
-    fpl::entity::EntityRef& entity) {
+corgi::EntityRef SceneLab::DuplicateEntity(
+    corgi::EntityRef& entity) {
   std::vector<uint8_t> entity_serialized;
   if (!entity_factory_->SerializeEntity(entity, entity_manager_,
                                         &entity_serialized)) {
-    fpl::LogError("DuplicateEntity: Couldn't serialize entity");
+    fplbase::LogError("DuplicateEntity: Couldn't serialize entity");
   }
   std::vector<std::vector<uint8_t>> entity_defs;
   entity_defs.push_back(entity_serialized);
   std::vector<uint8_t> entity_list;
   if (!entity_factory_->SerializeEntityList(entity_defs, &entity_list)) {
-    fpl::LogError("DuplicateEntity: Couldn't create entity list");
+    fplbase::LogError("DuplicateEntity: Couldn't create entity list");
   }
-  std::vector<fpl::entity::EntityRef> entities_created;
+  std::vector<corgi::EntityRef> entities_created;
   if (entity_factory_->LoadEntityListFromMemory(
           entity_list.data(), entity_manager_, &entities_created) > 0) {
     // We created some new duplicate entities! (most likely exactly one.)  We
@@ -539,7 +543,7 @@ fpl::entity::EntityRef SceneLab::DuplicateEntity(
     // the new entity IDs are marked with the same source file as the old.
 
     for (size_t i = 0; i < entities_created.size(); i++) {
-      fpl::entity::EntityRef& new_entity = entities_created[i];
+      corgi::EntityRef& new_entity = entities_created[i];
       MetaData* old_editor_data =
           entity_manager_->GetComponentData<MetaData>(entity);
       MetaData* editor_data =
@@ -556,10 +560,10 @@ fpl::entity::EntityRef SceneLab::DuplicateEntity(
     }
     return entities_created[0];
   }
-  return fpl::entity::EntityRef();
+  return corgi::EntityRef();
 }
 
-void SceneLab::DestroyEntity(fpl::entity::EntityRef& entity) {
+void SceneLab::DestroyEntity(corgi::EntityRef& entity) {
   entity_manager_->DeleteEntity(entity);
 }
 
@@ -567,22 +571,23 @@ void SceneLab::LoadSchemaFiles() {
   const char* schema_file_text = config_->schema_file_text()->c_str();
   const char* schema_file_binary = config_->schema_file_binary()->c_str();
 
-  if (!fpl::LoadFile(schema_file_binary, &schema_data_)) {
-    fpl::LogError("Failed to open binary schema file: %s", schema_file_binary);
+  if (!fplbase::LoadFile(schema_file_binary, &schema_data_)) {
+    fplbase::LogError("Failed to open binary schema file: %s",
+                      schema_file_binary);
     return;
   }
   auto schema = reflection::GetSchema(schema_data_.c_str());
   if (schema != nullptr) {
-    fpl::LogInfo("SceneLab: Binary schema %s loaded", schema_file_binary);
+    fplbase::LogInfo("SceneLab: Binary schema %s loaded", schema_file_binary);
   }
-  if (fpl::LoadFile(schema_file_text, &schema_text_)) {
-    fpl::LogInfo("SceneLab: Text schema %s loaded", schema_file_text);
+  if (fplbase::LoadFile(schema_file_text, &schema_text_)) {
+    fplbase::LogInfo("SceneLab: Text schema %s loaded", schema_file_text);
   }
 }
 
 void SceneLab::CreateDefaultCamera() {
-  fpl::LogInfo("Creating a default BasicCamera for Scene Lab");
-  std::unique_ptr<fpl::CameraInterface> basic_camera(new BasicCamera());
+  fplbase::LogInfo("Creating a default BasicCamera for Scene Lab");
+  std::unique_ptr<corgi::CameraInterface> basic_camera(new BasicCamera());
   SetCamera(std::move(basic_camera));
 }
 
@@ -597,10 +602,10 @@ const char* SceneLab::BinaryEntityFileExtension() const {
 bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
                                          std::vector<uint8_t>* output) {
   if (filename == "") {
-    fpl::LogInfo("Skipping serializing entities to blank filename.");
+    fplbase::LogInfo("Skipping serializing entities to blank filename.");
     return false;
   }
-  fpl::LogInfo("Serializing entities from file: '%s'", filename.c_str());
+  fplbase::LogInfo("Serializing entities from file: '%s'", filename.c_str());
   // We know the FlatBuffer format we're using: components
   flatbuffers::FlatBufferBuilder builder;
   std::vector<std::vector<uint8_t>> entities_serialized;
@@ -609,7 +614,7 @@ bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
   // loop through all entities
   for (auto entityiter = entity_manager_->begin();
        entityiter != entity_manager_->end(); ++entityiter) {
-    fpl::entity::EntityRef entity = entityiter.ToReference();
+    corgi::EntityRef entity = entityiter.ToReference();
     const MetaData* editor_data = editor_component->GetComponentData(entity);
     if (editor_data != nullptr && editor_data->source_file == filename) {
       entities_serialized.push_back(std::vector<uint8_t>());
@@ -619,7 +624,7 @@ bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
   }
   std::vector<uint8_t> entity_list;
   if (!entity_factory_->SerializeEntityList(entities_serialized, output)) {
-    fpl::LogError("Couldn't serialize entity list.");
+    fplbase::LogError("Couldn't serialize entity list.");
     return false;
   }
   return true;
@@ -628,15 +633,16 @@ bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
 void SceneLab::SaveEntitiesInFile(const std::string& filename) {
   std::vector<uint8_t> entity_list;
   if (!SerializeEntitiesFromFile(filename, &entity_list)) {
-    fpl::LogError("SerializeEntitiesFromFile failed.");
+    fplbase::LogError("SerializeEntitiesFromFile failed.");
     return;
   }
-  fpl::LogInfo("Saving entities in file: '%s'", filename.c_str());
-  if (fpl::SaveFile((filename + "." + BinaryEntityFileExtension()).c_str(),
-                    entity_list.data(), entity_list.size())) {
-    fpl::LogInfo("Save (binary) to file '%s' successful.", filename.c_str());
+  fplbase::LogInfo("Saving entities in file: '%s'", filename.c_str());
+  if (fplbase::SaveFile((filename + "." + BinaryEntityFileExtension()).c_str(),
+                        entity_list.data(), entity_list.size())) {
+    fplbase::LogInfo("Save (binary) to file '%s' successful.",
+                     filename.c_str());
   } else {
-    fpl::LogError("Save (binary) to file '%s' failed.", filename.c_str());
+    fplbase::LogError("Save (binary) to file '%s' failed.", filename.c_str());
   }
   // Now save to JSON file.
   // First load and parse the flatbuffer schema, then generate text.
@@ -645,7 +651,7 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
     size_t num_paths = config_->schema_include_paths()->size();
-    include_paths.reset(new const char*[num_paths + 1]);
+    include_paths.reset(new const char* [num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
       include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
     }
@@ -663,16 +669,19 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
                      config_->json_output_directory()->str(), filename)
                : filename) +
           ".json";
-      if (fpl::SaveFile(json_path.c_str(), json)) {
-        fpl::LogInfo("Save (JSON) to file '%s' successful", json_path.c_str());
+      if (fplbase::SaveFile(json_path.c_str(), json)) {
+        fplbase::LogInfo("Save (JSON) to file '%s' successful",
+                         json_path.c_str());
       } else {
-        fpl::LogError("Save (JSON) to file '%s' failed.", json_path.c_str());
+        fplbase::LogError("Save (JSON) to file '%s' failed.",
+                          json_path.c_str());
       }
     } else {
-      fpl::LogError("Couldn't parse schema file: %s", parser.error_.c_str());
+      fplbase::LogError("Couldn't parse schema file: %s",
+                        parser.error_.c_str());
     }
   } else {
-    fpl::LogError("No text schema loaded, can't save JSON file.");
+    fplbase::LogError("No text schema loaded, can't save JSON file.");
   }
 }
 
@@ -681,8 +690,9 @@ bool SceneLab::PreciseMovement() const {
   // TODO: would be better if we used precise movement by default, and
   //       transitioned to fast movement after the key has been held for
   //       a while.
-  return (!gui_->InputCaptured() && (controller_->KeyIsDown(fpl::FPLK_LSHIFT) ||
-                                     controller_->KeyIsDown(fpl::FPLK_RSHIFT)));
+  return (!gui_->InputCaptured() &&
+          (controller_->KeyIsDown(fplbase::FPLK_LSHIFT) ||
+           controller_->KeyIsDown(fplbase::FPLK_RSHIFT)));
 }
 
 vec3 SceneLab::GlobalFromHorizontal(float forward, float right,
@@ -711,9 +721,9 @@ bool SceneLab::IntersectRayToPlane(const vec3& ray_origin,
   else if (length_ratio < kEpsilon && length_ratio > -kEpsilon)
     return false;
   else
-    *intersection_point =
-        ray_origin +
-        ray_direction * distance_from_ray_origin_to_plane * 1.0f / length_ratio;
+    *intersection_point = ray_origin + ray_direction *
+                                           distance_from_ray_origin_to_plane *
+                                           1.0f / length_ratio;
   return true;
 }
 
@@ -747,25 +757,25 @@ vec3 SceneLab::GetMovement() const {
           : config_->camera_movement_speed();
 
   // TODO(jsimantov): make the specific keys configurable?
-  if (controller_->KeyIsDown(fpl::FPLK_w)) {
+  if (controller_->KeyIsDown(fplbase::FPLK_w)) {
     forward_speed += move_speed;
   }
-  if (controller_->KeyIsDown(fpl::FPLK_s)) {
+  if (controller_->KeyIsDown(fplbase::FPLK_s)) {
     forward_speed -= move_speed;
   }
-  if (controller_->KeyIsDown(fpl::FPLK_d)) {
+  if (controller_->KeyIsDown(fplbase::FPLK_d)) {
     right_speed += move_speed;
   }
-  if (controller_->KeyIsDown(fpl::FPLK_a)) {
+  if (controller_->KeyIsDown(fplbase::FPLK_a)) {
     right_speed -= move_speed;
   }
   if (gui_->lock_camera_height()) {
     // Camera movement is locked to the horizontal plane, so we need to have
     // a way for the user to move up and down.
-    if (controller_->KeyIsDown(fpl::FPLK_r)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_r)) {
       up_speed += move_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_f)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_f)) {
       up_speed -= move_speed;
     }
     // Translate the keypresses into movement parallel to the ground plane.
@@ -831,7 +841,7 @@ bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
                         mathfu::quat::FromAngleAxis(angle, drag_plane_normal_);
           mathfu::vec3 euler = orientation.ToEulerAngles() / kDegreesToRadians;
           *transform->mutable_orientation() =
-              fpl::Vec3(euler.x(), euler.y(), euler.z());
+              fplbase::Vec3(euler.x(), euler.y(), euler.z());
           return true;
 
         } else if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
@@ -874,50 +884,50 @@ bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
     const float angular_speed =
         movement_scale * config_->object_angular_speed();
 
-    if (controller_->KeyIsDown(fpl::FPLK_i)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_i)) {
       fwd_speed += move_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_k)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_k)) {
       fwd_speed -= move_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_j)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_j)) {
       right_speed -= move_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_l)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_l)) {
       right_speed += move_speed;
     }
     // P; = move z axis
-    if (controller_->KeyIsDown(fpl::FPLK_p)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_p)) {
       up_speed += move_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_SEMICOLON)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_SEMICOLON)) {
       up_speed -= move_speed;
     }
     // UO = roll
-    if (controller_->KeyIsDown(fpl::FPLK_u)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_u)) {
       roll_speed += angular_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_o)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_o)) {
       roll_speed -= angular_speed;
     }
     // YH = pitch
-    if (controller_->KeyIsDown(fpl::FPLK_y)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_y)) {
       pitch_speed += angular_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_h)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_h)) {
       pitch_speed -= angular_speed;
     }
     // NM = yaw
-    if (controller_->KeyIsDown(fpl::FPLK_n)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_n)) {
       yaw_speed += angular_speed;
     }
-    if (controller_->KeyIsDown(fpl::FPLK_m)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_m)) {
       yaw_speed -= angular_speed;
     }
     // +- = scale
-    if (controller_->KeyIsDown(fpl::FPLK_EQUALS)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_EQUALS)) {
       scale_speed = config_->object_scale_speed();
-    } else if (controller_->KeyIsDown(fpl::FPLK_MINUS)) {
+    } else if (controller_->KeyIsDown(fplbase::FPLK_MINUS)) {
       scale_speed = 1.0f / config_->object_scale_speed();
     }
     const vec3 position =
@@ -929,7 +939,7 @@ bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
         Vec3(orientation.x() + pitch_speed, orientation.y() + roll_speed,
              orientation.z() + yaw_speed);
     Vec3 scale = *transform->scale();
-    if (controller_->KeyIsDown(fpl::FPLK_0)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_0)) {
       scale = Vec3(1.0f, 1.0f, 1.0f);
       scale_speed = 0;  // to trigger returning true
     } else {

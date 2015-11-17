@@ -32,7 +32,8 @@ class EditorController {
   static const int kNumButtons = 10;  // max buttons from fplbase/input.h
 
   /// Initialize the controller.
-  EditorController(const SceneLabConfig* config, fpl::InputSystem* input_system)
+  EditorController(const SceneLabConfig* config,
+                   fplbase::InputSystem* input_system)
       : config_(config),
         input_system_(input_system),
         mouse_locked_(false),
@@ -67,21 +68,21 @@ class EditorController {
 
   /// KeyWentDown() returns true on the first frame a given key is being
   /// pressed.
-  bool KeyWentDown(fpl::FPL_Keycode key) const {
+  bool KeyWentDown(fplbase::FPL_Keycode key) const {
     return input_system_->GetButton(key).went_down();
   }
   /// KeyWentUp() returns true on the first frame after a given key has stopped
   /// being pressed.
-  bool KeyWentUp(fpl::FPL_Keycode key) const {
+  bool KeyWentUp(fplbase::FPL_Keycode key) const {
     return input_system_->GetButton(key).went_up();
   }
   /// KeyIsDown() returns true while the given key is being held down.
-  bool KeyIsDown(fpl::FPL_Keycode key) const {
+  bool KeyIsDown(fplbase::FPL_Keycode key) const {
     return input_system_->GetButton(key).is_down();
   }
   /// KeyIsUp() returns true while the given key is not being held down.
   /// Equivalent to !KeyIsDown(key).
-  bool KeyIsUp(fpl::FPL_Keycode key) const {
+  bool KeyIsUp(fplbase::FPL_Keycode key) const {
     return !input_system_->GetButton(key).is_down();
   }
 
@@ -119,7 +120,7 @@ class EditorController {
 
   /// Get the pointer position in the world, as a ray from the near to far
   /// clipping plane. Returns true if the calculation succeeded.
-  bool GetMouseWorldRay(const fpl::CameraInterface& camera,
+  bool GetMouseWorldRay(const corgi::CameraInterface& camera,
                         const mathfu::vec2i& screen_size, mathfu::vec3* near,
                         mathfu::vec3* far) const;
 
@@ -129,7 +130,7 @@ class EditorController {
 
  private:
   const SceneLabConfig* config_;
-  fpl::InputSystem* input_system_;
+  fplbase::InputSystem* input_system_;
 
   bool mouse_locked_;
 

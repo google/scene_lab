@@ -42,8 +42,8 @@ class EditorGui {
   /// present the data. EditorGui will load its own font (specified in the
   /// config) into an existing FontManager.
   EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
-            fpl::entity::EntityManager* entity_manager,
-            fpl::FontManager* font_manager, const std::string* schema_data);
+            corgi::EntityManager* entity_manager,
+            flatui::FontManager* font_manager, const std::string* schema_data);
 
   /// Turn on the GUI. This should be called when Scene Lab is activated.
   void Activate();
@@ -91,9 +91,9 @@ class EditorGui {
   bool lock_camera_height() const { return lock_camera_height_; }
 
   /// Choose which entity we are currently editing.
-  void SetEditEntity(fpl::entity::EntityRef& entity);
+  void SetEditEntity(corgi::EntityRef& entity);
   /// Get the entity we are currently editing.
-  fpl::entity::EntityRef edit_entity() const { return edit_entity_; }
+  corgi::EntityRef edit_entity() const { return edit_entity_; }
 
   /// Clear all cached or modified data that we have for the edit entity. Call
   /// this if you change any entity data externally, so we can reload data
@@ -122,7 +122,7 @@ class EditorGui {
 
   /// "Entity Updated" callback for Scene Lab; if the entity is updated
   /// externally, we reload its data by calling ClearEntityData().
-  void EntityUpdated(fpl::entity::EntityRef entity);
+  void EntityUpdated(corgi::EntityRef entity);
 
   /// Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
@@ -168,7 +168,7 @@ class EditorGui {
   static const int kButtonMargin = 5;
 
   /// Commit only the requested component flatbuffer to the entity.
-  void CommitComponentData(fpl::entity::ComponentId id);
+  void CommitComponentData(corgi::ComponentId id);
 
   /// Send an EntityUpdated event to the current entity.
   void SendUpdateEvent();
@@ -184,7 +184,7 @@ class EditorGui {
   /// Draw an interface for changing editor settings.
   void DrawSettingsUI();
   /// Draw a list of all of the component data that this entity has.
-  void DrawEntityComponent(fpl::entity::ComponentId id);
+  void DrawEntityComponent(corgi::ComponentId id);
   /// Draw a list of the entity's parent and children, if any.
   void DrawEntityFamily();
 
@@ -197,35 +197,35 @@ class EditorGui {
   void FinishDrawEditView();
 
   /// Create a text button; call this inside a gui::Run.
-  fpl::gui::Event TextButton(const char* text, const char* id, int size);
+  flatui::Event TextButton(const char* text, const char* id, int size);
 
   /// Show a button that, if you click on it, selects an entity.
-  void EntityButton(const fpl::entity::EntityRef& entity, int size);
+  void EntityButton(const corgi::EntityRef& entity, int size);
 
   /// Get the virtual resolution (for FlatUI) of the whole screen.
   void GetVirtualResolution(mathfu::vec2* resolution_output);
 
   const SceneLabConfig* config_;
   SceneLab* scene_lab_;
-  fpl::entity::EntityManager* entity_manager_;
-  fpl::FontManager* font_manager_;
+  corgi::EntityManager* entity_manager_;
+  flatui::FontManager* font_manager_;
   const std::string* schema_data_;
 
-  fpl::AssetManager* asset_manager_;
-  fpl::component_library::EntityFactory* entity_factory_;
-  fpl::InputSystem* input_system_;
-  fpl::Renderer* renderer_;
+  fplbase::AssetManager* asset_manager_;
+  corgi::component_library::EntityFactory* entity_factory_;
+  fplbase::InputSystem* input_system_;
+  fplbase::Renderer* renderer_;
 
   // Which entity we are editing right now.
-  fpl::entity::EntityRef edit_entity_;
+  corgi::EntityRef edit_entity_;
   // We're changing which entity to select; this will take effect at the
   // end of rendering.
-  fpl::entity::EntityRef changed_edit_entity_;
-  std::unordered_map<fpl::entity::ComponentId,
+  corgi::EntityRef changed_edit_entity_;
+  std::unordered_map<corgi::ComponentId,
                      std::unique_ptr<FlatbufferEditor>> component_guis_;
-  fpl::entity::ComponentId auto_commit_component_;
-  fpl::entity::ComponentId auto_revert_component_;
-  fpl::entity::ComponentId auto_recreate_component_;
+  corgi::ComponentId auto_commit_component_;
+  corgi::ComponentId auto_revert_component_;
+  corgi::ComponentId auto_recreate_component_;
 
   std::vector<bool> components_to_show_;  // Components to display on screen.
 

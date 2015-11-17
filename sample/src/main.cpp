@@ -19,7 +19,7 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   scene_lab_sample::Game game;
   const char* binary_directory = argc > 0 ? argv[0] : "";
   if (!game.Initialize(binary_directory)) {
-    fpl::LogError("Scene Lab Sample: init failed, exiting!");
+    fplbase::LogError("Scene Lab Sample: init failed, exiting!");
     return 1;
   }
 

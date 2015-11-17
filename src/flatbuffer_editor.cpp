@@ -21,12 +21,9 @@
 namespace scene_lab {
 
 using flatbuffers::uoffset_t;
-using fpl::ColorRGBA;
+using fplbase::ColorRGBA;
 using mathfu::vec2;
 using mathfu::vec4;
-
-// TODO: remove this line when the gui namespace is moved out of fpl.
-namespace gui = fpl::gui;
 
 // Default UI layout, override in Flatbuffers.
 static const int kDefaultUISize = 20;
@@ -104,23 +101,23 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
   }
 }
 
-gui::Event FlatbufferEditor::TextButton(const char* text, const char* id,
-                                        int size) {
+flatui::Event FlatbufferEditor::TextButton(const char* text, const char* id,
+                                           int size) {
   const float kMargin = 1;
   float text_size = size - 2 * kMargin;
-  gui::StartGroup(gui::kLayoutHorizontalTop, 0, id);
-  gui::SetMargin(gui::Margin(kMargin));
-  auto event = gui::CheckEvent();
-  if (event & ~gui::kEventHover) {
-    gui::ColorBackground(bg_button_click_color_);
-  } else if (event & gui::kEventHover) {
-    gui::ColorBackground(bg_button_hover_color_);
+  flatui::StartGroup(flatui::kLayoutHorizontalTop, 0, id);
+  flatui::SetMargin(flatui::Margin(kMargin));
+  auto event = flatui::CheckEvent();
+  if (event & ~flatui::kEventHover) {
+    flatui::ColorBackground(bg_button_click_color_);
+  } else if (event & flatui::kEventHover) {
+    flatui::ColorBackground(bg_button_hover_color_);
   } else {
-    gui::ColorBackground(bg_button_color_);
+    flatui::ColorBackground(bg_button_color_);
   }
-  gui::SetTextColor(text_button_color_);
-  gui::Label(text, text_size);
-  gui::EndGroup();  // id
+  flatui::SetTextColor(text_button_color_);
+  flatui::Label(text, text_size);
+  flatui::EndGroup();  // id
   return event;
 }
 
@@ -131,18 +128,18 @@ bool FlatbufferEditor::AddFieldButton(VisitMode mode, const std::string& name,
     return true;
   }
   if (IsDraw(mode)) {
-    gui::StartGroup(gui::kLayoutHorizontalCenter, ui_spacing(),
-                    (id + "-container").c_str());
-    gui::Label((name + ": ").c_str(), ui_size());
+    flatui::StartGroup(flatui::kLayoutHorizontalCenter, ui_spacing(),
+                       (id + "-container").c_str());
+    flatui::Label((name + ": ").c_str(), ui_size());
     if (IsDrawEdit(mode)) {
       if (TextButton(("[add " + typestr + "]").c_str(),
                      (id + "-addField").c_str(), ui_size()) &
-          gui::kEventWentUp) {
+          flatui::kEventWentUp) {
         force_commit_field_ = id;
         edit_fields_modified_ = true;
       }
     }
-    gui::EndGroup();  // id + "-container"
+    flatui::EndGroup();  // id + "-container"
   }
   return false;
 }
@@ -164,23 +161,23 @@ void FlatbufferEditor::Draw() {
     VisitFlatbufferTable(kCheckEdits, schema_, table_def_,
                          *flatbuffers::GetAnyRoot(flatbuffer_.data()),
                          root_id());
-    gui::StartGroup(gui::kLayoutVerticalLeft, ui_spacing(),
-                    (root_id() + "-contents").c_str());
+    flatui::StartGroup(flatui::kLayoutVerticalLeft, ui_spacing(),
+                       (root_id() + "-contents").c_str());
     if (!config_auto_commit_ && edit_fields_modified_) {
       // Draw some buttons allowing us to commit or revert all edits to this FB.
-      gui::StartGroup(gui::kLayoutHorizontalTop, ui_spacing(),
-                      (root_id() + "-buttons").c_str());
+      flatui::StartGroup(flatui::kLayoutHorizontalTop, ui_spacing(),
+                         (root_id() + "-buttons").c_str());
       if (TextButton("[Apply All]", (root_id() + "-button-commit").c_str(),
                      ui_size()) &
-          gui::kEventWentUp) {
+          flatui::kEventWentUp) {
         button_pressed_ = kCommit;
       }
       if (TextButton("[Revert All]", (root_id() + "-button-commit").c_str(),
                      ui_size()) &
-          gui::kEventWentUp) {
+          flatui::kEventWentUp) {
         button_pressed_ = kRevert;
       }
-      gui::EndGroup();  // root_id + "-buttons"
+      flatui::EndGroup();  // root_id + "-buttons"
     }
     std::string previously_editing_field = currently_editing_field_;
     currently_editing_field_ = "";
@@ -199,7 +196,7 @@ void FlatbufferEditor::Draw() {
       force_commit_field_ = previously_editing_field;
     }
 
-    gui::EndGroup();  // root_id + "-contents"
+    flatui::EndGroup();  // root_id + "-contents"
   }
 }
 
@@ -339,7 +336,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
     const reflection::Object& objectdef, flatbuffers::Struct* struct_ptr) {
   std::string str = ExtractInlineStructDef(struct_def);
   if (str.length() == 0) {
-    fpl::LogError("Struct parse error: overall struct def");
+    fplbase::LogError("Struct parse error: overall struct def");
     return false;
   }
 
@@ -352,7 +349,8 @@ bool FlatbufferEditor::ParseStringIntoStruct(
         // Scalar value.
         std::string new_str = ConsumeNumber(str);
         if (new_str == str) {
-          fpl::LogError("Struct parse error: scalar. str = '%s'", str.c_str());
+          fplbase::LogError("Struct parse error: scalar. str = '%s'",
+                            str.c_str());
           return false;
         }
         if (struct_ptr != nullptr)
@@ -366,7 +364,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
         if (subobjdef.is_struct()) {
           std::string substr = ExtractInlineStructDef(str);
           if (substr.length() == 0) {
-            fpl::LogError(
+            fplbase::LogError(
                 "Struct parse error: extracting substruct. str = '%s'",
                 str.c_str());
             return false;
@@ -377,7 +375,7 @@ bool FlatbufferEditor::ParseStringIntoStruct(
                         *struct_ptr, fielddef)
                   : nullptr;
           if (!ParseStringIntoStruct(substr, schema, subobjdef, sub_struct)) {
-            fpl::LogError("Struct parse error: substruct");
+            fplbase::LogError("Struct parse error: substruct");
             return false;
           }
           str = str.substr(substr.length());
@@ -451,24 +449,24 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
   }
   std::string edit_id = id + "-edit";
   if (IsDraw(mode)) {
-    gui::StartGroup(gui::kLayoutHorizontalCenter, ui_spacing(),
-                    (id + "-container").c_str());
-    gui::SetTextColor(text_normal_color_);
-    gui::Label(FormatFieldName(name, type).c_str(), ui_size());
+    flatui::StartGroup(flatui::kLayoutHorizontalCenter, ui_spacing(),
+                       (id + "-container").c_str());
+    flatui::SetTextColor(text_normal_color_);
+    flatui::Label(FormatFieldName(name, type).c_str(), ui_size());
   }
   if (mode == kDrawReadOnly) {
     // Show in "read-only" color.
-    gui::SetTextColor(text_disabled_color_);
+    flatui::SetTextColor(text_disabled_color_);
   } else {
     if (edit_fields_[id] != value) {
       // Show in a "modified" color.
       if (IsDrawEdit(mode)) {
         if (currently_editing_field_ == id) {
-          gui::SetTextColor(text_editing_color_);
+          flatui::SetTextColor(text_editing_color_);
         } else if (error_fields_.find(id) != error_fields_.end()) {
-          gui::SetTextColor(text_error_color_);
+          flatui::SetTextColor(text_error_color_);
         } else {
-          gui::SetTextColor(text_modified_color_);
+          flatui::SetTextColor(text_modified_color_);
         }
       }
       edit_fields_modified_ = true;
@@ -479,10 +477,10 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
       }
     } else if (committed_fields_.find(id) != committed_fields_.end()) {
       // show in "committed" color
-      if (IsDrawEdit(mode)) gui::SetTextColor(text_committed_color_);
+      if (IsDrawEdit(mode)) flatui::SetTextColor(text_committed_color_);
     } else {
       // Show in "editable" but not modified color.
-      if (IsDrawEdit(mode)) gui::SetTextColor(text_editable_color_);
+      if (IsDrawEdit(mode)) flatui::SetTextColor(text_editable_color_);
     }
   }
   if (IsDrawEdit(mode)) {
@@ -490,7 +488,7 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
     if (edit_fields_[id].length() == 0) {
       edit_vec.x() = blank_field_width();
     }
-    if (gui::Edit(ui_size(), edit_vec, edit_id.c_str(), &edit_fields_[id])) {
+    if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), &edit_fields_[id])) {
       if (mode == kDrawEditAuto) {
         // In this mode, we track which field the user is editing; once they
         // stop editing it, we auto-commit.
@@ -499,27 +497,27 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
       set_keyboard_in_use(true);
     }
   } else if (mode == kDrawReadOnly) {
-    gui::Label(value.c_str(), ui_size());
+    flatui::Label(value.c_str(), ui_size());
   }
   if (mode == kDrawEditManual) {
     // In this mode, the user must commit each field they edit.
     if (edit_fields_[id] != value) {
       if (TextButton("[apply]", (id + "-apply").c_str(), ui_size()) &
-          gui::kEventWentUp) {
+          flatui::kEventWentUp) {
         force_commit_field_ = id;
       }
       if (TextButton("[revert]", (id + "-revert").c_str(), ui_size()) &
-          gui::kEventWentUp) {
+          flatui::kEventWentUp) {
         edit_fields_[id] = value;
       }
     }
   }
   if (IsDraw(mode)) {
-    gui::SetTextColor(text_comment_color_);
+    flatui::SetTextColor(text_comment_color_);
     if (comment != "") {
-      gui::Label(comment.c_str(), ui_size());
+      flatui::Label(comment.c_str(), ui_size());
     }
-    gui::EndGroup();  // id + "-container"
+    flatui::EndGroup();  // id + "-container"
   }
   return false;  // Nothing changed while visiting this field.
 }
@@ -536,50 +534,50 @@ bool FlatbufferEditor::VisitSubtable(VisitMode mode, const std::string& field,
     // Subtable which is not a struct (since VisitFlatbufferStruct would have
     // been called in that case).
     if (IsDraw(mode)) {
-      gui::StartGroup(gui::kLayoutHorizontalTop, ui_spacing(),
-                      (id + "-field").c_str());
-      gui::StartGroup(gui::kLayoutVerticalLeft, ui_spacing(),
-                      (id + "-fieldName").c_str());
-      auto event = gui::CheckEvent();
+      flatui::StartGroup(flatui::kLayoutHorizontalTop, ui_spacing(),
+                         (id + "-field").c_str());
+      flatui::StartGroup(flatui::kLayoutVerticalLeft, ui_spacing(),
+                         (id + "-fieldName").c_str());
+      auto event = flatui::CheckEvent();
       std::string name_full = field;
-      gui::Label(FormatFieldName(field, type).c_str(), ui_size());
-      if (event & gui::kEventWentDown) {
+      flatui::Label(FormatFieldName(field, type).c_str(), ui_size());
+      if (event & flatui::kEventWentDown) {
         if (!expand_all()) expanded_subtables_.erase(id);
       }
-      gui::EndGroup();  // id + "-fieldName"
-      gui::StartGroup(gui::kLayoutVerticalLeft, ui_spacing(),
-                      (id + "-nestedTable").c_str());
+      flatui::EndGroup();  // id + "-fieldName"
+      flatui::StartGroup(flatui::kLayoutVerticalLeft, ui_spacing(),
+                         (id + "-nestedTable").c_str());
     }
     if (VisitFlatbufferTable(mode, schema, subobjdef, subtable, id)) {
       return true;
     }
     if (IsDraw(mode)) {
-      gui::EndGroup();  // id + "-nestedTable"
+      flatui::EndGroup();  // id + "-nestedTable"
       if (comment != "") {
-        gui::Label((std::string("(") + comment + ")").c_str(), ui_size());
+        flatui::Label((std::string("(") + comment + ")").c_str(), ui_size());
       }
-      gui::EndGroup();  // id + "-field"
+      flatui::EndGroup();  // id + "-field"
     }
   } else if (IsDraw(mode)) {
     // Show this table collapsed.
-    gui::StartGroup(gui::kLayoutHorizontalTop, ui_spacing(),
-                    (id + "-field").c_str());
-    auto event = gui::CheckEvent();
-    if (event & gui::kEventWentDown) {
+    flatui::StartGroup(flatui::kLayoutHorizontalTop, ui_spacing(),
+                       (id + "-field").c_str());
+    auto event = flatui::CheckEvent();
+    if (event & flatui::kEventWentDown) {
       expanded_subtables_.insert(id);
     }
-    gui::StartGroup(gui::kLayoutHorizontalTop, ui_spacing(),
-                    (id + "-fieldName").c_str());
-    gui::Label(FormatFieldName(field, type).c_str(), ui_size());
-    gui::EndGroup();  // id + "-fieldName"
-    gui::StartGroup(gui::kLayoutVerticalLeft, ui_spacing(),
-                    (id + "-nestedTable").c_str());
-    gui::Label("...", ui_size());
+    flatui::StartGroup(flatui::kLayoutHorizontalTop, ui_spacing(),
+                       (id + "-fieldName").c_str());
+    flatui::Label(FormatFieldName(field, type).c_str(), ui_size());
+    flatui::EndGroup();  // id + "-fieldName"
+    flatui::StartGroup(flatui::kLayoutVerticalLeft, ui_spacing(),
+                       (id + "-nestedTable").c_str());
+    flatui::Label("...", ui_size());
     if (comment != "") {
-      gui::Label((std::string("(") + comment + ")").c_str(), ui_size());
+      flatui::Label((std::string("(") + comment + ")").c_str(), ui_size());
     }
-    gui::EndGroup();  // id + "-nestedTable"
-    gui::EndGroup();  // id + "-field"
+    flatui::EndGroup();  // id + "-nestedTable"
+    flatui::EndGroup();  // id + "-field"
   }
   return false;  // Nothing changed in the subtable.
 }
@@ -630,7 +628,7 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
           const uint8_t* new_data = flatbuffers::AddFlatBuffer(
               flatbuffer_, fbb.GetBufferPointer(), fbb.GetSize());
           if (!SetFieldT(&table, fielddef, new_data)) {
-            fpl::LogError("Couldn't add new string value to Flatbuffer!");
+            fplbase::LogError("Couldn't add new string value to Flatbuffer!");
           }
           flatbuffer_modified_ = true;
           return true;
@@ -846,8 +844,8 @@ bool FlatbufferEditor::VisitFlatbufferStruct(
       if (error_fields_.find(id) != error_fields_.end())
         error_fields_.erase(id);
     } else {
-      fpl::LogError("Struct '%s' was not valid for %s.",
-                    edit_fields_[id].c_str(), id.c_str());
+      fplbase::LogError("Struct '%s' was not valid for %s.",
+                        edit_fields_[id].c_str(), id.c_str());
       error_fields_.insert(id);
       // TODO: mark invalid fields in red.
     }
@@ -887,8 +885,8 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
       element_base_type, fielddef.type()->index(), schema);
   std::string idx = ".size";
   if (IsDraw(mode))
-    gui::StartGroup(gui::kLayoutHorizontalCenter, 8,
-                    (id + idx + "-commit").c_str());
+    flatui::StartGroup(flatui::kLayoutHorizontalCenter, 8,
+                       (id + idx + "-commit").c_str());
   // Special: Don't auto-commit vector sizes back to the Flatbuffer as it causes
   // too much to change; if VisitMode is kDrawEditAuto, pass in kDrawEditManual.
   VisitMode size_mode = mode == kDrawEditAuto ? kDrawEditManual : mode;
@@ -901,10 +899,10 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
         flatbuffers::StringToInt(edit_fields_[id + idx].c_str());
     flatbuffers::ResizeAnyVector(schema, new_size, vec, vec->size(),
                                  element_size, &flatbuffer_, &table_def_);
-    if (IsDraw(mode)) gui::EndGroup();  // id + idx + "-commit"
+    if (IsDraw(mode)) flatui::EndGroup();  // id + idx + "-commit"
     return true;
   }
-  if (IsDraw(mode)) gui::EndGroup();  // id + idx + "-commit"
+  if (IsDraw(mode)) flatui::EndGroup();  // id + idx + "-commit"
   switch (element_base_type) {
     case reflection::String: {
       // This is a vector of strings.

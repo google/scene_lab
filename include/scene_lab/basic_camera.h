@@ -33,7 +33,7 @@ static const mathfu::vec3 kCameraUp = mathfu::kAxisZ3f;
 /// SceneLab::SetCamera.
 ///
 /// By default, this camera uses right-handed coordinates.
-class BasicCamera : public fpl::CameraInterface {
+class BasicCamera : public corgi::CameraInterface {
  public:
   BasicCamera();
   /// Returns the View/Projection matrix. `index` must be 0.
