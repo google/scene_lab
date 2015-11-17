@@ -25,6 +25,8 @@
 #include <jni.h>
 #elif !defined(_MSC_VER)
 #include <dirent.h>
+#else
+#include <windows.h>
 #endif  // !defined(_MSC_VER)
 
 namespace scene_lab {
@@ -70,6 +72,7 @@ std::unordered_map<std::string, time_t> ScanDirectory(
   env->DeleteLocalRef(activity);
 
 #elif !defined(_MSC_VER)
+  // Default implementation just uses dirent.h, supported on all POSIX systems.
   const char* kDirSep = "/";
   DIR* dir = opendir(directory.length() == 0 ? "." : directory.c_str());
   if (dir == NULL) return file_list;
@@ -93,13 +96,34 @@ std::unordered_map<std::string, time_t> ScanDirectory(
   closedir(dir);
 #else
   // dirent.h functionality not supported on Windows.
-  // TODO: implement on Windows
-  (void)directory;
-  (void)fil_ext;
-  assert(false);
+  WIN32_FIND_DATA find_data;
+  LARGE_INTEGER mod_time;
+  HANDLE handle = INVALID_HANDLE_VALUE;
+  const char* kDirSep = "\\";
+
+  std::string file_glob =
+      directory.length() == 0 ? "*" : (directory + kDirSep + "*").c_str();
+
+  handle = FindFirstFile(file_glob.c_str(), &find_data);
+
+  if (handle == INVALID_HANDLE_VALUE) return file_list;
+  do {
+    if (!(find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+      std::string filename = directory + "\\" + find_data.cFileName;
+      if (filename.compare(filename.length() - file_ext.length(),
+                           file_ext.length(), file_ext) == 0) {
+        mod_time.HighPart = find_data.ftLastWriteTime.dwHighDateTime;
+        mod_time.LowPart = find_data.ftLastWriteTime.dwLowDateTime;
+        file_list[filename] = mod_time.QuadPart;
+      }
+    }
+  } while (FindNextFile(handle, &find_data) != 0);
+  FindClose(handle);
 #endif  // !defined(_MSC_VER)
   return file_list;
 }
+
+static time_t LatestTime(time_t a, time_t b) { return (a > b) ? a : b; }
 
 time_t LoadAssetsIfNewer(time_t threshold,
                          const std::vector<AssetLoader>& asset_loaders) {
@@ -107,9 +131,9 @@ time_t LoadAssetsIfNewer(time_t threshold,
   for (auto loader = asset_loaders.begin(); loader != asset_loaders.end();
        ++loader) {
     max_time =
-        std::max(max_time, LoadAssetsIfNewer(threshold, loader->directory,
-                                             loader->file_extension,
-                                             loader->load_function));
+        LatestTime(max_time, LoadAssetsIfNewer(threshold, loader->directory,
+                                               loader->file_extension,
+                                               loader->load_function));
   }
   return max_time;
 }
@@ -125,7 +149,7 @@ time_t LoadAssetsIfNewer(time_t threshold, const std::string& directory,
     if (modtime > threshold) {
       load_function(filename.c_str());
       // Keep track of the latest timestamp of assets.
-      max_time = std::max(modtime, max_time);
+      max_time = LatestTime(modtime, max_time);
     }
   }
   return max_time;  // Only non-zero if we actually loaded anything.
