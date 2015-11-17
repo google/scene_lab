@@ -21,6 +21,10 @@
 #include "fplbase/utilities.h"
 #include "scene_lab/util.h"
 
+#ifdef __ANDROID__
+#include "fplbase/renderer_android.h"
+#endif
+
 namespace scene_lab_sample {
 
 static const char kAssetsDir[] = "sample/assets";
@@ -34,9 +38,14 @@ static const int kMaxUpdateTime = 1000 / 30;
 static const int kWindowWidth = 1200;
 static const int kWindowHeight = 800;
 
+#ifdef __ANDROID__
+static const int kAndroidMaxScreenWidth = 1280;
+static const int kAndroidMaxScreenHeight = 720;
+#endif
+
 static const float kStartingHeight = 4.0f;
 
-static const float kBackgroundColor[] = {0.5f, 0.5f, 0.5f, 1.0f};
+static const float kBackgroundColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
 
 Game::Game() : asset_manager_(renderer_) {}
 
@@ -53,11 +62,16 @@ bool Game::Initialize(const char* const binary_directory) {
     return false;
   }
 
-  const mathfu::vec2i window_size(kWindowWidth, kWindowHeight);
+#if defined(__ANDROID__)
+  mathfu::vec2i window_size(kAndroidMaxScreenWidth, kAndroidMaxScreenHeight);
+#else
+  mathfu::vec2i window_size(kWindowWidth, kWindowHeight);
+#endif  // defined(__ANDROID__)
   if (!renderer_.Initialize(window_size, "Scene Lab Sample")) {
+    fplbase::LogError("Renderer initialization error: %s\n",
+                      renderer_.last_error().c_str());
     return false;
   }
-
   input_.Initialize();
 
   entity_factory_.reset(new corgi::component_library::DefaultEntityFactory());
@@ -109,13 +123,13 @@ bool Game::Initialize(const char* const binary_directory) {
 }
 
 bool Game::Update(corgi::WorldTime delta_time) {
+  input_.AdvanceFrame(&renderer_.window_size());
+
   if (input_.GetButton(fplbase::FPLK_F5).went_down()) {
     // Check assets path to see if any new files were added, and load them if
     // so.
     LoadNewAssets();
   }
-
-  renderer_.AdvanceFrame(input_.minimized(), input_.Time());
 
   if (in_editor_) {
     scene_lab_->AdvanceFrame(delta_time);
@@ -143,20 +157,20 @@ bool Game::Update(corgi::WorldTime delta_time) {
 }
 
 void Game::Render() {
-  corgi::CameraInterface* camera = scene_lab_->GetCamera();
+  renderer_.AdvanceFrame(input_.minimized(), input_.Time());
 
+  corgi::CameraInterface* camera = scene_lab_->GetCamera();
   camera->set_viewport_resolution(mathfu::vec2(renderer_.window_size()));
 
   mathfu::mat4 camera_transform = camera->GetTransformMatrix();
   renderer_.set_color(mathfu::kOnes4f);
-  renderer_.ClearFrameBuffer(mathfu::vec4(kBackgroundColor));  // 50% gray
+  renderer_.ClearFrameBuffer(mathfu::vec4(kBackgroundColor));
   renderer_.DepthTest(true);
   renderer_.set_model_view_projection(camera_transform);
 
   render_mesh_component_.RenderPrep(*camera);
   render_mesh_component_.RenderAllEntities(renderer_, *camera);
 
-  input_.AdvanceFrame(&renderer_.window_size());
   if (in_editor_) {
     scene_lab_->Render(&renderer_);
   } else {
@@ -169,8 +183,13 @@ void Game::RenderInGameGui() {
   flatui::Run(asset_manager_, font_manager_, input_, [&]() {
     flatui::StartGroup(flatui::kLayoutOverlay, 10, "help");
     flatui::ColorBackground(mathfu::vec4(0, 0, 0, 1));
+#if !defined(__ANDROID__)
     flatui::Label(
         "Game is active. Press F10 to activate Scene Lab or ESC to exit.", 20);
+#else
+    flatui::Label(
+        "Android mode. Activating Scene Lab is not yet supported.", 20);
+#endif  // !defined(__ANDROID__)
     flatui::EndGroup();
   });
 }
@@ -179,7 +198,8 @@ void Game::Run() {
   // Initialize so that we don't sleep the first time through the loop.
   prev_world_time_ = (int)(input_.Time() * 1000) - kMinUpdateTime;
 
-  while (!input_.exit_requested()) {
+  while (!(input_.exit_requested() ||
+           input_.GetButton(fplbase::FPLK_AC_BACK).went_down())) {
     const corgi::WorldTime world_time = (int)(input_.Time() * 1000);
     const corgi::WorldTime delta_time =
         std::min(world_time - prev_world_time_, kMaxUpdateTime);
@@ -202,8 +222,7 @@ void Game::LoadNewAssets() {
   }
 }
 
-void Game::SetComponentType(corgi::ComponentId component_id,
-                            size_t enum_id) {
+void Game::SetComponentType(corgi::ComponentId component_id, size_t enum_id) {
   entity_factory_->SetComponentType(component_id, enum_id,
                                     EnumNamesComponentDataUnion()[enum_id]);
 }

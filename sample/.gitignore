@@ -1,0 +1,8 @@
+apks
+bin
+build.xml
+libs
+local.properties
+proguard-project.txt
+project.properties
+src_java

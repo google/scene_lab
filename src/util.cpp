@@ -13,10 +13,17 @@
 // limitations under the License.
 
 #include "scene_lab/util.h"
+
+#include "fplbase/utilities.h"
+
 #include <sys/stat.h>
 #include <cassert>
 #include <fstream>
-#if !defined(_MSC_VER)
+#if defined(__ANDROID__)
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <jni.h>
+#elif !defined(_MSC_VER)
 #include <dirent.h>
 #endif  // !defined(_MSC_VER)
 
@@ -25,7 +32,44 @@ namespace scene_lab {
 std::unordered_map<std::string, time_t> ScanDirectory(
     const std::string& directory, const std::string& file_ext) {
   std::unordered_map<std::string, time_t> file_list;
-#if !defined(_MSC_VER)
+#if defined(__ANDROID__)
+  // Android version uses the asset manager. Let's get that from the Activity.
+  JNIEnv* env = fplbase::AndroidGetJNIEnv();
+  jobject activity = fplbase::AndroidGetActivity();
+  jclass activity_class = env->GetObjectClass(activity);
+
+  jmethodID get_assets = env->GetMethodID(
+      activity_class, "getAssets", "()Landroid/content/res/AssetManager;");
+  jobject asset_manager_java = env->CallObjectMethod(activity, get_assets);
+
+  AAssetManager* asset_manager =
+      AAssetManager_fromJava(env, asset_manager_java);
+
+  // Get file list from the asset manager. There are no timestamps -- but these
+  // files won't change anyway, so just force a default timestamp.
+  const time_t kDefaultAndroidFileTime = 1;
+  const char* kDirSep = "/";
+
+  AAssetDir* dir = AAssetManager_openDir(
+      asset_manager, directory.length() == 0 ? "." : directory.c_str());
+  if (dir == NULL) return file_list;
+  for (;;) {
+    const char* next_file = AAssetDir_getNextFileName(dir);
+    if (next_file == nullptr) break;
+    std::string filename = directory + kDirSep + next_file;
+    if (filename.compare(filename.length() - file_ext.length(),
+                         file_ext.length(), file_ext) == 0) {
+      file_list[filename] = kDefaultAndroidFileTime;
+    }
+  }
+
+  AAssetDir_close(dir);
+
+  env->DeleteLocalRef(asset_manager_java);
+  env->DeleteLocalRef(activity_class);
+  env->DeleteLocalRef(activity);
+
+#elif !defined(_MSC_VER)
   const char* kDirSep = "/";
   DIR* dir = opendir(directory.length() == 0 ? "." : directory.c_str());
   if (dir == NULL) return file_list;
@@ -49,6 +93,7 @@ std::unordered_map<std::string, time_t> ScanDirectory(
   closedir(dir);
 #else
   // dirent.h functionality not supported on Windows.
+  // TODO: implement on Windows
   (void)directory;
   (void)fil_ext;
   assert(false);

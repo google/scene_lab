@@ -11,11 +11,19 @@ and [Visual Studio][] solutions on [Windows][]. See,
    * [Building for OS X][]
    * [Building for Windows][]
 
+You can also build and link Scene Lab for Android, though the Scene Lab UI does
+not yet function or let you edit entities on the device itself. Scene Lab
+includes a sample project to show how to build for Android.
+
+   * [Building for Android][]
+
+
 <br>
 
-  [Building for Linux]: @ref flatui_guide_linux
-  [Building for OS X]: @ref flatui_guide_osx
-  [Building for Windows]: @ref flatui_guide_windows
+  [Building for Android]: @ref scene_lab_guide_android
+  [Building for Linux]: @ref scene_lab_guide_linux
+  [Building for OS X]: @ref scene_lab_guide_osx
+  [Building for Windows]: @ref scene_lab_guide_windows
   [CMake]: http://www.cmake.org/
   [Linux]: http://en.m.wikipedia.org/wiki/Linux
   [OS X]: http://www.apple.com/osx/
