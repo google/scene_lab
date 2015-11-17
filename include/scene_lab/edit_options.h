@@ -42,6 +42,8 @@ struct EditOptionsData {
 class EditOptionsComponent
     : public corgi::Component<EditOptionsData> {
  public:
+  virtual ~EditOptionsComponent() {}
+
   void EditorEnter();
   void EditorExit();
   void EntityCreated(corgi::EntityRef entity);

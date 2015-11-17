@@ -47,6 +47,8 @@ namespace scene_lab_sample {
 class Game {
  public:
   Game();
+  virtual ~Game() {}
+
   /// Initialize the game, passing in the directory name for the game's assets.
   /// If you do override this, make sure to call the base class Initialize() as
   /// well.
