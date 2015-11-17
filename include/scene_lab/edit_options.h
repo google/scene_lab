@@ -18,8 +18,8 @@
 #include <set>
 #include <string>
 #include <unordered_map>
+#include "corgi/component.h"
 #include "editor_components_generated.h"
-#include "entity/component.h"
 
 namespace scene_lab {
 
@@ -39,8 +39,7 @@ struct EditOptionsData {
   bool backup_rendermesh_hidden;
 };
 
-class EditOptionsComponent
-    : public corgi::Component<EditOptionsData> {
+class EditOptionsComponent : public corgi::Component<EditOptionsData> {
  public:
   virtual ~EditOptionsComponent() {}
 
@@ -48,10 +47,8 @@ class EditOptionsComponent
   void EditorExit();
   void EntityCreated(corgi::EntityRef entity);
 
-  virtual void AddFromRawData(corgi::EntityRef& entity,
-                              const void* raw_data);
-  virtual RawDataUniquePtr ExportRawData(
-      const corgi::EntityRef& entity) const;
+  virtual void AddFromRawData(corgi::EntityRef& entity, const void* raw_data);
+  virtual RawDataUniquePtr ExportRawData(const corgi::EntityRef& entity) const;
 
   // This must be called once and only once when initializing Scene Lab.
   void SetSceneLabCallbacks(SceneLab* scene_lab);
@@ -59,7 +56,7 @@ class EditOptionsComponent
 
 }  // namespace scene_lab
 
-FPL_ENTITY_REGISTER_COMPONENT(scene_lab::EditOptionsComponent,
-                              scene_lab::EditOptionsData)
+CORGI_REGISTER_COMPONENT(scene_lab::EditOptionsComponent,
+                         scene_lab::EditOptionsData)
 
 #endif  // SCENE_LAB_EDIT_OPTIONS_H_

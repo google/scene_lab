@@ -29,8 +29,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := scene_lab
 LOCAL_ARM_MODE := arm
 LOCAL_STATIC_LIBRARIES := \
-  component_library \
-  entity \
+  corgi_component_library \
+  corgi \
   fplbase \
   flatui \
   mathfu
@@ -61,7 +61,7 @@ LOCAL_SRC_FILES := \
 SCENE_LAB_SCHEMA_DIR := $(SCENE_LAB_DIR)/schemas
 SCENE_LAB_SCHEMA_INCLUDE_DIRS := \
   $(DEPENDENCIES_FPLBASE_DIR)/schemas \
-  $(DEPENDENCIES_COMPONENT_LIBRARY_DIR)/schemas \
+  $(DEPENDENCIES_CORGI_COMPONENT_LIBRARY_DIR)/schemas \
   $(DEPENDENCIES_MOTIVE_DIR)/schemas
 
 SCENE_LAB_SCHEMA_FILES := \
@@ -78,22 +78,22 @@ $(call flatbuffers_header_build_rules, \
   $(SCENE_LAB_SCHEMA_INCLUDE_DIRS), \
   $(LOCAL_SRC_FILES), \
   scene_lab_generated_includes,\
-  component_library_generated_includes \
+  corgi_component_library_generated_includes \
   motive_generated_includes \
   fplbase_generated_includes)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
 
-$(call import-add-path,$(DEPENDENCIES_ENTITY_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_CORGI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FLATUI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FPLBASE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MOTIVE_DIR)/..)
 
-$(call import-module,entity/component_library/jni)
-$(call import-module,entity/jni)
+$(call import-module,corgi/component_library/jni)
+$(call import-module,corgi/jni)
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,flatui/jni)
 $(call import-module,fplbase/jni)

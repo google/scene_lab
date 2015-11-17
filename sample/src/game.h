@@ -16,14 +16,14 @@
 #define GAME_H_
 
 #include <unordered_map>
-#include "component_library/animation.h"
-#include "component_library/common_services.h"
-#include "component_library/entity_factory.h"
-#include "component_library/meta.h"
-#include "component_library/physics.h"
-#include "component_library/rendermesh.h"
-#include "component_library/transform.h"
-#include "entity/entity_manager.h"
+#include "corgi_component_library/animation.h"
+#include "corgi_component_library/common_services.h"
+#include "corgi_component_library/entity_factory.h"
+#include "corgi_component_library/meta.h"
+#include "corgi_component_library/physics.h"
+#include "corgi_component_library/rendermesh.h"
+#include "corgi_component_library/transform.h"
+#include "corgi/entity_manager.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatui/font_manager.h"
 #include "fplbase/asset_manager.h"

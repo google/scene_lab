@@ -14,16 +14,16 @@
 
 #include <assert.h>
 #include <string.h>
-#include "component_library/common_services.h"
-#include "component_library/physics.h"
-#include "component_library/rendermesh.h"
+#include "corgi_component_library/common_services.h"
+#include "corgi_component_library/physics.h"
+#include "corgi_component_library/rendermesh.h"
 #include "library_components_generated.h"
 #include "mathfu/utilities.h"
 #include "scene_lab/edit_options.h"
 #include "scene_lab/scene_lab.h"
 
-FPL_ENTITY_DEFINE_COMPONENT(scene_lab::EditOptionsComponent,
-                            scene_lab::EditOptionsData)
+CORGI_DEFINE_COMPONENT(scene_lab::EditOptionsComponent,
+                       scene_lab::EditOptionsData)
 
 namespace scene_lab {
 
@@ -37,8 +37,8 @@ void EditOptionsComponent::SetSceneLabCallbacks(SceneLab* scene_lab) {
   assert(scene_lab);
   scene_lab->AddOnEnterEditorCallback([this]() { EditorEnter(); });
   scene_lab->AddOnExitEditorCallback([this]() { EditorExit(); });
-  scene_lab->AddOnCreateEntityCallback([this](
-      const corgi::EntityRef& entity) { EntityCreated(entity); });
+  scene_lab->AddOnCreateEntityCallback(
+      [this](const corgi::EntityRef& entity) { EntityCreated(entity); });
 }
 
 void EditOptionsComponent::AddFromRawData(corgi::EntityRef& entity,
@@ -55,9 +55,8 @@ void EditOptionsComponent::AddFromRawData(corgi::EntityRef& entity,
   }
 }
 
-corgi::ComponentInterface::RawDataUniquePtr
-EditOptionsComponent::ExportRawData(const corgi::EntityRef& entity)
-    const {
+corgi::ComponentInterface::RawDataUniquePtr EditOptionsComponent::ExportRawData(
+    const corgi::EntityRef& entity) const {
   const EditOptionsData* data = GetComponentData(entity);
   if (data == nullptr) return nullptr;
 

@@ -17,7 +17,7 @@
 #include <math.h>
 #include <set>
 #include <string>
-#include "component_library/common_services.h"
+#include "corgi_component_library/common_services.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/reflection.h"

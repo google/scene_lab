@@ -78,16 +78,17 @@ set(dependencies_breadboard_dir "${fpl_root}/breadboard"
     CACHE PATH "Directory containing the breadboard library.")
 set(dependencies_fplbase_dir "${fpl_root}/fplbase"
     CACHE PATH "Directory containing the FPLBase library.")
-set(dependencies_entity_dir "${fpl_root}/entity"
-    CACHE PATH "Directory containing the Entity library.")
+set(dependencies_corgi_dir "${fpl_root}/corgi"
+    CACHE PATH "Directory containing the CORGI library.")
 set(dependencies_flatui_dir "${fpl_root}/flatui"
     CACHE PATH "Directory containing the FlatUI library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
 set(dependencies_bulletphysics_distr_dir "${third_party_root}/bulletphysics"
     CACHE PATH "Directory containing the Bullet Physics distribution.")
-set(dependencies_component_library_dir "${dependencies_entity_dir}/component_library"
-    CACHE PATH "Directory containing the entity system component library")
+set(dependencies_corgi_component_library_dir
+    "${dependencies_corgi_dir}/component_library"
+    CACHE PATH "Directory containing the CORGI component library")
 
 set(scene_lab_standalone_mode OFF)
 message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
@@ -124,9 +125,9 @@ if(scene_lab_standalone_mode)
     add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
   endif()
 
-  if(NOT TARGET entity)
-    # Include entity system.
-    add_subdirectory("${dependencies_entity_dir}" ${tmp_dir}/entity)
+  if(NOT TARGET corgi)
+    # Include CORGI.
+    add_subdirectory("${dependencies_corgi_dir}" ${tmp_dir}/corgi)
   endif()
 
   if(NOT TARGET flatui)
@@ -161,7 +162,7 @@ file(GLOB_RECURSE scene_lab_flatbuffers_schemas schemas/*.fbs)
 
 set(scene_lab_schema_include_dirs
   ${CMAKE_SOURCE_DIR}/schemas
-  ${dependencies_component_library_dir}/schemas
+  ${dependencies_corgi_component_library_dir}/schemas
   ${dependencies_fplbase_dir}/schemas
   ${dependencies_motive_dir}/schemas
   ${dependencies_pindrop_dir}/schemas
@@ -180,13 +181,14 @@ get_property(FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR
              TARGET fplbase_generated_includes
              PROPERTY GENERATED_INCLUDES_DIR)
 include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
-get_property(COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR
-             TARGET component_library_generated_includes
+get_property(CORGI_COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR
+             TARGET corgi_component_library_generated_includes
              PROPERTY GENERATED_INCLUDES_DIR)
-include_directories(${COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+include_directories(
+  ${CORGI_COMPONENT_LIBRARY_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_bulletphysics_distr_dir}/src)
-include_directories(${dependencies_entity_dir}/include)
-include_directories(${dependencies_component_library_dir}/include)
+include_directories(${dependencies_corgi_dir}/include)
+include_directories(${dependencies_corgi_component_library_dir}/include)
 include_directories(${dependencies_breadboard_dir}/include)
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplbase_dir}/include)
@@ -226,7 +228,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 add_library(scene_lab ${scene_lab_SRCS})
 add_dependencies(scene_lab scene_lab_generated_includes)
-add_dependencies(scene_lab component_library_generated_includes)
+add_dependencies(scene_lab corgi_component_library_generated_includes)
 add_dependencies(scene_lab fplbase_generated_includes)
 mathfu_configure_flags(scene_lab)
 

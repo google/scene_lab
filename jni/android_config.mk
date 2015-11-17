@@ -41,13 +41,13 @@ DEPENDENCIES_GTEST_DIR?=$(FPL_ROOT)/googletest
 DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
 # Location of the Motive library.
 DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
-# Location of the Entity library.
-DEPENDENCIES_ENTITY_DIR?=$(FPL_ROOT)/entity
+# Location of the CORGI library.
+DEPENDENCIES_CORGI_DIR?=$(FPL_ROOT)/corgi
 # Location of the FlatUI library.
 DEPENDENCIES_FLATUI_DIR?=$(FPL_ROOT)/flatui
-# Location of the Entity Component Library.
-DEPENDENCIES_COMPONENT_LIBRARY_DIR?=\
-  $(DEPENDENCIES_ENTITY_DIR)/component_library
+# Location of the CORGI Component Library.
+DEPENDENCIES_CORGI_COMPONENT_LIBRARY_DIR?=\
+  $(DEPENDENCIES_CORGI_DIR)/component_library
 # Location of the Bullet Physics library.
 DEPENDENCIES_BULLETPHYSICS_DIR?=$(THIRD_PARTY_ROOT)/bulletphysics
 

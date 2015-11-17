@@ -14,9 +14,9 @@
 
 #include <stdlib.h>
 #include <string>
-#include "component_library/common_services.h"
-#include "component_library/meta.h"
-#include "component_library/transform.h"
+#include "corgi_component_library/common_services.h"
+#include "corgi_component_library/meta.h"
+#include "corgi_component_library/transform.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"

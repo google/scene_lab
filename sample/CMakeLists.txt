@@ -50,7 +50,7 @@ file(GLOB_RECURSE scene_lab_sample_flatbuffers_schemas
 
 set(scene_lab_sample_schema_include_dirs
         ${CMAKE_SOURCE_DIR}/schemas
-        ${dependencies_component_library_dir}/schemas
+        ${dependencies_corgi_component_library_dir}/schemas
         ${dependencies_fplbase_dir}/schemas
         ${dependencies_motive_dir}/schemas
         ${dependencies_pindrop_dir}/schemas)
@@ -84,13 +84,13 @@ add_dependencies(scene_lab_sample scene_lab_sample_assets)
 add_dependencies(scene_lab_sample scene_lab_sample_generated_includes)
 mathfu_configure_flags(scene_lab_sample)
 target_link_libraries(scene_lab_sample
-  component_library
+  corgi_component_library
   motive
   fplbase
   scene_lab
   flatui
   flatbuffers
   breadboard
-  entity
+  corgi
   module_library
   pindrop)

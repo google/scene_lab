@@ -15,7 +15,7 @@
 #ifndef SCENE_LAB_EDITOR_CONTROLLER_H_
 #define SCENE_LAB_EDITOR_CONTROLLER_H_
 
-#include "component_library/camera_interface.h"
+#include "corgi_component_library/camera_interface.h"
 #include "fplbase/input.h"
 #include "mathfu/constants.h"
 #include "mathfu/glsl_mappings.h"

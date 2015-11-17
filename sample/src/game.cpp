@@ -15,8 +15,8 @@
 #include "game.h"
 
 #include "SDL.h"
-#include "component_library/camera_interface.h"
-#include "component_library/default_entity_factory.h"
+#include "corgi_component_library/camera_interface.h"
+#include "corgi_component_library/default_entity_factory.h"
 #include "components_generated.h"
 #include "fplbase/utilities.h"
 #include "scene_lab/util.h"

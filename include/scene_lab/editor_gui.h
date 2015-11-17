@@ -20,8 +20,8 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include "component_library/entity_factory.h"
-#include "entity/entity_manager.h"
+#include "corgi_component_library/entity_factory.h"
+#include "corgi/entity_manager.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/renderer.h"
