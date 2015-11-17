@@ -29,7 +29,8 @@ build_assets: $(flatc_target)
 $(SCENE_LAB_SAMPLE_DIR)/assets
 	cp -f -r $(DEPENDENCIES_FLATUI_DIR)/assets/shaders \
 $(SCENE_LAB_SAMPLE_DIR)/assets
-	$(hide) python $(SCENE_LAB_SAMPLE_DIR)/scripts/build_assets.py
+	$(hide) python $(SCENE_LAB_SAMPLE_DIR)/scripts/build_assets.py \
+--flatc $(FLATBUFFERS_FLATC)
 	-mkdir -p $(SCENE_LAB_SAMPLE_DIR)/assets/flatbufferschemas
         # Make a FlatBuffers binary schema for the components schema.
 	$(FLATBUFFERS_FLATC) -b --schema \
