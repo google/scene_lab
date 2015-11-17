@@ -22,6 +22,11 @@ table FlatbufferEditorConfig {
   auto_commit_edits:bool = true;
   // Allow edits that might change the size of the Flatbuffer?
   allow_resizing_flatbuffer:bool = true;
+  // Allow adding new fields to the Flatbuffer (requires you to set
+  // allow_resizing_flatbuffer to true as well).
+  // WARNING: This functionality is EXPERIMENTAL and is not yet fully
+  // implemented in Scene Lab. Turn it on at your own risk.
+  allow_adding_fields:bool = false;
 
   // Virtual pixel size to draw the Flatbuffer edit fields.
   ui_size:byte = 16;

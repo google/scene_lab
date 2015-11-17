@@ -42,8 +42,7 @@
 
 namespace scene_lab {
 
-typedef std::function<void(const corgi::EntityRef& entity)>
-    EntityCallback;
+typedef std::function<void(const corgi::EntityRef& entity)> EntityCallback;
 typedef std::function<void()> EditorCallback;
 
 class SceneLab {
@@ -196,12 +195,21 @@ class SceneLab {
   /// Call all 'EntityDeleted' callbacks.
   void NotifyDeleteEntity(const corgi::EntityRef& entity) const;
 
+  const std::string& version() { return version_; }
+
  private:
-  enum InputMode {
-    kMoving,
-    kEditing,
-    kDragging
-  };
+  /// String which identifies the current version of Scene Lab.
+  ///
+  /// kVersion is used by Google developers to identify which applications
+  /// uploaded to Google Play are using this library. This allows the
+  /// development team at Google to determine the popularity of the library.
+  /// How it works: Applications that are uploaded to the Google Play Store are
+  /// scanned for this version string. We track which applications are using it
+  /// to measure popularity. You are free to remove it (of course) but we would
+  /// appreciate if you left it in.
+  static const char kVersion[];
+
+  enum InputMode { kMoving, kEditing, kDragging };
   enum MouseMode {
     kMoveHorizontal,    // Move along the ground.
     kMoveVertical,      // Move along a plane perpendicular to the ground and
@@ -227,8 +235,7 @@ class SceneLab {
   // get camera movement via W-A-S-D
   mathfu::vec3 GetMovement() const;
 
-  corgi::EntityRef DuplicateEntity(
-      corgi::EntityRef& entity);
+  corgi::EntityRef DuplicateEntity(corgi::EntityRef& entity);
   void DestroyEntity(corgi::EntityRef& entity);
   void HighlightEntity(const corgi::EntityRef& entity, float tint);
 
@@ -284,8 +291,7 @@ class SceneLab {
   MouseMode mouse_mode_;
 
   // Temporary solution to let us cycle through all entities.
-  std::unique_ptr<
-      corgi::EntityManager::EntityStorageContainer::Iterator>
+  std::unique_ptr<corgi::EntityManager::EntityStorageContainer::Iterator>
       entity_cycler_;
 
   // For storing the FlatBuffers schema we use for exporting.
@@ -321,6 +327,9 @@ class SceneLab {
   std::vector<EntityCallback> on_create_entity_callbacks_;
   std::vector<EntityCallback> on_update_entity_callbacks_;
   std::vector<EntityCallback> on_delete_entity_callbacks_;
+
+ protected:
+  std::string version_;  // Keep a reference to the version string.
 };
 
 }  // namespace scene_lab

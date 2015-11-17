@@ -22,7 +22,8 @@
   "flatbuffer_editor_config": {
     "read_only": false,
     "auto_commit_edits": true,
-    "allow_resizing_flatbuffer": false,
+    "allow_resizing_flatbuffer": true,
+    "allow_adding_fields": false,
     "ui_size": 16,
     "ui_spacing": 3,
     "blank_field_width": 8,

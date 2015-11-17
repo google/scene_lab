@@ -56,6 +56,7 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
   config_read_only_ = config->read_only();
   config_auto_commit_ = config->auto_commit_edits();
   config_allow_resize_ = config->allow_resizing_flatbuffer();
+  config_allow_adding_fields_ = config->allow_adding_fields();
   if (flatbuffer_data != nullptr) {
     CopyTable(flatbuffer_data, &flatbuffer_);
   }
@@ -620,17 +621,19 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
     }
     case reflection::String: {
       if (!table.CheckField(fielddef.offset())) {
-        if (AddFieldButton(mode, fielddef.name()->str(), "string", new_id)) {
+        if (config_allow_resize() && config_allow_adding_fields() &&
+            AddFieldButton(mode, fielddef.name()->str(), "string", new_id)) {
           // Add a string field here, then return true if we resized the array.
           flatbuffers::FlatBufferBuilder fbb;
-          auto offset = fbb.CreateString("--blank--");
+          auto offset = fbb.CreateString("--NEW STRING--");
           fbb.Finish(offset);
           const uint8_t* new_data = flatbuffers::AddFlatBuffer(
               flatbuffer_, fbb.GetBufferPointer(), fbb.GetSize());
           if (!SetFieldT(&table, fielddef, new_data)) {
             fplbase::LogError("Couldn't add new string value to Flatbuffer!");
+          } else {
+            flatbuffer_modified_ = true;
           }
-          flatbuffer_modified_ = true;
           return true;
         }
       } else {
@@ -647,7 +650,8 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
 
       if (subobjdef.is_struct()) {
         if (!table.CheckField(fielddef.offset())) {
-          if (AddFieldButton(mode, fielddef.name()->str(), "struct", new_id)) {
+          if (config_allow_resize() && config_allow_adding_fields() &&
+              AddFieldButton(mode, fielddef.name()->str(), "struct", new_id)) {
             // TODO: Add a struct field here, then return true.
             return false;
           }
@@ -660,7 +664,8 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
         }
       } else {
         if (!table.CheckField(fielddef.offset())) {
-          if (AddFieldButton(mode, fielddef.name()->str(), "table", new_id)) {
+          if (config_allow_resize() && config_allow_adding_fields() &&
+              AddFieldButton(mode, fielddef.name()->str(), "table", new_id)) {
             // TODO: Add a table field here, then return true.
             return false;
           }
@@ -681,7 +686,8 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
     }
     case reflection::Union: {
       if (!table.CheckField(fielddef.offset())) {
-        if (AddFieldButton(mode, fielddef.name()->str(), "union", new_id)) {
+        if (config_allow_resize() && config_allow_adding_fields() &&
+            AddFieldButton(mode, fielddef.name()->str(), "union", new_id)) {
           // TODO: Add a union field here, then return true.
           // (Hmm, how do we choose the type?)
           return false;
@@ -698,7 +704,8 @@ bool FlatbufferEditor::VisitFlatbufferField(VisitMode mode,
     }
     case reflection::Vector: {
       if (!table.CheckField(fielddef.offset())) {
-        if (AddFieldButton(mode, fielddef.name()->str(), "vector", new_id)) {
+        if (config_allow_resize() && config_allow_adding_fields() &&
+            AddFieldButton(mode, fielddef.name()->str(), "vector", new_id)) {
           // TODO: Add a vector field here, then return true.
           return false;
         }

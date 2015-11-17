@@ -132,6 +132,9 @@ class EditorGui {
   /// Set which mouse mode index the user wants to use.
   void set_mouse_mode_index(int m) { mouse_mode_index_ = m; }
 
+  const std::string& menu_title_string() { return menu_title_string_; }
+  void set_menu_title_string(const std::string& s) { menu_title_string_ = s; }
+
  private:
   /// Onscreen buttons IDs.
   enum GuiButton {
@@ -221,8 +224,8 @@ class EditorGui {
   // We're changing which entity to select; this will take effect at the
   // end of rendering.
   corgi::EntityRef changed_edit_entity_;
-  std::unordered_map<corgi::ComponentId,
-                     std::unique_ptr<FlatbufferEditor>> component_guis_;
+  std::unordered_map<corgi::ComponentId, std::unique_ptr<FlatbufferEditor>>
+      component_guis_;
   corgi::ComponentId auto_commit_component_;
   corgi::ComponentId auto_revert_component_;
   corgi::ComponentId auto_recreate_component_;
@@ -230,6 +233,7 @@ class EditorGui {
   std::vector<bool> components_to_show_;  // Components to display on screen.
 
   std::string entity_list_filter_;
+  std::string menu_title_string_;
 
   mathfu::vec4 bg_edit_ui_color_;
   mathfu::vec4 bg_toolbar_color_;

@@ -96,8 +96,10 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
 
   lock_camera_height_ = config->camera_movement_parallel_to_ground();
 
-  scene_lab_->AddOnUpdateEntityCallback([this](
-      const corgi::EntityRef& entity) { EntityUpdated(entity); });
+  scene_lab_->AddOnUpdateEntityCallback(
+      [this](const corgi::EntityRef& entity) { EntityUpdated(entity); });
+
+  set_menu_title_string(scene_lab_->version());
 }
 
 void EditorGui::Activate() {
@@ -187,8 +189,7 @@ void EditorGui::FinishRender() {
     // Delete and recreate the entity, but with one component's data replaced.
     auto meta_component = entity_manager_->GetComponent<MetaComponent>();
 
-    std::vector<corgi::ComponentInterface::RawDataUniquePtr>
-        exported_data;
+    std::vector<corgi::ComponentInterface::RawDataUniquePtr> exported_data;
     std::vector<const void*> exported_pointers;  // Indexed by component ID.
     exported_pointers.resize(entity_factory_->max_component_id() + 1, nullptr);
     for (corgi::ComponentId component_id = 0;
@@ -239,7 +240,9 @@ void EditorGui::FinishRender() {
   }
 
   switch (button_pressed_) {
-    case kNone: { break; }
+    case kNone: {
+      break;
+    }
     case kWindowMaximize: {
       edit_window_state_ = kMaximized;
       break;
@@ -307,8 +310,8 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
   flatui::PositionGroup(flatui::kAlignLeft, flatui::kAlignTop,
                         mathfu::kZeros2f);
   CaptureMouseClicks();
-
-  flatui::Label(" Scene Lab", kTextSize);
+  flatui::Label(" ", kTextSize);  // Add a little spacing
+  flatui::Label(menu_title_string().c_str(), kTextSize);
 
   if (TextButton("[Save Scene]", "we:save", kButtonSize) &
       flatui::kEventWentUp) {
@@ -348,9 +351,10 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
                         mathfu::kZeros2f);
   flatui::ColorBackground(bg_toolbar_color_);
   CaptureMouseClicks();
-  if (TextButton((std::string("Mouse Mode: ") +
-                  kMouseModeNames[mouse_mode_index_]).c_str(),
-                 "we:mouse_mode", kButtonSize) &
+  if (TextButton(
+          (std::string("Mouse Mode: ") + kMouseModeNames[mouse_mode_index_])
+              .c_str(),
+          "we:mouse_mode", kButtonSize) &
       flatui::kEventWentUp) {
     mouse_mode_index_++;
     if (kMouseModeNames[mouse_mode_index_] == nullptr) mouse_mode_index_ = 0;
@@ -400,8 +404,7 @@ void EditorGui::SendUpdateEvent() {
 }
 
 void EditorGui::CommitComponentData(corgi::ComponentId id) {
-  corgi::ComponentInterface* component =
-      entity_manager_->GetComponent(id);
+  corgi::ComponentInterface* component = entity_manager_->GetComponent(id);
   if (component_guis_.find(id) != component_guis_.end()) {
     FlatbufferEditor* editor = component_guis_[id].get();
     if (editor->flatbuffer_modified()) {
@@ -559,8 +562,8 @@ void EditorGui::DrawEditEntityUI() {
   } else {
     changed_edit_entity_ = corgi::EntityRef();
 
-    for (corgi::ComponentId id = 0;
-         id <= entity_factory_->max_component_id(); id++) {
+    for (corgi::ComponentId id = 0; id <= entity_factory_->max_component_id();
+         id++) {
       DrawEntityComponent(id);
     }
     DrawEntityFamily();
@@ -620,8 +623,7 @@ void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
   const int kTableButtonSize = kTableNameSize - 8;
 
   // Check if we have a FlatbufferEditor for this component.
-  corgi::ComponentInterface* component =
-      entity_manager_->GetComponent(id);
+  corgi::ComponentInterface* component = entity_manager_->GetComponent(id);
   if (component != nullptr &&
       component->GetComponentDataAsVoid(edit_entity_) != nullptr) {
     std::string table_name = entity_factory_->ComponentIdToTableName(id);
@@ -747,13 +749,13 @@ void EditorGui::DrawEntityFamily() {
   }
 }
 
-void EditorGui::EntityButton(const corgi::EntityRef& entity,
-                             int size) {
+void EditorGui::EntityButton(const corgi::EntityRef& entity, int size) {
   MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(entity);
   std::string entity_id =
-      meta_data ? entity_manager_->GetComponent<MetaComponent>()->GetEntityID(
-                      const_cast<corgi::EntityRef&>(entity))
-                : "Unknown entity ID";
+      meta_data
+          ? entity_manager_->GetComponent<MetaComponent>()->GetEntityID(
+                const_cast<corgi::EntityRef&>(entity))
+          : "Unknown entity ID";
   if (meta_data) {
     entity_id += "  (";
     entity_id += meta_data->prototype;

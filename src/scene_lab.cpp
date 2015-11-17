@@ -51,9 +51,14 @@ static const float kMinValidDistance = 0.00001f;
 
 static const char kDefaultBinaryEntityFileExtension[] = "bin";
 
+// String which identifies the current version of Scene Lab. See the comment on
+// kVersion in scene_lab.h for more information on how this is used.
+const char SceneLab::kVersion[] = "Scene Lab 1.0.0";
+
 void SceneLab::Initialize(const SceneLabConfig* config,
                           corgi::EntityManager* entity_manager,
                           flatui::FontManager* font_manager) {
+  version_ = kVersion;
   config_ = config;
   entity_manager_ = entity_manager;
   font_manager_ = font_manager;
@@ -334,8 +339,7 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   }
 }
 
-void SceneLab::HighlightEntity(const corgi::EntityRef& entity,
-                               float tint) {
+void SceneLab::HighlightEntity(const corgi::EntityRef& entity, float tint) {
   if (!entity.IsValid()) return;
   auto render_data = entity_manager_->GetComponentData<RenderMeshData>(entity);
   if (render_data != nullptr) {
@@ -417,24 +421,21 @@ void SceneLab::NotifyExitEditor() const {
   }
 }
 
-void SceneLab::NotifyCreateEntity(const corgi::EntityRef& entity)
-    const {
+void SceneLab::NotifyCreateEntity(const corgi::EntityRef& entity) const {
   for (auto iter = on_create_entity_callbacks_.begin();
        iter != on_create_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyUpdateEntity(const corgi::EntityRef& entity)
-    const {
+void SceneLab::NotifyUpdateEntity(const corgi::EntityRef& entity) const {
   for (auto iter = on_update_entity_callbacks_.begin();
        iter != on_update_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyDeleteEntity(const corgi::EntityRef& entity)
-    const {
+void SceneLab::NotifyDeleteEntity(const corgi::EntityRef& entity) const {
   for (auto iter = on_delete_entity_callbacks_.begin();
        iter != on_delete_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
@@ -521,8 +522,7 @@ void SceneLab::SaveScene(bool to_disk) {
   set_entities_modified(false);
 }
 
-corgi::EntityRef SceneLab::DuplicateEntity(
-    corgi::EntityRef& entity) {
+corgi::EntityRef SceneLab::DuplicateEntity(corgi::EntityRef& entity) {
   std::vector<uint8_t> entity_serialized;
   if (!entity_factory_->SerializeEntity(entity, entity_manager_,
                                         &entity_serialized)) {
@@ -578,10 +578,10 @@ void SceneLab::LoadSchemaFiles() {
   }
   auto schema = reflection::GetSchema(schema_data_.c_str());
   if (schema != nullptr) {
-    fplbase::LogInfo("SceneLab: Binary schema %s loaded", schema_file_binary);
+    fplbase::LogInfo("Scene Lab: Binary schema %s loaded", schema_file_binary);
   }
   if (fplbase::LoadFile(schema_file_text, &schema_text_)) {
-    fplbase::LogInfo("SceneLab: Text schema %s loaded", schema_file_text);
+    fplbase::LogInfo("Scene Lab: Text schema %s loaded", schema_file_text);
   }
 }
 
@@ -651,7 +651,7 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
     size_t num_paths = config_->schema_include_paths()->size();
-    include_paths.reset(new const char* [num_paths + 1]);
+    include_paths.reset(new const char*[num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
       include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
     }
@@ -721,9 +721,9 @@ bool SceneLab::IntersectRayToPlane(const vec3& ray_origin,
   else if (length_ratio < kEpsilon && length_ratio > -kEpsilon)
     return false;
   else
-    *intersection_point = ray_origin + ray_direction *
-                                           distance_from_ray_origin_to_plane *
-                                           1.0f / length_ratio;
+    *intersection_point =
+        ray_origin +
+        ray_direction * distance_from_ray_origin_to_plane * 1.0f / length_ratio;
   return true;
 }
 

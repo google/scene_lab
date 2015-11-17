@@ -123,16 +123,35 @@ class FlatbufferEditor {
   /// Set the Auto-commit mode. See config_auto_commit().
   void set_config_auto_commit(bool b) { config_auto_commit_ = b; }
 
-  /// Allow resizing of the Flatbuffer. If this is true, you can edit
-  /// anything inside the Flatbuffer, including vector sizes, strings,
-  /// union types, and even adding missing sub-tables.
-  /// Otherwise, you are only allowed to edit scalar values.
-  /// The default for this comes from FlatbufferEditorConfig.
+  /// Allow resizing of the Flatbuffer. If this is true, you can edit anything
+  /// inside the Flatbuffer, including vector sizes, strings, and union types.
+  /// Otherwise, you are only allowed to edit scalar values. The default for
+  /// this comes from FlatbufferEditorConfig.
   bool config_allow_resize() const { return config_allow_resize_; }
 
   /// Set the "Allow resizing" config value. See config_allow_resize() for more
   /// information.
   void set_config_allow_resize(bool b) { config_allow_resize_ = b; }
+
+  /// Allow adding fields to the Flatbuffer. If this is true, you can and add
+  /// sub-tables, strings, vectors, etc. to tables and vectors.  Otherwise, you
+  /// are only allowed to change the size of existing fields.  The default for
+  /// this comes from FlatbufferEditorConfig.
+  ///
+  /// Note: This will always require resizing the Flatbuffer, so you will need
+  /// to set config_allow_resize() to true as well.
+  ///
+  /// WARNING: This functionality in Flatbuffers is EXPERIMENTAL and is not yet
+  /// completely implemented here. Turn it on at your own risk.
+  bool config_allow_adding_fields() const {
+    return config_allow_adding_fields_;
+  }
+
+  /// Set the "Allow adding fields" config value. See
+  /// config_allow_adding_fields() for more information.
+  void set_config_allow_adding_fields(bool b) {
+    config_allow_adding_fields_ = b;
+  }
 
   /// Get the size of all the UI elements passed to FlatUI. Defaults are set
   /// in the FlatbufferEditorConfig.
@@ -407,6 +426,8 @@ class FlatbufferEditor {
   bool config_auto_commit_;   // Auto-commit edited fields to the Flatbuffer.
   bool config_allow_resize_;  // If false, disallow edits that might change the
                               // size of the Flatbuffer.
+  bool config_allow_adding_fields_;  // If false, disallow adding new fields to
+                                     // the Flatbuffer.
   // Information about fields being edited.
   bool edit_fields_modified_;  // Have GUI edit fields been modified?
   bool flatbuffer_modified_;   // Has the Flatbuffer data been modified?
