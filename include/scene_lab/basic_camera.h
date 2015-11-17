@@ -36,6 +36,8 @@ static const mathfu::vec3 kCameraUp = mathfu::kAxisZ3f;
 class BasicCamera : public corgi::CameraInterface {
  public:
   BasicCamera();
+  virtual ~BasicCamera() {}
+
   /// Returns the View/Projection matrix. `index` must be 0.
   virtual mathfu::mat4 GetTransformMatrix(int32_t index) const {
     assert(index == 0);
