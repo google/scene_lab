@@ -1075,8 +1075,8 @@ MOTIVE_ROOT = DependencyPath(os.path.join(DefaultPathResolver.FPL_ROOT,
                                           'motive'))
 PINDROP_ROOT = DependencyPath(os.path.join(DefaultPathResolver.FPL_ROOT,
                                            'pindrop'))
-SCENE_LAB_ROOT = DependencyPath(os.path.join(DefaultPathResolver.FPL_ROOT,
-                                             'scene_lab'))
+SCENE_LAB_ROOT = DependencyPath(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 # Location of FlatBuffers compiler.
 # This is usually built from source in which case the binary directory is

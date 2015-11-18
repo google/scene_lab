@@ -49,7 +49,16 @@ DEPENDENCIES_FLATUI_DIR?=$(FPL_ROOT)/flatui
 DEPENDENCIES_CORGI_COMPONENT_LIBRARY_DIR?=\
   $(DEPENDENCIES_CORGI_DIR)/component_library
 # Location of the Scene Lab library.
-DEPENDENCIES_SCENE_LAB_DIR?=$(FPL_ROOT)/scene_lab
+ifneq ($(wildcard $(FPL_ROOT)/scene_lab),)
+  DEPENDENCIES_SCENE_LAB_DIR?=$(FPL_ROOT)/scene_lab
+else
+  DEPENDENCIES_SCENE_LAB_DIR?=$(SCENE_LAB_SAMPLE_DIR)/..
+endif
+# Location of the breadboard library.
+DEPENDENCIES_BREADBOARD_DIR?=$(FPL_ROOT)/breadboard
+# Location of the breadboard module library's module collection.
+DEPENDENCIES_BREADBOARD_MODULE_LIBRARY_DIR?=\
+    $(DEPENDENCIES_BREADBOARD_DIR)/module_library
 # Location of the Bullet Physics library.
 DEPENDENCIES_BULLETPHYSICS_DIR?=$(THIRD_PARTY_ROOT)/bulletphysics
 
