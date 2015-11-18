@@ -91,8 +91,6 @@ set(dependencies_corgi_component_library_dir
     CACHE PATH "Directory containing the CORGI component library")
 
 set(scene_lab_standalone_mode OFF)
-message(STATUS "CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
-message(STATUS "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   set(scene_lab_standalone_mode ON)
   message(STATUS "Scene Lab standalone: building with sample game")
