@@ -308,9 +308,11 @@ class BinaryPath(ResourcePath):
       dependency_paths.append(DependencyPath(
           os.path.dirname(binary_file_path)))
       self.resource_file = os.path.basename(binary_file_path)
-    else:
+    elif BinaryPath.EXECUTABLE_EXTENSION:
       self.resource_file = os.path.extsep.join(
           (os.path.splitext(binary_file)[0], BinaryPath.EXECUTABLE_EXTENSION))
+    else:
+      self.resource_file = binary_file
 
     super(BinaryPath, self).__init__(dependency_paths, self.resource_file)
 
