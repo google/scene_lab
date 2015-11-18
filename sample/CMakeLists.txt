@@ -42,10 +42,16 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   # If the dependencies directory exists, assume this is the root directory for
   # all libraries required by this project.
   if(NOT DEFINED dependencies_root)
-    set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
+    set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies")
     if(EXISTS "${dependencies_root}")
       set(third_party_root "${dependencies_root}")
       set(fpl_root "${dependencies_root}")
+    else()
+      set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
+      if(EXISTS "${dependencies_root}")
+        set(third_party_root "${dependencies_root}")
+        set(fpl_root "${dependencies_root}")
+      endif()
     endif()
   endif()
 
@@ -68,6 +74,10 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     CACHE PATH "Directory containing the motive animation library.")
   set(dependencies_scene_lab_dir "${fpl_root}/scene_lab"
     CACHE PATH "Directory containing the Scene Lab library.")
+  if (NOT EXISTS ${dependencies_scene_lab_dir})
+    set(dependencies_scene_lab_dir "${fpl_root}/.."
+      CACHE PATH "Directory containing the Scene Lab library.")
+  endif()
   set(dependencies_corgi_component_library_dir
     "${dependencies_corgi_dir}/component_library"
     CACHE PATH "Directory containing the CORGI component library")
