@@ -20,7 +20,7 @@ Menu Button | Effect
 Save Scene | Save all entities to disk.
 Exit Scene Lab | Exit back to your game. Prompts the user to save if they haven't already.
 
-*TODO: Add screenshots when sample project is done.*
+<img src="editor_screenshot_menu.png" style="height: 50em"/>
 
 # Moving Around
 
@@ -56,6 +56,8 @@ box. These bounding boxes are normally automatically generated for entities with
 a RenderMesh, but if your object has its own PhysicsComponent data and physics
 shapes, it will use those instead.
 
+<img src="editor_screenshot_select.png" style="height: 50em"/>
+
 Note that because the bounding boxes are larger than the objects they contain,
 it is possible to select an object even though it seems like you are clicking on
 the object behind it. You can always turn on Show Physics in the Settings tab to
@@ -86,7 +88,7 @@ Scale X | Change the object’s X scale.
 Scale Y | Change the object’s Y scale.
 Scale Z | Change the object’s Z scale.
 
-*TODO: Add screenshot when sample project is done.*
+<img src="editor_screenshot_scale.png" style="height: 50em"/>
 
 ## Editing via the Keyboard
 
@@ -144,14 +146,12 @@ The edit window may contain more data than can fit on the screen. If it does,
 you can scroll the window around by clicking and dragging the mouse pointer on
 the window, or by using your mouse wheel.
 
-*TODO: Add screenshot when sample project is done.*
-
 ### Edit Entity
 
 Edit component properties for the currently-selected entity.
 See {#scene_lab_flatbuffer_editor} for more information.
 
-*TODO: Add screenshot when sample project is done.*
+<img src="editor_screenshot_edit_entity.png" style="height: 50em"/>
 
 ### List Entities
 
@@ -161,7 +161,7 @@ You can do a text search for a specific entity
 or prototype name. Clicking on an entity button once selects it, and clicking
 again shows you the properties for that entity, allowing you to edit them.
 
-*TODO: Add screenshot when sample project is done.*
+<img src="editor_screenshot_list_entities.png" style="height: 50em"/>
 
 ### Settings
 Change some settings in Scene Lab.
@@ -175,4 +175,4 @@ Ground-Parallel Camera: On / Off | If On, all W-A-S-D keyboard movement will be 
 Maximize View | Click to maximize the edit window to fill the entire screen.
 Hide View | Click to hide the edit window. Click any tab to show the edit window again.
 
-*TODO: Add screenshot when sample project is done.*
+<img src="editor_screenshot_settings.png" style="height: 50em"/>

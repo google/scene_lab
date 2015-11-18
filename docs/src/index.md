@@ -8,6 +8,8 @@ Scene Lab is a library that allows application developers who use
 the target application. For example, a game developer can use [Scene Lab][] to
 lay out objects in a game world inside their game.
 
+<img src="editor_screenshot_select.png" style="height: 30em"/>
+
 # Features
 
 This initial release of Scene Lab was developed for [Zooshi][] and is focused on
