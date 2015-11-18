@@ -34,7 +34,6 @@ import shutil
 import subprocess
 import sys
 
-
 class DependencyPathError(Exception):
   """Thrown if a dependency isn't found.
 
@@ -312,7 +311,8 @@ class BinaryPath(ResourcePath):
     else:
       self.resource_file = os.path.extsep.join(
           (os.path.splitext(binary_file)[0], BinaryPath.EXECUTABLE_EXTENSION))
-    super(BinaryPath, self).__init__(dependency_paths, binary_file)
+
+    super(BinaryPath, self).__init__(dependency_paths, self.resource_file)
 
 
 class ImageMagickPathResolver(DefaultPathResolver):
