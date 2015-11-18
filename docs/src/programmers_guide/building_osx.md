@@ -47,7 +47,7 @@ The unit tests can be run from within [Xcode][]:
 To build:
 
    * Open a command line window.
-   * Go to the [SceneLab][] project directory.
+   * Go to the [Scene Lab][] project directory.
    * Use [CMake][] to generate the makefiles.
    * Run make.
 
