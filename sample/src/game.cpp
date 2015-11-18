@@ -15,9 +15,9 @@
 #include "game.h"
 
 #include "SDL.h"
+#include "components_generated.h"
 #include "corgi_component_library/camera_interface.h"
 #include "corgi_component_library/default_entity_factory.h"
-#include "components_generated.h"
 #include "fplbase/utilities.h"
 #include "scene_lab/util.h"
 
@@ -113,12 +113,6 @@ bool Game::Initialize(const char* const binary_directory) {
   input_.SetRelativeMouseMode(true);
   input_.AdvanceFrame(&renderer_.window_size());
 
-#if !defined(__ANDROID__)
-  // Start with Scene Lab active unless we are on Android.
-  in_editor_ = true;
-  scene_lab_->Activate();
-#endif  // !defined(__ANDROID__)
-
   return true;
 }
 
@@ -153,6 +147,7 @@ bool Game::Update(corgi::WorldTime delta_time) {
       return false;  // exit
     }
   }
+
   return true;
 }
 
