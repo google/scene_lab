@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """Builds all assets under src/rawassets/, writing the results to assets/.
 
 Finds the flatbuffer compiler and cwebp tool and then uses them to convert the
@@ -45,7 +44,7 @@ import scene_lab_asset_builder as builder
 # ============================================================================
 
 # Directory of the scene lab sample we are building.
-SAMPLE_ROOT = os.path.join(PROJECT_ROOT, "sample")
+SAMPLE_ROOT = os.path.join(PROJECT_ROOT, 'sample')
 
 # Directory to place processed assets.
 ASSETS_PATH = os.path.join(SAMPLE_ROOT, 'assets')
@@ -71,6 +70,10 @@ RAW_TEXTURE_PATH = os.path.join(RAW_ASSETS_PATH, 'textures')
 # Directory where unprocessed FBX files can be found.
 RAW_MESH_PATH = os.path.join(RAW_ASSETS_PATH, 'meshes')
 
+# Directory where animation files (which we aren't using in this project)
+# can be found.
+RAW_ANIM_PATH = os.path.join(RAW_ASSETS_PATH, 'anims')
+
 # Directory where png files are written to before they are converted to webp.
 INTERMEDIATE_ASSETS_PATH = os.path.join(SAMPLE_ROOT, 'obj', 'assets')
 
@@ -92,7 +95,8 @@ OVERLAY_DIRS = [os.path.relpath(f, RAW_ASSETS_PATH)
 # ============================================================================
 
 # Location of flatbuffer schemas in this project.
-PROJECT_SCHEMA_PATH = builder.DependencyPath(os.path.join(SAMPLE_ROOT, 'schemas'))
+PROJECT_SCHEMA_PATH = builder.DependencyPath(os.path.join(SAMPLE_ROOT,
+                                                          'schemas'))
 
 # A list of json files and their schemas that will be converted to binary files
 # by the flatbuffer compiler.
@@ -117,11 +121,11 @@ FLATBUFFERS_CONVERSION_DATA = [
     # Empty file lists to make other project schemas available to include.
     builder.FlatbuffersConversionData(
         schema=builder.BREADBOARD_ROOT.join('module_library', 'schemas',
-                                    'common_modules.fbs'),
+                                            'common_modules.fbs'),
         extension='', input_files=[]),
     builder.FlatbuffersConversionData(
         schema=builder.CORGI_ROOT.join('component_library', 'schemas',
-                               'bullet_def.fbs'),
+                                       'bullet_def.fbs'),
         extension='', input_files=[]),
     builder.FlatbuffersConversionData(
         schema=builder.MOTIVE_ROOT.join('schemas', 'anim_table.fbs'),
@@ -179,18 +183,22 @@ def main():
     Returns 0 on success.
   """
   # Add resolver for dependency paths.
-  builder.DependencyPath.add_resolver(builder.ImageMagickPathResolver(PROJECT_ROOT))
+  builder.DependencyPath.add_resolver(
+      builder.ImageMagickPathResolver(PROJECT_ROOT))
 
   parser = builder.argparse.ArgumentParser()
-  parser.add_argument('--flatc', default=builder.FLATC.resolve(raise_on_error=False),
+  parser.add_argument('--flatc',
+                      default=builder.FLATC.resolve(raise_on_error=False),
                       help='Location of the flatbuffers compiler.')
   parser.add_argument('--cwebp', default=builder.CWEBP.resolve(),
                       help='Location of the webp compressor.')
   parser.add_argument('--anim-pipeline',
-                      default=builder.ANIM_PIPELINE.resolve(raise_on_error=False),
+                      default=builder.ANIM_PIPELINE.resolve(
+                          raise_on_error=False),
                       help='Location of the anim_pipeline tool.')
   parser.add_argument('--mesh-pipeline',
-                      default=builder.MESH_PIPELINE.resolve(raise_on_error=False),
+                      default=builder.MESH_PIPELINE.resolve(
+                          raise_on_error=False),
                       help='Location of the mesh_pipeline tool.')
   parser.add_argument('--output', default=ASSETS_PATH,
                       help='Assets output directory.')
@@ -226,16 +234,17 @@ def main():
     if target in ('all', 'png'):
       builder.generate_png_textures(
           builder.input_files_add_overlays(tga_files_to_convert(), ASSET_ROOTS,
-                                   OVERLAY_DIRS, overlay_globs=['*.tga']),
+                                           OVERLAY_DIRS,
+                                           overlay_globs=['*.tga']),
           ASSET_ROOTS, INTERMEDIATE_TEXTURE_PATH, meta, args.max_texture_size)
 
     if target in ('all', 'mesh'):
       builder.generate_mesh_binaries(
           args.mesh_pipeline,
           builder.input_files_add_overlays(fbx_files_to_convert(), ASSET_ROOTS,
-                                   OVERLAY_DIRS, overlay_globs=['*.fbx']),
+                                           OVERLAY_DIRS,
+                                           overlay_globs=['*.fbx']),
           ASSET_ROOTS, args.output, meta)
-
 
     if target in ('all', 'flatbuffers'):
       builder.generate_flatbuffer_binaries(
@@ -253,33 +262,34 @@ def main():
     if target == 'clean':
       try:
         builder.clean(INTERMEDIATE_TEXTURE_PATH, ASSET_ROOTS, [],
-              {'png': builder.input_files_add_overlays(
-                  tga_files_to_convert(), ASSET_ROOTS, OVERLAY_DIRS,
-                  overlay_globs=['*.tga'])})
+                      {'png': builder.input_files_add_overlays(
+                          tga_files_to_convert(), ASSET_ROOTS, OVERLAY_DIRS,
+                          overlay_globs=['*.tga'])})
         builder.clean(
             args.output, ASSET_ROOTS,
             builder.flatbuffers_conversion_data_add_overlays(
                 FLATBUFFERS_CONVERSION_DATA, ASSET_ROOTS, OVERLAY_DIRS),
-            {'webp': input_files_add_overlays(
+            {'webp': builder.input_files_add_overlays(
                 png_files_to_convert(), ASSET_ROOTS, OVERLAY_DIRS,
                 overlay_globs=['*.png']),
-             'motiveanim': input_files_add_overlays(
+             'motiveanim': builder.input_files_add_overlays(
                  anim_files_to_convert(), ASSET_ROOTS, OVERLAY_DIRS,
                  overlay_globs=['*.fbx']),
-             'fplmesh': input_files_add_overlays(
+             'fplmesh': builder.input_files_add_overlays(
                  fbx_files_to_convert(), ASSET_ROOTS, OVERLAY_DIRS,
                  overlay_globs=['*.fbx'])})
       except OSError as error:
         sys.stderr.write('Error cleaning: %s' % str(error))
         return 1
 
-  except BuildError as error:
-    logging.error('Error running command `%s`. Returned %s.\n%s\n',
-                  ' '.join(error.argv), str(error.error_code),
-                  str(error.message))
+  except builder.BuildError as error:
+    builder.logging.error('Error running command `%s`. Returned %s.\n%s\n',
+                          ' '.join(error.argv), str(error.error_code),
+                          str(error.message))
     return 1
-  except DependencyPathError as error:
-    logging.error('%s not found in %s', error.filename, str(error.paths))
+  except builder.DependencyPathError as error:
+    builder.logging.error('%s not found in %s', error.filename,
+                          str(error.paths))
     return 1
 
   return 0
