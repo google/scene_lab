@@ -86,11 +86,11 @@ $(foreach src,$(LOCAL_SRC_FILES),\
   $(eval $(call local-source-file-path,$(src)): | build_assets))
 
 SCENE_LAB_SAMPLE_FLATBUFFER_INCLUDE_DIRS := \
+  $(SCENE_LAB_SAMPLE_SCHEMA_DIR) \
   $(DEPENDENCIES_SCENE_LAB_DIR)/schemas \
   $(DEPENDENCIES_PINDROP_DIR)/schemas \
   $(DEPENDENCIES_MOTIVE_DIR)/schemas \
   $(DEPENDENCIES_FPLBASE_DIR)/schemas \
-  $(DEPENDENCIES_SCENE_LAB_DIR)/schemas \
   $(DEPENDENCIES_CORGI_COMPONENT_LIBRARY_DIR)/schemas \
   $(DEPENDENCIES_BREADBOARD_MODULE_LIBRARY_DIR)/schemas
 

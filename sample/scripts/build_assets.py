@@ -90,12 +90,6 @@ OVERLAY_DIRS = [os.path.relpath(f, RAW_ASSETS_PATH)
                 for f in glob.glob(os.path.join(RAW_ASSETS_PATH, 'overlays',
                                                 '*'))]
 
-# If Scene Lab doesn't exist in the dependencies directory, it must be
-# in the PROJECT_ROOT directory. Use it there.
-if (not os.path.exists(os.path.join(PROJECT_ROOT,
-                                    "dependencies", "scene_lab"))):
-    builder.SCENE_LAB_ROOT = builder.DependencyPath(PROJECT_ROOT)
-
 # ============================================================================
 # The following constants reference data in external components.
 # ============================================================================
