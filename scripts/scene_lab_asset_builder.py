@@ -1105,6 +1105,11 @@ def parser_add_arguments(parser, assets_path='', asset_meta=''):
   parser.add_argument('--max_texture_size', default=MAX_TEXTURE_SIZE,
                       help='Max texture size in pixels along the largest '
                       'dimension')
+  parser.add_argument('--copy_tree', default=[], nargs='*',
+                      help=('Pairs of source directory, destination directory '
+                            'which should be copied from / to respectively.'))
+  parser.add_argument('--target', default='all',
+                      help='Assets to build / clean.')
   parser.add_argument('-v', '--verbose', help='Display verbose output.',
                       action='store_true')
 
@@ -1176,11 +1181,19 @@ def main(project_root='', assets_path='', asset_meta='', asset_roots=None,
   parser.add_argument('args', nargs=argparse.REMAINDER)
   args = parser.parse_args()
   configure_logger(args.verbose)
-  target = args.args[0] if len(args.args) >= 1 else 'all'
+  if args.target:
+    target = args.target
+  else:
+    target = args.args[0] if len(args.args) >= 1 else 'all'
 
   if target not in ('all', 'png', 'mesh', 'anim', 'flatbuffers', 'webp',
                     'clean'):
-    sys.stderr.write('No rule to build target %s.\n' % target)
+    logging.error('No rule to build target %s.\n', target)
+    return 1
+
+  if (len(args.copy_tree) % 2) != 0:
+    logging.error('copy_tree must specify pairs of arguments (%s).',
+                  str(args.copy_tree))
     return 1
 
   asset_roots = asset_roots if asset_roots else []
@@ -1199,6 +1212,10 @@ def main(project_root='', assets_path='', asset_meta='', asset_roots=None,
 
   if target != 'clean':
     distutils.dir_util.copy_tree(assets_path, args.output, update=1)
+    for i in range(0, len(args.copy_tree), 2):
+      distutils.dir_util.copy_tree(args.copy_tree[i], args.copy_tree[i + 1],
+                                   update=1)
+
   # The mesh pipeline must run before the webp texture converter,
   # since the mesh pipeline might create textures that need to be
   # converted.
