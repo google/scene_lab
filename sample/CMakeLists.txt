@@ -182,7 +182,7 @@ if(scene_lab_build_cwebp)
 endif()
 
 add_custom_target(scene_lab_sample_assets
-  COMMAND python scripts/build_assets.py
+  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/build_assets.py
   --flatc $<TARGET_FILE:flatc>
   ${cwebp_option}
   --output ${CMAKE_CURRENT_SOURCE_DIR}/assets
