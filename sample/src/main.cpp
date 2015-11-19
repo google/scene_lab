@@ -11,9 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #include "game.h"
-#include "fplbase/utilities.h"
 
 extern "C" int FPL_main(int argc, char* argv[]) {
   scene_lab_sample::Game game;
