@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOCAL_PATH := $(realpath $(call my-dir)/..)
+LOCAL_PATH := $(call my-dir)/..
 
 SCENE_LAB_DIR := $(LOCAL_PATH)
 
@@ -22,8 +22,11 @@ FLATBUFFERS_FLATC_ARGS:=--gen-mutable
 include $(SCENE_LAB_DIR)/jni/android_config.mk
 include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
-SCENE_LAB_GENERATED_OUTPUT_DIR := $(SCENE_LAB_DIR)/gen/include
+# realpath-portable From flatbuffers/android/jni/include.mk
+LOCAL_PATH := $(call realpath-portable,$(LOCAL_PATH))
+SCENE_LAB_DIR := $(LOCAL_PATH)
 
+SCENE_LAB_GENERATED_OUTPUT_DIR := $(SCENE_LAB_DIR)/gen/include
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := scene_lab

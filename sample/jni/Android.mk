@@ -19,6 +19,10 @@ FLATBUFFERS_FLATC_ARGS:=--gen-mutable
 include $(SCENE_LAB_SAMPLE_DIR)/jni/android_config.mk
 include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
+# realpath-portable From flatbuffers/android/jni/include.mk
+LOCAL_PATH:=$(call realpath-portable,$(LOCAL_PATH))
+SCENE_LAB_SAMPLE_DIR:=$(LOCAL_DIR)
+
 # Build rule which builds assets for the game.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 .PHONY: build_assets
