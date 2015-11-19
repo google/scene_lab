@@ -754,6 +754,7 @@ INPUT                  = "index.md" \
                          "programmers_guide/building_windows.md" \
                          "programmers_guide/integration_guide.md" \
                          "contributing.md" \
+                         "../../README.md" \
                          "../../include/scene_lab/scene_lab.h" \
                          "../../include/scene_lab/flatbuffer_editor.h" \
                          "../../include/scene_lab/editor_controller.h" \

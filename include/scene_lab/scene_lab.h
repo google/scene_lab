@@ -45,6 +45,7 @@ namespace scene_lab {
 typedef std::function<void(const corgi::EntityRef& entity)> EntityCallback;
 typedef std::function<void()> EditorCallback;
 
+/// @file
 class SceneLab {
  public:
   /// Initialize Scene Lab once, when starting your game.

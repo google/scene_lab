@@ -23,6 +23,7 @@
 
 namespace scene_lab {
 
+/// @file
 // SceneLab refers to EditOptionsComponent so this needs to be forward
 // declared.
 class SceneLab;

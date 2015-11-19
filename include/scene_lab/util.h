@@ -23,6 +23,7 @@
 
 namespace scene_lab {
 
+/// @file
 /// Scan a directory on the file system for all files matching a given file
 /// extension. Return all files found, along with the "last modified" time for
 /// each file.

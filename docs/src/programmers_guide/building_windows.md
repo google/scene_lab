@@ -4,7 +4,7 @@ Building for Windows    {#scene_lab_guide_windows}
 # Version Requirements
 
 Following are the minimum required versions of tools and libraries you
-need to build [Scene Lab][] for Windows:
+need to build [Scene Lab][] for [Windows][]:
 
    * [Windows][]: 7
    * [Visual Studio][]: 2012

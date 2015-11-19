@@ -4,7 +4,7 @@ Building for OS X    {#scene_lab_guide_osx}
 # Version Requirements
 
 Following are the minimum required versions of tools and libraries you
-need to build [Scene Lab][] for [OS X]:
+need to build [Scene Lab][] for [OS X][]:
 
    * [OS X][]: Mavericks 10.9.1.
    * [Xcode][]: 5.0.1
