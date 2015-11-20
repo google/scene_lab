@@ -45,7 +45,7 @@ static const int kAndroidMaxScreenHeight = 720;
 
 static const float kStartingHeight = 4.0f;
 
-static const float kBackgroundColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
+static const float kBackgroundColor[] = {0.5f, 0.5f, 0.5f, 1.0f};
 
 Game::Game() : asset_manager_(renderer_) {}
 
