@@ -21,7 +21,7 @@ include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
 # realpath-portable From flatbuffers/android/jni/include.mk
 LOCAL_PATH:=$(call realpath-portable,$(LOCAL_PATH))
-SCENE_LAB_SAMPLE_DIR:=$(LOCAL_DIR)
+SCENE_LAB_SAMPLE_DIR:=$(LOCAL_PATH)
 
 # Build rule which builds assets for the game.
 ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
