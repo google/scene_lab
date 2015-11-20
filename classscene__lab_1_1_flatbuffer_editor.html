@@ -50,10 +50,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="scene_lab_using.html"><span>Using&#160;Scene&#160;Lab</span></a></li>
+      <li><a href="usergroup0.html"><span>Programmer's&#160;Guide</span></a></li>
+      <li class="current"><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
+      <li><a href="scene_lab_readme.html"><span>Readme</span></a></li>
+      <li><a href="contributing.html"><span>Contributing</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -70,6 +71,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
           </span>
         </div>
       </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li class="current"><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -100,7 +107,7 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_flatbuffer_editor.
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -117,22 +124,17 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_flatbuffer_editor.
 <div class="title">scene_lab::FlatbufferEditor Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>An on-screen representation of a Flatbuffer, which can be edited by the user.  
- <a href="classscene__lab_1_1_flatbuffer_editor.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="flatbuffer__editor_8h_source.html">flatbuffer_editor.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ab34266dadef45e107507bc1894bacd71"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#ab34266dadef45e107507bc1894bacd71">FlatbufferEditor</a> (const FlatbufferEditorConfig *config, const reflection::Schema &amp;schema, const reflection::Object &amp;table_def, const void *flatbuffer_data)</td></tr>
-<tr class="memdesc:ab34266dadef45e107507bc1894bacd71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> for a given schema and table definition, and optionally initialize it with flatbuffer data (or nullptr).  <a href="#ab34266dadef45e107507bc1894bacd71">More...</a><br/></td></tr>
+<tr class="memdesc:ab34266dadef45e107507bc1894bacd71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a> for a given schema and table definition, and optionally initialize it with flatbuffer data (or nullptr).  <a href="#ab34266dadef45e107507bc1894bacd71">More...</a><br/></td></tr>
 <tr class="separator:ab34266dadef45e107507bc1894bacd71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae83d6d451c0dac623362dc9dd17d95d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#aae83d6d451c0dac623362dc9dd17d95d">SetFlatbufferData</a> (const void *flatbuffer_data)</td></tr>
 <tr class="memdesc:aae83d6d451c0dac623362dc9dd17d95d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Override the current Flatbuffer data with this new one.  <a href="#aae83d6d451c0dac623362dc9dd17d95d">More...</a><br/></td></tr>
 <tr class="separator:aae83d6d451c0dac623362dc9dd17d95d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e522835ecd5276ab22fd0044951753c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#a5e522835ecd5276ab22fd0044951753c">HasFlatbufferData</a> () const </td></tr>
-<tr class="memdesc:a5e522835ecd5276ab22fd0044951753c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> have any Flatbuffer data?  <a href="#a5e522835ecd5276ab22fd0044951753c">More...</a><br/></td></tr>
+<tr class="memdesc:a5e522835ecd5276ab22fd0044951753c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a> have any Flatbuffer data?  <a href="#a5e522835ecd5276ab22fd0044951753c">More...</a><br/></td></tr>
 <tr class="separator:a5e522835ecd5276ab22fd0044951753c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a052e03bb4f5b6a0a31ba4a1b7fa9995b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#a052e03bb4f5b6a0a31ba4a1b7fa9995b">Update</a> ()</td></tr>
 <tr class="memdesc:a052e03bb4f5b6a0a31ba4a1b7fa9995b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the internal state.  <a href="#a052e03bb4f5b6a0a31ba4a1b7fa9995b">More...</a><br/></td></tr>
@@ -233,11 +235,7 @@ const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a cl
 <tr class="memdesc:a1743b89f5b75ac79869348f3f3b25252"><td class="mdescLeft">&#160;</td><td class="mdescRight">See <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#ad0b6e2d984826ca277ac25b98000f014" title="Set a unique root ID for all edit fields, required by FlatUI. ">set_root_id()</a>. <br/></td></tr>
 <tr class="separator:a1743b89f5b75ac79869348f3f3b25252"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>An on-screen representation of a Flatbuffer, which can be edited by the user. </p>
-<p>Instantiate <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> with a Flatbuffer you'd like it to edit. It will create a copy of that Flatbuffer to manipulate, and you can get the modified Flatbuffer data back out whenever you want.</p>
-<p>When you are ready to get the Flatbuffer data from the editor, you can call one of the <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#a89dd98ea218d7f43618e41b128d1e982" title="Copy the modified Flatbuffer into a generic buffer and get a pointer. ">GetFlatbufferCopy()</a> functions, which will return the data in different formats. These functions will copy the data out of our internal buffer using reflection (which also has the side effect of normalizing the Flatbuffer if we have made changes to it). </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ab34266dadef45e107507bc1894bacd71"></a>
 <div class="memitem">
 <div class="memproto">
@@ -274,8 +272,8 @@ const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a cl
       </table>
 </div><div class="memdoc">
 
-<p>Construct a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> for a given schema and table definition, and optionally initialize it with flatbuffer data (or nullptr). </p>
-<p>When you create a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a>, we will use reflection to copy the flatbuffer into our own internal buffer. If you want to change the Flatbuffer externally, call SetNewFlatbuffer() and pass in the new contents. If you don't have the data you want to edit yet, you can pass in nullptr, which means <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#a5e522835ecd5276ab22fd0044951753c" title="Does this FlatbufferEditor have any Flatbuffer data? ">HasFlatbufferData()</a> will be false and can use SetFlatbufferData later on. (And if you don't have a FlatbufferEditorConfig, just pass in nullptr and we will use default UI settings.) </p>
+<p>Construct a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a> for a given schema and table definition, and optionally initialize it with flatbuffer data (or nullptr). </p>
+<p>When you create a <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a>, we will use reflection to copy the flatbuffer into our own internal buffer. If you want to change the Flatbuffer externally, call SetNewFlatbuffer() and pass in the new contents. If you don't have the data you want to edit yet, you can pass in nullptr, which means <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html#a5e522835ecd5276ab22fd0044951753c" title="Does this FlatbufferEditor have any Flatbuffer data? ">HasFlatbufferData()</a> will be false and can use SetFlatbufferData later on. (And if you don't have a FlatbufferEditorConfig, just pass in nullptr and we will use default UI settings.) </p>
 
 </div>
 </div>
@@ -555,7 +553,7 @@ const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a cl
 </table>
 </div><div class="memdoc">
 
-<p>Does this <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> have any Flatbuffer data? </p>
+<p>Does this <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a> have any Flatbuffer data? </p>
 <p>If you passed in nullptr when setting the Flatbuffer data, this will be false. Otherwise it will be true, and that means there is a Flatbuffer that we are in the process of drawing / editing. </p>
 
 </div>

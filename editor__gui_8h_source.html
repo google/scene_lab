@@ -50,10 +50,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
-      <li class="current"><a href="files.html"><span>Files</span></a></li>
+      <li><a href="scene_lab_using.html"><span>Using&#160;Scene&#160;Lab</span></a></li>
+      <li><a href="usergroup0.html"><span>Programmer's&#160;Guide</span></a></li>
+      <li class="current"><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
+      <li><a href="scene_lab_readme.html"><span>Readme</span></a></li>
+      <li><a href="contributing.html"><span>Contributing</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -70,6 +71,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
           </span>
         </div>
       </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li class="current"><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -97,7 +104,7 @@ $(document).ready(function(){initNavTree('editor__gui_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -111,7 +118,7 @@ $(document).ready(function(){initNavTree('editor__gui_8h_source.html','');});
 <div class="title">editor_gui.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2015 Google Inc. All rights reserved.</span></div>
+<a href="editor__gui_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// Copyright 2015 Google Inc. All rights reserved.</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">// you may not use this file except in compliance with the License.</span></div>
@@ -138,275 +145,277 @@ $(document).ready(function(){initNavTree('editor__gui_8h_source.html','');});
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &quot;flatui/flatui.h&quot;</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &quot;fplbase/asset_manager.h&quot;</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &quot;fplbase/renderer.h&quot;</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;scene_lab/flatbuffer_editor.h&quot;</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="flatbuffer__editor_8h.html">scene_lab/flatbuffer_editor.h</a>&quot;</span></div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &quot;scene_lab_config_generated.h&quot;</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">namespace </span>scene_lab {</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">class </span>SceneLab;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">/// EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/// window and on-screen menu buttons. Scene Lab can work without the</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/// GUI but will have very reduced functionality.</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html">   38</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classscene__lab_1_1_editor_gui.html">EditorGui</a> {</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  /// Initialize the user interface. Ensure that you pass the Flatbuffers schema</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  /// you are using (in binary schema format) so FlatbufferEditor knows how to</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  /// present the data. EditorGui will load its own font (specified in the</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">  /// config) into an existing FontManager.</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span>  <a class="code" href="classscene__lab_1_1_editor_gui.html#acad3fda2d19e3543914ad64e1a1418e4">EditorGui</a>(<span class="keyword">const</span> SceneLabConfig* config, <a class="code" href="classscene__lab_1_1_scene_lab.html">SceneLab</a>* scene_lab,</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            corgi::EntityManager* entity_manager,</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            flatui::FontManager* font_manager, <span class="keyword">const</span> std::string* schema_data);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">  /// Turn on the GUI. This should be called when Scene Lab is activated.</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#af9dc6a5c14b5563bfee8cf13a41311e5">Activate</a>();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// Turn off the GUI. This should be called when Scene Lab is deactivated.</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">   52</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">Deactivate</a>() {}</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">  /// Render the GUI, then update based on button presses. You must either call</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// this, or call StartRender(), then DrawGui() in a FlatUI gui::Run context,</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// then FinishRenderRender(). (only DrawGui() should be inside a FlatUI</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">  /// gui::Run context.)</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aadcf896d86e480aa447c8a7c980dfd4e">Render</a>();</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">  /// Prepare to draw the GUI. You don&#39;t need to call this if you are using</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /// Render(). See DrawGui() for more information.</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#ac22e738fdfa99d1eb64d87b88ec9834f">StartRender</a>();<span class="comment"></span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  /// Either call Render() above, or call the following sequence if you are</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  /// using FlatUI elsewhere:</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  /// * StartRender();</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  /// * gui::Run(() { ... other Gui... DrawGui(...) };</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  /// * FinishRender();</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a978082bc7afb3703e0ec03326bc63ca3">DrawGui</a>(<span class="keyword">const</span> mathfu::vec2&amp; virtual_resolution);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// Finish drawing the GUI, and update input. You don&#39;t need to call this if</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /// you are using Render(). See DrawGui() for more information.</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a0d9a9ce8b6b3483181cb92210ae40fd2">FinishRender</a>();</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// Is the GUI capturing mouse and/or keyboard input? Returns true if you</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// should ignore mouse and keyboard input. Or use mouse_in_window() and</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /// keyboard_in_use() for more fine-grained control.</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">   78</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">InputCaptured</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">mouse_in_window</a>() || <a class="code" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">keyboard_in_use</a>(); }</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// Is the mouse pointer over a GUI element? If true, you should ignore mouse</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">  /// clicks as the user is clicking on GUI elements instead.</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">   82</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">mouse_in_window</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mouse_in_window_; }</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// If we&#39;ve taken ownership of the keyboard (generally when a editable field</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// is being edited), this will return true, telling you to ignore keyboard</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// input.</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">   87</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">keyboard_in_use</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> keyboard_in_use_; }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">  /// Should camera movement in Scene Lab be parallel to the ground, so your</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// camera&#39;s height doesn&#39;t change unless you want it to?</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">   91</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">lock_camera_height</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> lock_camera_height_; }</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">  /// Choose which entity we are currently editing.</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a123e35a774ac632805b635c53677276d">SetEditEntity</a>(corgi::EntityRef&amp; entity);<span class="comment"></span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// Get the entity we are currently editing.</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">   96</a></span>&#160;<span class="comment"></span>  corgi::EntityRef <a class="code" href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">edit_entity</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> edit_entity_; }</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// Clear all cached or modified data that we have for the edit entity. Call</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// this if you change any entity data externally, so we can reload data</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  /// directly from the entity.</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">  101</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">ClearEntityData</a>() { component_guis_.clear(); }<span class="comment"></span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// Write the entity fields that were changed to the entity_data_ flatbuffer,</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">  /// then import the changed flatbuffers back to the edit_entity_.</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#ab0a3ff0d109590df034c2c84363d7d28">CommitEntityData</a>();</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">  /// Should we let the editor exit? Not if there are pending changes.</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a83607c97ae3d07ffd4efe5272f18af9f">CanExit</a>();</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">  /// Should we let the editor deselect this as the current entity?</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// Probably not if we&#39;ve made any changes.</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">  111</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">CanDeselectEntity</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !<a class="code" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">EntityModified</a>(); }</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">  /// Has the entity&#39;s flatbuffer been modified?</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">  114</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">EntityModified</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">auto</span> iter = component_guis_.begin(); iter != component_guis_.end();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;         ++iter) {</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;      <a class="code" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a>* editor = iter-&gt;second.get();</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;      <span class="keywordflow">if</span> (editor-&gt;<a class="code" href="classscene__lab_1_1_flatbuffer_editor.html#ae7d8d9c1daad044f3552fa7a52812b06">flatbuffer_modified</a>()) <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    }</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  }</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">  /// &quot;Entity Updated&quot; callback for Scene Lab; if the entity is updated</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">  /// externally, we reload its data by calling ClearEntityData().</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a607f4177f20f03bf3062302cbced2c34">EntityUpdated</a>(corgi::EntityRef entity);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// Does the user want you to show the current entity&#39;s physics?</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">  128</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">show_physics</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> show_physics_; }</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">  /// Returns which mouse mode index we have selected.</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">  131</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">mouse_mode_index</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mouse_mode_index_; }<span class="comment"></span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment">  /// Set which mouse mode index the user wants to use.</span></div>
-<div class="line"><a name="l00133"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">  133</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">set_mouse_mode_index</a>(<span class="keywordtype">int</span> m) { mouse_mode_index_ = m; }</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keyword">const</span> std::string&amp; menu_title_string() { <span class="keywordflow">return</span> menu_title_string_; }</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keywordtype">void</span> set_menu_title_string(<span class="keyword">const</span> std::string&amp; s) { menu_title_string_ = s; }</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="comment">  /// Onscreen buttons IDs.</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> GuiButton {</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    kNone = 0,</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    kWindowMaximize,</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    kWindowHide,</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    kWindowRestore,</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    kToggleDataTypes,</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    kToggleExpandAll,</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    kTogglePhysics,</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    kToggleLockCameraHeight,</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    kEntityCommit,</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    kEntityRevert</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  };</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="comment">  /// Onscreen tabs for the edit window.</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> EditView {</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    kNoEditView = -1,</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    kEditEntity = 0,</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    kEntityList,</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    kEditPrototype,</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    kPrototypeList,</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    kSettings,</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    kEditViewCount</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;  };</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  <span class="keyword">enum</span> WindowState { kNormal, kMaximized };</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kVirtualResolution = 1000;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kToolbarHeight = 30;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kSpacing = 3;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kBlankEditWidth = 20;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kIndent = 3;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kFontSize = 18;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kButtonMargin = 5;</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment">  /// Commit only the requested component flatbuffer to the entity.</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CommitComponentData(corgi::ComponentId <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="comment">  /// Send an EntityUpdated event to the current entity.</span></div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> SendUpdateEvent();</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="comment">  /// Gui helper function to capture mouse clicks and prevent Scene Lab</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="comment">  /// from consuming them.</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CaptureMouseClicks();</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="comment">  /// Draw an interface for editing an entity.</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEditEntityUI();<span class="comment"></span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment">  /// Draw an interface for choosing an entity.</span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityListUI();<span class="comment"></span></div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment">  /// Draw an interface for changing editor settings.</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawSettingsUI();<span class="comment"></span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="comment">  /// Draw a list of all of the component data that this entity has.</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityComponent(corgi::ComponentId <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment">  /// Draw a list of the entity&#39;s parent and children, if any.</span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityFamily();</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment">  /// Draw tab bars for the different edit views.</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawTabs();</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="comment">  /// Draw common stuff at the beginning of an edit view.</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> BeginDrawEditView();<span class="comment"></span></div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="comment">  /// Draw common stuff at the end of an edit view.</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> FinishDrawEditView();</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment">  /// Create a text button; call this inside a gui::Run.</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment"></span>  flatui::Event TextButton(<span class="keyword">const</span> <span class="keywordtype">char</span>* text, <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keywordtype">id</span>, <span class="keywordtype">int</span> size);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="comment">  /// Show a button that, if you click on it, selects an entity.</span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> EntityButton(<span class="keyword">const</span> corgi::EntityRef&amp; entity, <span class="keywordtype">int</span> size);</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment">  /// Get the virtual resolution (for FlatUI) of the whole screen.</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> GetVirtualResolution(mathfu::vec2* resolution_output);</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  <span class="keyword">const</span> SceneLabConfig* config_;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;  SceneLab* scene_lab_;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;  corgi::EntityManager* entity_manager_;</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;  flatui::FontManager* font_manager_;</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  <span class="keyword">const</span> std::string* schema_data_;</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  fplbase::AssetManager* asset_manager_;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;  corgi::component_library::EntityFactory* entity_factory_;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;  fplbase::InputSystem* input_system_;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  fplbase::Renderer* renderer_;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;  <span class="comment">// Which entity we are editing right now.</span></div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  corgi::EntityRef edit_entity_;</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="comment">// We&#39;re changing which entity to select; this will take effect at the</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;  <span class="comment">// end of rendering.</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;  corgi::EntityRef changed_edit_entity_;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  std::unordered_map&lt;corgi::ComponentId, std::unique_ptr&lt;FlatbufferEditor&gt;&gt;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;      component_guis_;</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;  corgi::ComponentId auto_commit_component_;</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  corgi::ComponentId auto_revert_component_;</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;  corgi::ComponentId auto_recreate_component_;</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;  std::vector&lt;bool&gt; components_to_show_;  <span class="comment">// Components to display on screen.</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  std::string entity_list_filter_;</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;  std::string menu_title_string_;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;  mathfu::vec4 bg_edit_ui_color_;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;  mathfu::vec4 bg_toolbar_color_;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  mathfu::vec4 bg_button_color_;</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;  mathfu::vec4 bg_hover_color_;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;  mathfu::vec4 bg_click_color_;</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;  mathfu::vec4 text_button_color_;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;  mathfu::vec4 text_normal_color_;</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;  mathfu::vec4 text_disabled_color_;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;  mathfu::vec4 text_editable_color_;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;  mathfu::vec4 text_modified_color_;</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;  mathfu::vec4 text_error_color_;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  mathfu::vec2 scroll_offset_[kEditViewCount];</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  mathfu::vec2 virtual_resolution_;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;  GuiButton button_pressed_;</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  WindowState edit_window_state_;</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;  EditView edit_view_;</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;  <span class="keywordtype">float</span> edit_width_;</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;  <span class="keywordtype">int</span> mouse_mode_index_;</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;  <span class="keywordtype">bool</span> show_physics_;        <span class="comment">// Are we showing the selected entity&#39;s physics?</span></div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  <span class="keywordtype">bool</span> show_types_;          <span class="comment">// Are we showing the type of each field?</span></div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;  <span class="keywordtype">bool</span> expand_all_;          <span class="comment">// Expand edit view to encompass the whole screen?</span></div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keywordtype">bool</span> mouse_in_window_;     <span class="comment">// Is the mouse currently over a UI element?</span></div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keywordtype">bool</span> keyboard_in_use_;     <span class="comment">// Is the user currently typing into an edit field?</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="keywordtype">bool</span> prompting_for_exit_;  <span class="comment">// Are we currently prompting the user to exit?</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  <span class="keywordtype">bool</span> updated_via_gui_;     <span class="comment">// Was the entity just updated via the GUI?</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  <span class="keywordtype">bool</span> lock_camera_height_;  <span class="comment">// Should camera movement be parallel to ground?</span></div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;};</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_EDITOR_GUI_H_</span></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html">scene_lab::EditorGui</a></div><div class="ttdoc">EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:38</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a1c18eb5bcdfffe80a25d5a1ca7b9a03f"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">scene_lab::EditorGui::keyboard_in_use</a></div><div class="ttdeci">bool keyboard_in_use() const </div><div class="ttdoc">If we&#39;ve taken ownership of the keyboard (generally when a editable field is being edited)...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:87</div></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">/// @file</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/// EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/// window and on-screen menu buttons. Scene Lab can work without the</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">/// GUI but will have very reduced functionality.</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html">   39</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classscene__lab_1_1_editor_gui.html">EditorGui</a> {</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  /// Initialize the user interface. Ensure that you pass the Flatbuffers schema</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  /// you are using (in binary schema format) so FlatbufferEditor knows how to</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">  /// present the data. EditorGui will load its own font (specified in the</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">  /// config) into an existing FontManager.</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span>  <a class="code" href="classscene__lab_1_1_editor_gui.html#acad3fda2d19e3543914ad64e1a1418e4">EditorGui</a>(<span class="keyword">const</span> SceneLabConfig* config, <a class="code" href="classscene__lab_1_1_scene_lab.html">SceneLab</a>* scene_lab,</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            corgi::EntityManager* entity_manager,</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            flatui::FontManager* font_manager, <span class="keyword">const</span> std::string* schema_data);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// Turn on the GUI. This should be called when Scene Lab is activated.</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#af9dc6a5c14b5563bfee8cf13a41311e5">Activate</a>();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  /// Turn off the GUI. This should be called when Scene Lab is deactivated.</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">   53</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">Deactivate</a>() {}</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// Render the GUI, then update based on button presses. You must either call</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// this, or call StartRender(), then DrawGui() in a FlatUI gui::Run context,</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">  /// then FinishRenderRender(). (only DrawGui() should be inside a FlatUI</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// gui::Run context.)</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aadcf896d86e480aa447c8a7c980dfd4e">Render</a>();</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /// Prepare to draw the GUI. You don&#39;t need to call this if you are using</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">  /// Render(). See DrawGui() for more information.</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#ac22e738fdfa99d1eb64d87b88ec9834f">StartRender</a>();<span class="comment"></span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  /// Either call Render() above, or call the following sequence if you are</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  /// using FlatUI elsewhere:</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  /// * StartRender();</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  /// * gui::Run(() { ... other Gui... DrawGui(...) };</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">  /// * FinishRender();</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a978082bc7afb3703e0ec03326bc63ca3">DrawGui</a>(<span class="keyword">const</span> mathfu::vec2&amp; virtual_resolution);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /// Finish drawing the GUI, and update input. You don&#39;t need to call this if</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">  /// you are using Render(). See DrawGui() for more information.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a0d9a9ce8b6b3483181cb92210ae40fd2">FinishRender</a>();</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// Is the GUI capturing mouse and/or keyboard input? Returns true if you</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /// should ignore mouse and keyboard input. Or use mouse_in_window() and</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">  /// keyboard_in_use() for more fine-grained control.</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">   79</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">InputCaptured</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">mouse_in_window</a>() || <a class="code" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">keyboard_in_use</a>(); }</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">  /// Is the mouse pointer over a GUI element? If true, you should ignore mouse</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">  /// clicks as the user is clicking on GUI elements instead.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">   83</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">mouse_in_window</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mouse_in_window_; }</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// If we&#39;ve taken ownership of the keyboard (generally when a editable field</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// is being edited), this will return true, telling you to ignore keyboard</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">  /// input.</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">   88</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">keyboard_in_use</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> keyboard_in_use_; }</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// Should camera movement in Scene Lab be parallel to the ground, so your</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">  /// camera&#39;s height doesn&#39;t change unless you want it to?</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">   92</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">lock_camera_height</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> lock_camera_height_; }</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  /// Choose which entity we are currently editing.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a123e35a774ac632805b635c53677276d">SetEditEntity</a>(corgi::EntityRef&amp; entity);<span class="comment"></span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">  /// Get the entity we are currently editing.</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">   97</a></span>&#160;<span class="comment"></span>  corgi::EntityRef <a class="code" href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">edit_entity</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> edit_entity_; }</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// Clear all cached or modified data that we have for the edit entity. Call</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  /// this if you change any entity data externally, so we can reload data</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  /// directly from the entity.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">  102</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">ClearEntityData</a>() { component_guis_.clear(); }<span class="comment"></span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">  /// Write the entity fields that were changed to the entity_data_ flatbuffer,</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// then import the changed flatbuffers back to the edit_entity_.</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#ab0a3ff0d109590df034c2c84363d7d28">CommitEntityData</a>();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">  /// Should we let the editor exit? Not if there are pending changes.</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a83607c97ae3d07ffd4efe5272f18af9f">CanExit</a>();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// Should we let the editor deselect this as the current entity?</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">  /// Probably not if we&#39;ve made any changes.</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">  112</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">CanDeselectEntity</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !<a class="code" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">EntityModified</a>(); }</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">  /// Has the entity&#39;s flatbuffer been modified?</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">  115</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">EntityModified</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">auto</span> iter = component_guis_.begin(); iter != component_guis_.end();</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;         ++iter) {</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;      <a class="code" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a>* editor = iter-&gt;second.get();</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;      <span class="keywordflow">if</span> (editor-&gt;<a class="code" href="classscene__lab_1_1_flatbuffer_editor.html#ae7d8d9c1daad044f3552fa7a52812b06">flatbuffer_modified</a>()) <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    }</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  }</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">  /// &quot;Entity Updated&quot; callback for Scene Lab; if the entity is updated</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment">  /// externally, we reload its data by calling ClearEntityData().</span></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a607f4177f20f03bf3062302cbced2c34">EntityUpdated</a>(corgi::EntityRef entity);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">  /// Does the user want you to show the current entity&#39;s physics?</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">  129</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">show_physics</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> show_physics_; }</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment">  /// Returns which mouse mode index we have selected.</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">  132</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">mouse_mode_index</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mouse_mode_index_; }<span class="comment"></span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="comment">  /// Set which mouse mode index the user wants to use.</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">  134</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">set_mouse_mode_index</a>(<span class="keywordtype">int</span> m) { mouse_mode_index_ = m; }</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keyword">const</span> std::string&amp; menu_title_string() { <span class="keywordflow">return</span> menu_title_string_; }</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">void</span> set_menu_title_string(<span class="keyword">const</span> std::string&amp; s) { menu_title_string_ = s; }</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="comment">  /// Onscreen buttons IDs.</span></div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> GuiButton {</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    kNone = 0,</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    kWindowMaximize,</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    kWindowHide,</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    kWindowRestore,</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    kToggleDataTypes,</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    kToggleExpandAll,</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    kTogglePhysics,</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    kToggleLockCameraHeight,</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    kEntityCommit,</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    kEntityRevert</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  };</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="comment">  /// Onscreen tabs for the edit window.</span></div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> EditView {</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    kNoEditView = -1,</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    kEditEntity = 0,</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    kEntityList,</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    kEditPrototype,</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    kPrototypeList,</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    kSettings,</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    kEditViewCount</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  };</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  <span class="keyword">enum</span> WindowState { kNormal, kMaximized };</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kVirtualResolution = 1000;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kToolbarHeight = 30;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kSpacing = 3;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kBlankEditWidth = 20;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kIndent = 3;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kFontSize = 18;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kButtonMargin = 5;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment">  /// Commit only the requested component flatbuffer to the entity.</span></div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CommitComponentData(corgi::ComponentId <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="comment">  /// Send an EntityUpdated event to the current entity.</span></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> SendUpdateEvent();</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="comment">  /// Gui helper function to capture mouse clicks and prevent Scene Lab</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment">  /// from consuming them.</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CaptureMouseClicks();</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment">  /// Draw an interface for editing an entity.</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEditEntityUI();<span class="comment"></span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">  /// Draw an interface for choosing an entity.</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityListUI();<span class="comment"></span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment">  /// Draw an interface for changing editor settings.</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawSettingsUI();<span class="comment"></span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">  /// Draw a list of all of the component data that this entity has.</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityComponent(corgi::ComponentId <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment">  /// Draw a list of the entity&#39;s parent and children, if any.</span></div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawEntityFamily();</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">  /// Draw tab bars for the different edit views.</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> DrawTabs();</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment">  /// Draw common stuff at the beginning of an edit view.</span></div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> BeginDrawEditView();<span class="comment"></span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="comment">  /// Draw common stuff at the end of an edit view.</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> FinishDrawEditView();</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment">  /// Create a text button; call this inside a gui::Run.</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment"></span>  flatui::Event TextButton(<span class="keyword">const</span> <span class="keywordtype">char</span>* text, <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keywordtype">id</span>, <span class="keywordtype">int</span> size);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment">  /// Show a button that, if you click on it, selects an entity.</span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> EntityButton(<span class="keyword">const</span> corgi::EntityRef&amp; entity, <span class="keywordtype">int</span> size);</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment">  /// Get the virtual resolution (for FlatUI) of the whole screen.</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> GetVirtualResolution(mathfu::vec2* resolution_output);</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;  <span class="keyword">const</span> SceneLabConfig* config_;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;  SceneLab* scene_lab_;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;  corgi::EntityManager* entity_manager_;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  flatui::FontManager* font_manager_;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  <span class="keyword">const</span> std::string* schema_data_;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;  fplbase::AssetManager* asset_manager_;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;  corgi::component_library::EntityFactory* entity_factory_;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  fplbase::InputSystem* input_system_;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;  fplbase::Renderer* renderer_;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  <span class="comment">// Which entity we are editing right now.</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  corgi::EntityRef edit_entity_;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;  <span class="comment">// We&#39;re changing which entity to select; this will take effect at the</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;  <span class="comment">// end of rendering.</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  corgi::EntityRef changed_edit_entity_;</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;  std::unordered_map&lt;corgi::ComponentId, std::unique_ptr&lt;FlatbufferEditor&gt;&gt;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;      component_guis_;</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  corgi::ComponentId auto_commit_component_;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;  corgi::ComponentId auto_revert_component_;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;  corgi::ComponentId auto_recreate_component_;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;  std::vector&lt;bool&gt; components_to_show_;  <span class="comment">// Components to display on screen.</span></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;  std::string entity_list_filter_;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;  std::string menu_title_string_;</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;  mathfu::vec4 bg_edit_ui_color_;</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  mathfu::vec4 bg_toolbar_color_;</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;  mathfu::vec4 bg_button_color_;</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;  mathfu::vec4 bg_hover_color_;</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;  mathfu::vec4 bg_click_color_;</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;  mathfu::vec4 text_button_color_;</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;  mathfu::vec4 text_normal_color_;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;  mathfu::vec4 text_disabled_color_;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;  mathfu::vec4 text_editable_color_;</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;  mathfu::vec4 text_modified_color_;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;  mathfu::vec4 text_error_color_;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  mathfu::vec2 scroll_offset_[kEditViewCount];</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;  mathfu::vec2 virtual_resolution_;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  GuiButton button_pressed_;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;  WindowState edit_window_state_;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;  EditView edit_view_;</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;  <span class="keywordtype">float</span> edit_width_;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;  <span class="keywordtype">int</span> mouse_mode_index_;</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  <span class="keywordtype">bool</span> show_physics_;        <span class="comment">// Are we showing the selected entity&#39;s physics?</span></div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;  <span class="keywordtype">bool</span> show_types_;          <span class="comment">// Are we showing the type of each field?</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keywordtype">bool</span> expand_all_;          <span class="comment">// Expand edit view to encompass the whole screen?</span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keywordtype">bool</span> mouse_in_window_;     <span class="comment">// Is the mouse currently over a UI element?</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="keywordtype">bool</span> keyboard_in_use_;     <span class="comment">// Is the user currently typing into an edit field?</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  <span class="keywordtype">bool</span> prompting_for_exit_;  <span class="comment">// Are we currently prompting the user to exit?</span></div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  <span class="keywordtype">bool</span> updated_via_gui_;     <span class="comment">// Was the entity just updated via the GUI?</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;  <span class="keywordtype">bool</span> lock_camera_height_;  <span class="comment">// Should camera movement be parallel to ground?</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;};</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_EDITOR_GUI_H_</span></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html">scene_lab::EditorGui</a></div><div class="ttdef"><b>Definition:</b> editor_gui.h:39</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a1c18eb5bcdfffe80a25d5a1ca7b9a03f"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f">scene_lab::EditorGui::keyboard_in_use</a></div><div class="ttdeci">bool keyboard_in_use() const </div><div class="ttdoc">If we&#39;ve taken ownership of the keyboard (generally when a editable field is being edited)...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:88</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_acad3fda2d19e3543914ad64e1a1418e4"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#acad3fda2d19e3543914ad64e1a1418e4">scene_lab::EditorGui::EditorGui</a></div><div class="ttdeci">EditorGui(const SceneLabConfig *config, SceneLab *scene_lab, corgi::EntityManager *entity_manager, flatui::FontManager *font_manager, const std::string *schema_data)</div><div class="ttdoc">Initialize the user interface. </div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_a607f4177f20f03bf3062302cbced2c34"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a607f4177f20f03bf3062302cbced2c34">scene_lab::EditorGui::EntityUpdated</a></div><div class="ttdeci">void EntityUpdated(corgi::EntityRef entity)</div><div class="ttdoc">&quot;Entity Updated&quot; callback for Scene Lab; if the entity is updated externally, we reload its data by c...</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_acdc2b5cc63ba420b6d69d26f99b4fc9a"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">scene_lab::EditorGui::CanDeselectEntity</a></div><div class="ttdeci">bool CanDeselectEntity() const </div><div class="ttdoc">Should we let the editor deselect this as the current entity? Probably not if we&#39;ve made any changes...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:111</div></div>
-<div class="ttc" id="classscene__lab_1_1_scene_lab_html"><div class="ttname"><a href="classscene__lab_1_1_scene_lab.html">scene_lab::SceneLab</a></div><div class="ttdef"><b>Definition:</b> scene_lab.h:48</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_acdc2b5cc63ba420b6d69d26f99b4fc9a"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a">scene_lab::EditorGui::CanDeselectEntity</a></div><div class="ttdeci">bool CanDeselectEntity() const </div><div class="ttdoc">Should we let the editor deselect this as the current entity? Probably not if we&#39;ve made any changes...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:112</div></div>
+<div class="ttc" id="classscene__lab_1_1_scene_lab_html"><div class="ttname"><a href="classscene__lab_1_1_scene_lab.html">scene_lab::SceneLab</a></div><div class="ttdef"><b>Definition:</b> scene_lab.h:49</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_ab0a3ff0d109590df034c2c84363d7d28"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#ab0a3ff0d109590df034c2c84363d7d28">scene_lab::EditorGui::CommitEntityData</a></div><div class="ttdeci">void CommitEntityData()</div><div class="ttdoc">Write the entity fields that were changed to the entity_data_ flatbuffer, then import the changed fla...</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_aadcf896d86e480aa447c8a7c980dfd4e"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#aadcf896d86e480aa447c8a7c980dfd4e">scene_lab::EditorGui::Render</a></div><div class="ttdeci">void Render()</div><div class="ttdoc">Render the GUI, then update based on button presses. </div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a240e839875db4577db94706039982d7e"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">scene_lab::EditorGui::mouse_mode_index</a></div><div class="ttdeci">unsigned int mouse_mode_index() const </div><div class="ttdoc">Returns which mouse mode index we have selected. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:131</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a240e839875db4577db94706039982d7e"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a240e839875db4577db94706039982d7e">scene_lab::EditorGui::mouse_mode_index</a></div><div class="ttdeci">unsigned int mouse_mode_index() const </div><div class="ttdoc">Returns which mouse mode index we have selected. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:132</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_a978082bc7afb3703e0ec03326bc63ca3"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a978082bc7afb3703e0ec03326bc63ca3">scene_lab::EditorGui::DrawGui</a></div><div class="ttdeci">void DrawGui(const mathfu::vec2 &amp;virtual_resolution)</div><div class="ttdoc">Either call Render() above, or call the following sequence if you are using FlatUI elsewhere: ...</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_a0d9a9ce8b6b3483181cb92210ae40fd2"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a0d9a9ce8b6b3483181cb92210ae40fd2">scene_lab::EditorGui::FinishRender</a></div><div class="ttdeci">void FinishRender()</div><div class="ttdoc">Finish drawing the GUI, and update input. </div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_a83607c97ae3d07ffd4efe5272f18af9f"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a83607c97ae3d07ffd4efe5272f18af9f">scene_lab::EditorGui::CanExit</a></div><div class="ttdeci">bool CanExit()</div><div class="ttdoc">Should we let the editor exit? Not if there are pending changes. </div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a8e86a63fd25c6c958e045665c45c7c26"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">scene_lab::EditorGui::lock_camera_height</a></div><div class="ttdeci">bool lock_camera_height() const </div><div class="ttdoc">Should camera movement in Scene Lab be parallel to the ground, so your camera&#39;s height doesn&#39;t change...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:91</div></div>
-<div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html_ae7d8d9c1daad044f3552fa7a52812b06"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html#ae7d8d9c1daad044f3552fa7a52812b06">scene_lab::FlatbufferEditor::flatbuffer_modified</a></div><div class="ttdeci">bool flatbuffer_modified() const </div><div class="ttdoc">Has the Flatbuffer data been modified? If so, you probably want to reload whatever is using it...</div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:99</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a8e86a63fd25c6c958e045665c45c7c26"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">scene_lab::EditorGui::lock_camera_height</a></div><div class="ttdeci">bool lock_camera_height() const </div><div class="ttdoc">Should camera movement in Scene Lab be parallel to the ground, so your camera&#39;s height doesn&#39;t change...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:92</div></div>
+<div class="ttc" id="flatbuffer__editor_8h_html"><div class="ttname"><a href="flatbuffer__editor_8h.html">flatbuffer_editor.h</a></div><div class="ttdoc">An on-screen representation of a Flatbuffer, which can be edited by the user. </div></div>
+<div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html_ae7d8d9c1daad044f3552fa7a52812b06"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html#ae7d8d9c1daad044f3552fa7a52812b06">scene_lab::FlatbufferEditor::flatbuffer_modified</a></div><div class="ttdeci">bool flatbuffer_modified() const </div><div class="ttdoc">Has the Flatbuffer data been modified? If so, you probably want to reload whatever is using it...</div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:100</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_af9dc6a5c14b5563bfee8cf13a41311e5"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#af9dc6a5c14b5563bfee8cf13a41311e5">scene_lab::EditorGui::Activate</a></div><div class="ttdeci">void Activate()</div><div class="ttdoc">Turn on the GUI. This should be called when Scene Lab is activated. </div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a1d3852fc2b09102fb94ead9ef0299a20"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">scene_lab::EditorGui::ClearEntityData</a></div><div class="ttdeci">void ClearEntityData()</div><div class="ttdoc">Clear all cached or modified data that we have for the edit entity. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:101</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_aea87ff5ba4cd7d9a0eff51607828f3e2"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">scene_lab::EditorGui::mouse_in_window</a></div><div class="ttdeci">bool mouse_in_window() const </div><div class="ttdoc">Is the mouse pointer over a GUI element? If true, you should ignore mouse clicks as the user is click...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:82</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a6c5689c697555777a17e5129b4b08edf"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">scene_lab::EditorGui::show_physics</a></div><div class="ttdeci">bool show_physics() const </div><div class="ttdoc">Does the user want you to show the current entity&#39;s physics? </div><div class="ttdef"><b>Definition:</b> editor_gui.h:128</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a39afa24d4939ba051b85963b74c51503"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">scene_lab::EditorGui::InputCaptured</a></div><div class="ttdeci">bool InputCaptured() const </div><div class="ttdoc">Is the GUI capturing mouse and/or keyboard input? Returns true if you should ignore mouse and keyboar...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:78</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a83c9d5d6d5bc920876f24d2d131a8c9b"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">scene_lab::EditorGui::edit_entity</a></div><div class="ttdeci">corgi::EntityRef edit_entity() const </div><div class="ttdoc">Get the entity we are currently editing. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:96</div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a68701475d59ee01b7ff6ed5f751c6ee2"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">scene_lab::EditorGui::set_mouse_mode_index</a></div><div class="ttdeci">void set_mouse_mode_index(int m)</div><div class="ttdoc">Set which mouse mode index the user wants to use. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:133</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a1d3852fc2b09102fb94ead9ef0299a20"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">scene_lab::EditorGui::ClearEntityData</a></div><div class="ttdeci">void ClearEntityData()</div><div class="ttdoc">Clear all cached or modified data that we have for the edit entity. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:102</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_aea87ff5ba4cd7d9a0eff51607828f3e2"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#aea87ff5ba4cd7d9a0eff51607828f3e2">scene_lab::EditorGui::mouse_in_window</a></div><div class="ttdeci">bool mouse_in_window() const </div><div class="ttdoc">Is the mouse pointer over a GUI element? If true, you should ignore mouse clicks as the user is click...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:83</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a6c5689c697555777a17e5129b4b08edf"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">scene_lab::EditorGui::show_physics</a></div><div class="ttdeci">bool show_physics() const </div><div class="ttdoc">Does the user want you to show the current entity&#39;s physics? </div><div class="ttdef"><b>Definition:</b> editor_gui.h:129</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a39afa24d4939ba051b85963b74c51503"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503">scene_lab::EditorGui::InputCaptured</a></div><div class="ttdeci">bool InputCaptured() const </div><div class="ttdoc">Is the GUI capturing mouse and/or keyboard input? Returns true if you should ignore mouse and keyboar...</div><div class="ttdef"><b>Definition:</b> editor_gui.h:79</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a83c9d5d6d5bc920876f24d2d131a8c9b"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">scene_lab::EditorGui::edit_entity</a></div><div class="ttdeci">corgi::EntityRef edit_entity() const </div><div class="ttdoc">Get the entity we are currently editing. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:97</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a68701475d59ee01b7ff6ed5f751c6ee2"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2">scene_lab::EditorGui::set_mouse_mode_index</a></div><div class="ttdeci">void set_mouse_mode_index(int m)</div><div class="ttdoc">Set which mouse mode index the user wants to use. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:134</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_ac22e738fdfa99d1eb64d87b88ec9834f"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#ac22e738fdfa99d1eb64d87b88ec9834f">scene_lab::EditorGui::StartRender</a></div><div class="ttdeci">void StartRender()</div><div class="ttdoc">Prepare to draw the GUI. </div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a477698681363dd78b8ca108beb4ab287"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">scene_lab::EditorGui::EntityModified</a></div><div class="ttdeci">bool EntityModified() const </div><div class="ttdoc">Has the entity&#39;s flatbuffer been modified? </div><div class="ttdef"><b>Definition:</b> editor_gui.h:114</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a477698681363dd78b8ca108beb4ab287"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">scene_lab::EditorGui::EntityModified</a></div><div class="ttdeci">bool EntityModified() const </div><div class="ttdoc">Has the entity&#39;s flatbuffer been modified? </div><div class="ttdef"><b>Definition:</b> editor_gui.h:115</div></div>
 <div class="ttc" id="classscene__lab_1_1_editor_gui_html_a123e35a774ac632805b635c53677276d"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a123e35a774ac632805b635c53677276d">scene_lab::EditorGui::SetEditEntity</a></div><div class="ttdeci">void SetEditEntity(corgi::EntityRef &amp;entity)</div><div class="ttdoc">Choose which entity we are currently editing. </div></div>
-<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a450f10c10ce7601083a75d8a3d3b0149"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">scene_lab::EditorGui::Deactivate</a></div><div class="ttdeci">void Deactivate()</div><div class="ttdoc">Turn off the GUI. This should be called when Scene Lab is deactivated. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:52</div></div>
-<div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html">scene_lab::FlatbufferEditor</a></div><div class="ttdoc">An on-screen representation of a Flatbuffer, which can be edited by the user. </div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:42</div></div>
+<div class="ttc" id="classscene__lab_1_1_editor_gui_html_a450f10c10ce7601083a75d8a3d3b0149"><div class="ttname"><a href="classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149">scene_lab::EditorGui::Deactivate</a></div><div class="ttdeci">void Deactivate()</div><div class="ttdoc">Turn off the GUI. This should be called when Scene Lab is deactivated. </div><div class="ttdef"><b>Definition:</b> editor_gui.h:53</div></div>
+<div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html">scene_lab::FlatbufferEditor</a></div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:43</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

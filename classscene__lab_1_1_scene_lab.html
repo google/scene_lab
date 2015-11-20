@@ -50,10 +50,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="scene_lab_using.html"><span>Using&#160;Scene&#160;Lab</span></a></li>
+      <li><a href="usergroup0.html"><span>Programmer's&#160;Guide</span></a></li>
+      <li class="current"><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
+      <li><a href="scene_lab_readme.html"><span>Readme</span></a></li>
+      <li><a href="contributing.html"><span>Contributing</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -70,6 +71,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
           </span>
         </div>
       </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li class="current"><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -100,7 +107,7 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_scene_lab.html',''
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -307,7 +314,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Get the Scene Lab camera, so you can render the scene properly or change its position. </p>
-<p>If you do not have a camera, a <a class="el" href="classscene__lab_1_1_basic_camera.html" title="A simple camera class that implements CameraInterface. ">BasicCamera</a> will be created for you. </p>
+<p>If you do not have a camera, a <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> will be created for you. </p>
 
 </div>
 </div>
@@ -518,7 +525,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Give Scene Lab a camera that it can use. </p>
-<p>If you don't call this, it will create its own <a class="el" href="classscene__lab_1_1_basic_camera.html" title="A simple camera class that implements CameraInterface. ">BasicCamera</a> instead.</p>
+<p>If you don't call this, it will create its own <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> instead.</p>
 <p>Scene Lab will take over ownership of <code>camera</code>. </p>
 
 </div>
@@ -538,7 +545,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>When you activate the editor, you can pass in your game's camera so the user can seamlessly be positioned at the same place they were during the game. </p>
-<p>Note that if you do not yet have a Scene Lab camera set when you call this method, a <a class="el" href="classscene__lab_1_1_basic_camera.html" title="A simple camera class that implements CameraInterface. ">BasicCamera</a> will be created for you.</p>
+<p>Note that if you do not yet have a Scene Lab camera set when you call this method, a <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> will be created for you.</p>
 <p>You can also set the initial camera by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a>-&gt;set_position() and/or <a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a>-&gt;set_facing(). </p>
 
 </div>

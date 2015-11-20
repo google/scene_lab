@@ -50,10 +50,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
-      <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="scene_lab_using.html"><span>Using&#160;Scene&#160;Lab</span></a></li>
+      <li><a href="usergroup0.html"><span>Programmer's&#160;Guide</span></a></li>
+      <li class="current"><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
+      <li><a href="scene_lab_readme.html"><span>Readme</span></a></li>
+      <li><a href="contributing.html"><span>Contributing</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -70,6 +71,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
           </span>
         </div>
       </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li class="current"><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
     </ul>
   </div>
   <div id="navrow2" class="tabs2">
@@ -100,7 +107,7 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_editor_gui.html','
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -117,11 +124,6 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_editor_gui.html','
 <div class="title">scene_lab::EditorGui Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p><a class="el" href="classscene__lab_1_1_editor_gui.html" title="EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons...">EditorGui</a> is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons.  
- <a href="classscene__lab_1_1_editor_gui.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="editor__gui_8h_source.html">editor_gui.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -208,10 +210,7 @@ const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>me
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_menu_title_string</b> (const std::string &amp;s)</td></tr>
 <tr class="separator:aae2fe376e63f1d882eef3d7cd934ab76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="classscene__lab_1_1_editor_gui.html" title="EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons...">EditorGui</a> is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons. </p>
-<p>Scene Lab can work without the GUI but will have very reduced functionality. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="acad3fda2d19e3543914ad64e1a1418e4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -255,7 +254,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_menu_title_string
 </div><div class="memdoc">
 
 <p>Initialize the user interface. </p>
-<p>Ensure that you pass the Flatbuffers schema you are using (in binary schema format) so <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html" title="An on-screen representation of a Flatbuffer, which can be edited by the user. ">FlatbufferEditor</a> knows how to present the data. <a class="el" href="classscene__lab_1_1_editor_gui.html" title="EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit window and on-screen menu buttons...">EditorGui</a> will load its own font (specified in the config) into an existing FontManager. </p>
+<p>Ensure that you pass the Flatbuffers schema you are using (in binary schema format) so <a class="el" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a> knows how to present the data. <a class="el" href="classscene__lab_1_1_editor_gui.html">EditorGui</a> will load its own font (specified in the config) into an existing FontManager. </p>
 
 </div>
 </div>

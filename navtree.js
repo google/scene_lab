@@ -3,32 +3,31 @@ var NAVTREE =
   [ "Scene Lab", "index.html", [
     [ "Overview", "index.html#scene_lab_overview", null ],
     [ "Using Scene Lab", "scene_lab_using.html", null ],
-    [ "Build Targets", "scene_lab_guide_build_targets.html", null ],
-    [ "Building for Android", "scene_lab_guide_android.html", null ],
-    [ "Building for Linux", "scene_lab_guide_linux.html", null ],
-    [ "Building for OS X", "scene_lab_guide_osx.html", null ],
-    [ "Building for Windows", "scene_lab_guide_windows.html", null ],
-    [ "Integration Guide", "scene_lab_integration_guide.html", null ],
-    [ "Contributing", "contributing.html", null ],
-    [ "Namespaces", null, [
-      [ "Namespace List", "namespaces.html", "namespaces" ],
-      [ "Namespace Members", "namespacemembers.html", [
-        [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ]
+    [ "Programmer's Guide", "usergroup0.html", [
+      [ "Building", "scene_lab_guide_build_targets.html", [
+        [ "Android", "scene_lab_guide_android.html", null ],
+        [ "Linux", "scene_lab_guide_linux.html", null ],
+        [ "OS X", "scene_lab_guide_osx.html", null ],
+        [ "Windows", "scene_lab_guide_windows.html", null ]
+      ] ],
+      [ "Integration Guide", "scene_lab_integration_guide.html", null ]
+    ] ],
+    [ "API Reference", "usergroup1.html", [
+      [ "Class List", null, [
+        [ "Class List", "annotated.html", "annotated" ],
+        [ "Class Index", "classes.html", null ],
+        [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
+        [ "Class Members", "functions.html", [
+          [ "All", "functions.html", null ],
+          [ "Functions", "functions_func.html", null ]
+        ] ]
+      ] ],
+      [ "File List", null, [
+        [ "File List", "files.html", "files" ]
       ] ]
     ] ],
-    [ "Classes", null, [
-      [ "Class List", "annotated.html", "annotated" ],
-      [ "Class Index", "classes.html", null ],
-      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
-      [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ]
-      ] ]
-    ] ],
-    [ "Files", null, [
-      [ "File List", "files.html", "files" ]
-    ] ]
+    [ "Readme", "scene_lab_readme.html", null ],
+    [ "Contributing", "contributing.html", null ]
   ] ]
 ];
 

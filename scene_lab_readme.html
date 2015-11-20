@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Scene Lab: include Directory Reference</title>
+<title>Scene Lab: Scene Lab</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,7 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('dir_d44c64559bbebec7f509842c48db8b23.html','');});
+$(document).ready(function(){initNavTree('scene_lab_readme.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -104,16 +104,67 @@ $(document).ready(function(){initNavTree('dir_d44c64559bbebec7f509842c48db8b23.h
 
 <div class="header">
   <div class="headertitle">
-<div class="title">include Directory Reference</div>  </div>
+<div class="title">Scene Lab </div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="subdirs"></a>
-Directories</h2></td></tr>
-<tr class="memitem:dir_9e8c273eb0144b279f6e7a5b98355532"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_9e8c273eb0144b279f6e7a5b98355532.html">scene_lab</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-</div><!-- contents -->
+<div class="textblock"><h2>Overview</h2>
+<p>Scene Lab is a library that allows game developers who are using Fun Propulsion Labs technologies for their games to lay out objects in the game world and change their properties, all within the game itself.</p>
+<p>Go to our <a href="http://google.github.io/scene_lab">landing page</a> to browse our documentation and see some examples.</p>
+<ul>
+<li>Discuss Scene Lab with other developers and users on the <a href="http://group.google.com/group/scene_lab">Scene Lab Google Group</a>.</li>
+<li>File issues on the <a href="http://github.com/google/scene_lab/issues">Scene Lab Issues Tracker</a>.</li>
+<li>Post your questoins to <a href="http://www.stackoverflow.com">stackoverflow.com</a> with a mention of <b>scene-lab</b>.</li>
+</ul>
+<h2>Features</h2>
+<p>This initial release of Scene Lab is focused on letting you perform certain core tasks needed for editing a game world:</p>
+<ul>
+<li>Fly around the game world with mouse and keyboard to look at the current layout.</li>
+<li>Right-click to enter edit mode, which allows you to:<ul>
+<li>Click on entities to select them and view their properties.</li>
+<li>Move, rotate, and scale entities in the game world by dragging with the mouse.</li>
+<li>Edit properties of an entity via a text-based FlatBuffer editor.</li>
+<li>Duplicate or delete entities in the game world.</li>
+</ul>
+</li>
+<li>Save in-game entities to a binary FlatBuffer file that can be loaded back into your game, and optionally to JSON files.</li>
+</ul>
+<h2>Downloading</h2>
+<p>The library is written in portable C++ and has been tested on the following platforms:</p>
+<ul>
+<li><a href="http://www.android.com">Android</a></li>
+<li><a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a> (x86_64)</li>
+<li><a href="http://www.apple.com/osx/">OS X</a></li>
+<li><a href="http://windows.microsoft.com/">WIndows</a></li>
+</ul>
+<p><b>Important</b>: The Scene Lab world editor uses submodules, so download the source using:</p>
+<div class="fragment"><div class="line">git clone --recursive https:<span class="comment">//github.com/google/scene_lab.git</span></div>
+</div><!-- fragment --><h2>Dependencies</h2>
+<p>Scene Lab depends on the following libraries:</p>
+<ul>
+<li><a href="http://google.github.io/corgi/">CORGI</a> (Component Oriented Reusable Game Interface), with the included component library</li>
+<li><a href="http://google.github.io/fplbase/">FPLBase</a></li>
+<li><a href="http://google.github.io/flatbuffers/">FlatBuffers</a></li>
+<li><a href="http://google.github.io/flatui/">FlatUI</a></li>
+<li><a href="http://google.github.io/mathfu/">mathfu</a></li>
+<li><a href="http://google.github.io/breadboard/">Breadboard</a> (required by CORGI's included component library)</li>
+</ul>
+<p>This initial version of Scene Lab only supports desktop (Linux, Mac, Windows) builds.</p>
+<p>In order to use Scene Lab to lay out your scene, you must use CORGI and its included <a href="http://google.github.io/corgi/component_library.html">component library</a> for your in-game objects. Your objects should use the following components:</p>
+<ul>
+<li><code>MetaComponent</code> (all objects must have this)</li>
+<li><code>TransformComponent</code> (for moving / rotating / scaling objects)</li>
+<li><code>PhysicsComponent</code> (optional, for selecting objects with the mouse)</li>
+<li><code>RenderMeshComponent</code> (optional, for highlighting the selected object)</li>
+</ul>
+<p>You must also use an entity factory based on the component library's <code>EntityFactory</code>, which uses a prototype-based system for instantiating entities, and ensure that you have included the <code>EditOptionsComponent</code> and associated data in your code.</p>
+<p>Additionally, if you have any custom components, you must implement their <code>ExportRawData</code> functions if you want the user to be able to edit an object's properties from those components.</p>
+<h2>Notes</h2>
+<p>For application on Google Play that integrate this tool, usage is tracked. This tracking is done automatically using the embedded version string (<code>kSceneLabVersionString</code>), and helps us continue to optimize it. Aside from consuming a few extra bytes in your application binary, it shouldn't affect your application at all. We use this information to let us know if Scene Lab is useful and if we should continue to invest in it. Since this is open source, you are free to remove the version string but we would appreciate if you would leave it in.</p>
+<h2>Contributing</h2>
+<p>To contribute to this project see <a href="http://github.com/google/scene_lab/blob/master/CONTRIBUTING">CONTRIBUTING</a>.</p>
+<p><br/>
+ </p>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->
 <script>

@@ -10,8 +10,9 @@ var indexSectionsWithContent =
   0: "abcdefghiklmnprsuv",
   1: "abefs",
   2: "s",
-  3: "abcdefghiklmnprsuv",
-  4: "bciu"
+  3: "befsu",
+  4: "abcdefghiklmnprsuv",
+  5: "bcisu"
 };
 
 var indexSectionNames =
@@ -19,8 +20,9 @@ var indexSectionNames =
   0: "all",
   1: "classes",
   2: "namespaces",
-  3: "functions",
-  4: "pages"
+  3: "files",
+  4: "functions",
+  5: "pages"
 };
 
 function convertToId(search)

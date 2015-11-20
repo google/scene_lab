@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Scene Lab: include Directory Reference</title>
+<title>Scene Lab: util.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -52,7 +52,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="scene_lab_using.html"><span>Using&#160;Scene&#160;Lab</span></a></li>
       <li><a href="usergroup0.html"><span>Programmer's&#160;Guide</span></a></li>
-      <li><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
+      <li class="current"><a href="usergroup1.html"><span>API&#160;Reference</span></a></li>
       <li><a href="scene_lab_readme.html"><span>Readme</span></a></li>
       <li><a href="contributing.html"><span>Contributing</span></a></li>
       <li>
@@ -73,6 +73,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li class="current"><a href="files.html"><span>File&#160;List</span></a></li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -85,7 +96,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('dir_d44c64559bbebec7f509842c48db8b23.html','');});
+$(document).ready(function(){initNavTree('util_8h.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -103,15 +114,52 @@ $(document).ready(function(){initNavTree('dir_d44c64559bbebec7f509842c48db8b23.h
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">include Directory Reference</div>  </div>
+<div class="title">util.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="subdirs"></a>
-Directories</h2></td></tr>
-<tr class="memitem:dir_9e8c273eb0144b279f6e7a5b98355532"><td class="memItemLeft" align="right" valign="top">directory &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_9e8c273eb0144b279f6e7a5b98355532.html">scene_lab</a></td></tr>
+
+<p>Scan a directory on the file system for all files matching a given file extension.  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &lt;functional&gt;</code><br/>
+<code>#include &lt;string&gt;</code><br/>
+<code>#include &lt;unordered_map&gt;</code><br/>
+<code>#include &lt;vector&gt;</code><br/>
+</div>
+<p><a href="util_8h_source.html">Go to the source code of this file.</a></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Scan a directory on the file system for all files matching a given file extension. </p>
+<p>Return all files found, along with the "last modified" time for each file.</p>
+<p>This allows you to check a directory to see if any files have been modified since you last used them, which could be useful if you are hypothetically updating assets used within an editor tool whenever they change on disk, for example. </p>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structscene__lab_1_1_asset_loader.html">scene_lab::AssetLoader</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structscene__lab_1_1_asset_loader.html" title="AssetLoader struct, basically a tuple of directory, file extension, and loader function. ">AssetLoader</a> struct, basically a tuple of directory, file extension, and loader function.  <a href="structscene__lab_1_1_asset_loader.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:namespacescene__lab"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescene__lab.html">scene_lab</a></td></tr>
+<tr class="memdesc:namespacescene__lab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility functions that might be useful if you are using Scene Lab. <br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ab9e73aff29515958a6fc1aad9dd168cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9e73aff29515958a6fc1aad9dd168cb"></a>
+std::unordered_map<br class="typebreak"/>
+&lt; std::string, time_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>scene_lab::ScanDirectory</b> (const std::string &amp;directory, const std::string &amp;file_ext)</td></tr>
+<tr class="separator:ab9e73aff29515958a6fc1aad9dd168cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3adbb301d705511f6a0149f63275404a"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescene__lab.html#a3adbb301d705511f6a0149f63275404a">scene_lab::LoadAssetsIfNewer</a> (time_t threshold, const std::vector&lt; AssetLoader &gt; &amp;asset_loaders)</td></tr>
+<tr class="memdesc:a3adbb301d705511f6a0149f63275404a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load assets via the designated asset loaders.  <a href="#a3adbb301d705511f6a0149f63275404a">More...</a><br/></td></tr>
+<tr class="separator:a3adbb301d705511f6a0149f63275404a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf450abdf4c1178594f0742f96f6646a"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescene__lab.html#acf450abdf4c1178594f0742f96f6646a">scene_lab::LoadAssetsIfNewer</a> (time_t threshold, const std::string &amp;directory, const std::string &amp;file_extension, const AssetLoader::load_function_t &amp;load_function)</td></tr>
+<tr class="memdesc:acf450abdf4c1178594f0742f96f6646a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan a directory for assets matching a given file extension.  <a href="#acf450abdf4c1178594f0742f96f6646a">More...</a><br/></td></tr>
+<tr class="separator:acf450abdf4c1178594f0742f96f6646a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
