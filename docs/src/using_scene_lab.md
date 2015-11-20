@@ -149,7 +149,7 @@ the window, or by using your mouse wheel.
 ### Edit Entity
 
 Edit component properties for the currently-selected entity.
-See {#scene_lab_flatbuffer_editor} for more information.
+See scene_lab::FlatbufferEditor for more information.
 
 <img src="editor_screenshot_edit_entity.png" style="height: 50em"/>
 

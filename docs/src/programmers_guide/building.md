@@ -4,7 +4,7 @@ Build Targets    {#scene_lab_guide_build_targets}
 [Scene Lab][] compiles to a C++ library. It includes [CMake][] build scripts.
 
 The CMake build script can be used to generate standard
-makefiles on [Linux][], [Xcode][] projects on OSX,
+makefiles on [Linux][], [Xcode][] projects on [OS X][],
 and [Visual Studio][] solutions on [Windows][]. See,
 
    * [Building for Linux][]

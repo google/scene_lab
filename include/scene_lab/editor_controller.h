@@ -23,6 +23,7 @@
 
 namespace scene_lab {
 
+/// @file
 /// Pointer and keyboard controls for Scene Lab. This class provides a simple
 /// interface for button and key presses, and for tracking the camera's facing
 /// when the mouse moves like in a first-person shooter.

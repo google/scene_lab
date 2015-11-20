@@ -32,6 +32,7 @@ namespace scene_lab {
 
 class SceneLab;
 
+/// @file
 /// EditorGui is a FlatUI-based GUI overlay for Scene Lab to the edit
 /// window and on-screen menu buttons. Scene Lab can work without the
 /// GUI but will have very reduced functionality.

@@ -25,6 +25,7 @@ static const mathfu::vec3 kCameraForward = mathfu::kAxisY3f;
 static const mathfu::vec3 kCameraSide = mathfu::kAxisX3f;
 static const mathfu::vec3 kCameraUp = mathfu::kAxisZ3f;
 
+/// @file
 /// A simple camera class that implements CameraInterface. If you just need a
 /// very basic camera to use Scene Lab, you can use this one, which just
 /// implements the barebones requirements, no stereoscopy or other fancy stuff.

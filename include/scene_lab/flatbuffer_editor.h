@@ -29,6 +29,7 @@
 
 namespace scene_lab {
 
+/// @file
 /// An on-screen representation of a Flatbuffer, which can be edited by the
 /// user. Instantiate FlatbufferEditor with a Flatbuffer you'd like it to
 /// edit. It will create a copy of that Flatbuffer to manipulate, and you can
