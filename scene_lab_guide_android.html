@@ -171,7 +171,12 @@ $(document).ready(function(){initNavTree('scene_lab_guide_android.html','');});
 <div class="line">ndk-build APP_ABI=all</div>
 </div><!-- fragment --><p>Using <code>fplutil</code>: </p>
 <div class="fragment"><div class="line">cd scene_lab/sample</div>
-<div class="line">./dependencies/fplutil/bin/build_all_android.py -f APP_ABI=all</div>
+<div class="line">../dependencies/fplutil/bin/build_all_android.py -f APP_ABI=all -e dependencies</div>
+</div><!-- fragment --><h1>Troubleshooting</h1>
+<p>If the NDK has trouble locating the <a class="el" href="namespacescene__lab.html" title="Utility functions that might be useful if you are using Scene Lab. ">scene_lab</a> module while building for Android, ensure your top-level Scene Lab directory is named "scene_lab". This is due to a limitation in how the NDK module directory detection works. For example, on Windows, your project could be located at:</p>
+<div class="fragment"><div class="line">c:\myprojects\android\scene_lab</div>
+</div><!-- fragment --><p>And thus the sample (and the directory you would ndk-build from) would be located in:</p>
+<div class="fragment"><div class="line">c:\myprojects\android\scene_lab\sample</div>
 </div><!-- fragment --><p><br/>
  </p>
 </div></div><!-- contents -->
