@@ -129,6 +129,8 @@ class EditorController {
   /// moving the mouse moves the mouse pointer.
   bool mouse_locked() const { return mouse_locked_; }
 
+  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
+
  private:
   const SceneLabConfig* config_;
   fplbase::InputSystem* input_system_;

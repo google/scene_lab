@@ -136,6 +136,8 @@ class EditorGui {
   const std::string& menu_title_string() { return menu_title_string_; }
   void set_menu_title_string(const std::string& s) { menu_title_string_ = s; }
 
+  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
+
  private:
   /// Onscreen buttons IDs.
   enum GuiButton {
