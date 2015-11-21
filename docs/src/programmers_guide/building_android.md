@@ -91,7 +91,25 @@ Using `ndk-build`:
 Using `fplutil`:
 ~~~{.sh}
     cd scene_lab/sample
-    ./dependencies/fplutil/bin/build_all_android.py -f APP_ABI=all
+    ../dependencies/fplutil/bin/build_all_android.py -f APP_ABI=all -e dependencies
+~~~
+
+# Troubleshooting
+
+If the NDK has trouble locating the scene_lab module while building for
+Android, ensure your top-level Scene Lab directory is named "scene_lab". This is
+due to a limitation in how the NDK module directory detection works. For
+example, on Windows, your project could be located at:
+
+~~~
+    c:\myprojects\android\scene_lab
+~~~
+
+And thus the sample (and the directory you would ndk-build from) would be
+located in:
+
+~~~
+    c:\myprojects\android\scene_lab\sample
 ~~~
 
 <br>
