@@ -1214,7 +1214,8 @@ def main(project_root='', assets_path='', asset_meta='', asset_roots=None,
   meta = parse_metadata(args.meta)
 
   if target != 'clean':
-    distutils.dir_util.copy_tree(assets_path, args.output, update=1)
+    if os.path.exists(assets_path):
+      distutils.dir_util.copy_tree(assets_path, args.output, update=1)
     for i in range(0, len(args.copy_tree), 2):
       distutils.dir_util.copy_tree(args.copy_tree[i], args.copy_tree[i + 1],
                                    update=1)

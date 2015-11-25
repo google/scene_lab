@@ -13,3 +13,9 @@ docs/html/
 docs/linklint_results/
 libs
 *.pyc
+CMakeScripts/
+scene_lab.build/
+scene_lab.xcodeproj/
+sample/CMakeScripts/
+sample/scene_lab.build/
+sample/scene_lab_sample.xcodeproj/

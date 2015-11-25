@@ -104,6 +104,10 @@ option(scene_lab_build_sample "Build a sample game for Scene Lab"
 option(scene_lab_build_cwebp "Build cwebp for Scene Lab from source." OFF)
 
 if(scene_lab_standalone_mode)
+  # Define the locatio of the scene lab directory For the Scene Lab sample.
+  set(dependencies_scene_lab_dir ${CMAKE_CURRENT_LIST_DIR}
+      CACHE PATH "Directory containing the Scene Lab library")
+
   if(NOT TARGET fplbase)
     # Include FPLBase in this project.
     set(fplbase_build_mesh_pipeline OFF CACHE BOOL "")
@@ -156,7 +160,8 @@ endif()
 set(scene_lab_flatbuffers_generated_includes_dir
    ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
 
-file(GLOB_RECURSE scene_lab_flatbuffers_schemas schemas/*.fbs)
+file(GLOB_RECURSE scene_lab_flatbuffers_schemas
+     ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)
 
 set(scene_lab_schema_include_dirs
   ${CMAKE_CURRENT_LIST_DIR}/schemas

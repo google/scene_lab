@@ -72,11 +72,11 @@ if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     CACHE PATH "Directory containing the MathFu library.")
   set(dependencies_motive_dir "${fpl_root}/motive"
     CACHE PATH "Directory containing the motive animation library.")
-  if (EXISTS ${dependencies_scene_lab_dir})
+  if (EXISTS ${fpl_root}/scene_lab)
     set(dependencies_scene_lab_dir "${fpl_root}/scene_lab"
       CACHE PATH "Directory containing the Scene Lab library.")
   else()
-    set(dependencies_scene_lab_dir "${fpl_root}/.."
+    set(dependencies_scene_lab_dir "${CMAKE_CURRENT_LIST_DIR}/.."
       CACHE PATH "Directory containing the Scene Lab library.")
   endif()
   set(dependencies_corgi_component_library_dir
@@ -216,6 +216,16 @@ build_flatbuffers("${scene_lab_sample_flatbuffers_schemas}"
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
+
+# Flatbuffers requires C++11.
+if(APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -stdlib=libc++")
+endif()
+
 
 set (SDL_LIBRARIES SDL2-static)
 if(WIN32)
