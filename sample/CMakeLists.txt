@@ -72,9 +72,10 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     CACHE PATH "Directory containing the MathFu library.")
   set(dependencies_motive_dir "${fpl_root}/motive"
     CACHE PATH "Directory containing the motive animation library.")
-  set(dependencies_scene_lab_dir "${fpl_root}/scene_lab"
-    CACHE PATH "Directory containing the Scene Lab library.")
-  if (NOT EXISTS ${dependencies_scene_lab_dir})
+  if (EXISTS ${dependencies_scene_lab_dir})
+    set(dependencies_scene_lab_dir "${fpl_root}/scene_lab"
+      CACHE PATH "Directory containing the Scene Lab library.")
+  else()
     set(dependencies_scene_lab_dir "${fpl_root}/.."
       CACHE PATH "Directory containing the Scene Lab library.")
   endif()
@@ -264,5 +265,5 @@ target_link_libraries(scene_lab_sample
   flatbuffers
   breadboard
   corgi
-  module_library
+  breadboard_module_library
   pindrop)
