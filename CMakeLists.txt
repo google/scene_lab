@@ -48,20 +48,20 @@ get_directory_property(scene_lab_has_parent PARENT_DIRECTORY)
 # Directory which contains the source for 3rd party libraries.
 if(NOT DEFINED third_party_root)
   get_filename_component(
-    third_party_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../../external"
+    third_party_root "${CMAKE_CURRENT_LIST_DIR}/../../../../external"
     REALPATH)
 endif()
 
 # Directory which contains source for FPL libraries.
 if(NOT DEFINED fpl_root)
   get_filename_component(
-      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" REALPATH)
+      fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../libs" REALPATH)
 endif()
 
 # If the dependencies directory exists, assume this is the root directory for
 # all libraries required by this project.
 if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
+  set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/dependencies")
   if(EXISTS "${dependencies_root}")
     set(third_party_root "${dependencies_root}")
     set(fpl_root "${dependencies_root}")
@@ -91,7 +91,7 @@ set(dependencies_corgi_component_library_dir
     CACHE PATH "Directory containing the CORGI component library")
 
 set(scene_lab_standalone_mode OFF)
-if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   set(scene_lab_standalone_mode ON)
   message(STATUS "Scene Lab standalone: building with sample game")
 else()
@@ -159,7 +159,7 @@ set(scene_lab_flatbuffers_generated_includes_dir
 file(GLOB_RECURSE scene_lab_flatbuffers_schemas schemas/*.fbs)
 
 set(scene_lab_schema_include_dirs
-  ${CMAKE_SOURCE_DIR}/schemas
+  ${CMAKE_CURRENT_LIST_DIR}/schemas
   ${dependencies_corgi_component_library_dir}/schemas
   ${dependencies_fplbase_dir}/schemas
   ${dependencies_motive_dir}/schemas

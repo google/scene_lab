@@ -15,11 +15,11 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(scene_lab_sample)
 
-if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
+if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   # We are building from the sample directory, so we need to set up some
   # dependencies first.
 
-  set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+  set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -29,25 +29,25 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   # Directory which contains the source for 3rd party libraries.
   if(NOT DEFINED third_party_root)
     get_filename_component(
-      third_party_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../external"
+      third_party_root "${CMAKE_CURRENT_LIST_DIR}/../../../../../external"
       REALPATH)
   endif()
 
   # Directory which contains source for FPL libraries.
   if(NOT DEFINED fpl_root)
     get_filename_component(
-      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs" REALPATH)
+      fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../../libs" REALPATH)
   endif()
 
   # If the dependencies directory exists, assume this is the root directory for
   # all libraries required by this project.
   if(NOT DEFINED dependencies_root)
-    set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies")
+    set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/../dependencies")
     if(EXISTS "${dependencies_root}")
       set(third_party_root "${dependencies_root}")
       set(fpl_root "${dependencies_root}")
     else()
-      set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
+      set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/dependencies")
       if(EXISTS "${dependencies_root}")
         set(third_party_root "${dependencies_root}")
         set(fpl_root "${dependencies_root}")
@@ -186,23 +186,18 @@ add_custom_target(scene_lab_sample_assets
   COMMAND python scripts/build_assets.py
   --flatc $<TARGET_FILE:flatc>
   ${cwebp_option}
-  --output ${CMAKE_CURRENT_SOURCE_DIR}/assets
+  --output ${CMAKE_SOURCE_DIR}/assets
+  --copy_tree ${dependencies_flatui_dir}/assets ${CMAKE_SOURCE_DIR}/assets
   DEPENDS flatc ${cwebp_depends})
 
-# Copy FlatUI required assets
-add_custom_command(TARGET scene_lab_sample_assets POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${dependencies_flatui_dir}/assets
-                       ${CMAKE_CURRENT_SOURCE_DIR}/assets)
-
 set(scene_lab_sample_flatbuffers_generated_includes_dir
-   ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
+   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
 
 file(GLOB_RECURSE scene_lab_sample_flatbuffers_schemas
-                  ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
+                  ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)
 
 set(scene_lab_sample_schema_include_dirs
-        ${CMAKE_SOURCE_DIR}/schemas
+        ${CMAKE_CURRENT_LIST_DIR}/schemas
         ${dependencies_corgi_component_library_dir}/schemas
         ${dependencies_fplbase_dir}/schemas
         ${dependencies_motive_dir}/schemas
@@ -216,8 +211,8 @@ build_flatbuffers("${scene_lab_sample_flatbuffers_schemas}"
                   "scene_lab_sample_generated_includes"
                   "${scene_lab_sample_flatbuffers_dependencies}"
                   "${scene_lab_sample_flatbuffers_generated_includes_dir}"
-                  "${CMAKE_CURRENT_SOURCE_DIR}/assets/flatbufferschemas"
-                  "${CMAKE_CURRENT_SOURCE_DIR}/assets/flatbufferschemas")
+                  "${CMAKE_SOURCE_DIR}/assets/flatbufferschemas"
+                  "${CMAKE_SOURCE_DIR}/assets/flatbufferschemas")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
