@@ -914,15 +914,15 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
     case reflection::String: {
       // This is a vector of strings.
       for (size_t i = 0; i < vec->size(); i++) {
-        std::string idx = "[" + flatbuffers::NumToString(i) + "]";
+        std::string fbi = "[" + flatbuffers::NumToString(i) + "]";
         flatbuffers::String* str =
             flatbuffers::GetAnyVectorElemPointer<flatbuffers::String>(vec, i);
         if (VisitField((!config_allow_resize() && IsDrawEdit(mode))
                            ? kDrawReadOnly
                            : mode,
-                       fielddef.name()->str() + idx, str->str(), "string", "",
-                       id + idx)) {
-          SetString(schema, edit_fields_[id + idx], str, &flatbuffer_,
+                       fielddef.name()->str() + fbi, str->str(), "string", "",
+                       id + fbi)) {
+          SetString(schema, edit_fields_[id + fbi], str, &flatbuffer_,
                     &table_def_);
           flatbuffer_modified_ = true;
           return true;
@@ -934,25 +934,25 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
       if (!elemobjectdef->is_struct()) {
         // This is a vector of tables.
         for (uoffset_t i = 0; i < vec->size(); i++) {
-          std::string idx = "[" + flatbuffers::NumToString(i) + "]";
+          std::string fbi = "[" + flatbuffers::NumToString(i) + "]";
           flatbuffers::Table* tableelem =
               flatbuffers::GetAnyVectorElemPointer<flatbuffers::Table>(vec, i);
           if (VisitSubtable(
                   (!config_allow_resize() && IsDrawEdit(mode)) ? kDrawReadOnly
                                                                : mode,
-                  fielddef.name()->str() + idx, elemobjectdef->name()->str(),
-                  "", id + idx, schema, *elemobjectdef, *tableelem))
+                  fielddef.name()->str() + fbi, elemobjectdef->name()->str(),
+                  "", id + fbi, schema, *elemobjectdef, *tableelem))
             return true;  // Mutated tables may require resize.
         }
       } else {
         // This is a vector of structs.
         for (uoffset_t i = 0; i < vec->size(); i++) {
-          std::string idx = "[" + flatbuffers::NumToString(i) + "]";
+          std::string fbi = "[" + flatbuffers::NumToString(i) + "]";
           flatbuffers::Struct* struct_ptr =
               flatbuffers::GetAnyVectorElemAddressOf<flatbuffers::Struct>(
                   vec, i, element_size);
           VisitFlatbufferStruct(mode, schema, fielddef, *elemobjectdef,
-                                *struct_ptr, id + idx);
+                                *struct_ptr, id + fbi);
         }
       }
       break;
@@ -961,21 +961,21 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
       // This is a vector of scalars.
       std::string output;
       for (uoffset_t i = 0; i < vec->size(); i++) {
-        std::string idx = "[" + flatbuffers::NumToString(i) + "]";
+        std::string fbi = "[" + flatbuffers::NumToString(i) + "]";
         std::string enum_type, enum_hint;
         std::string value =
             flatbuffers::GetAnyVectorElemS(vec, element_base_type, i);
-        if (edit_fields_.find(id + idx) != edit_fields_.end()) {
-          value = edit_fields_[id + idx];
+        if (edit_fields_.find(id + fbi) != edit_fields_.end()) {
+          value = edit_fields_[id + fbi];
         }
         value = GetEnumTypeAndValue(schema, fielddef, value, &enum_type,
                                     &enum_hint);
 
-        if (VisitField(mode, fielddef.name()->str() + idx, value, enum_type,
-                       enum_hint, id + idx)) {
+        if (VisitField(mode, fielddef.name()->str() + fbi, value, enum_type,
+                       enum_hint, id + fbi)) {
           // Handle the same way as VisitFlatbufferScalar does.
           flatbuffers::SetAnyVectorElemS(vec, element_base_type, i,
-                                         edit_fields_[id + idx].c_str());
+                                         edit_fields_[id + fbi].c_str());
           flatbuffer_modified_ = true;
         }
       }

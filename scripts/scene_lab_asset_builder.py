@@ -175,9 +175,12 @@ class DefaultPathResolver(object):
   """
 
   DEPENDENCIES_DIR = 'dependencies'
-  SOURCE_TREE_ROOT = os.path.join(os.path.pardir, os.path.pardir,
-                                  os.path.pardir, os.path.pardir)
-  DEFAULT_FPL_ROOT = os.path.join(os.path.pardir, os.path.pardir, 'libs')
+  SOURCE_TREE_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir,
+                 os.path.pardir, os.path.pardir, os.path.pardir))
+  DEFAULT_FPL_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir,
+                 os.path.pardir, 'libs'))
   FPL_ROOT = '__libs__'
   PREBUILTS_ROOT = '__prebuilts__'
   THIRD_PARTY_ROOT = '__external__'
@@ -1211,7 +1214,8 @@ def main(project_root='', assets_path='', asset_meta='', asset_roots=None,
   meta = parse_metadata(args.meta)
 
   if target != 'clean':
-    distutils.dir_util.copy_tree(assets_path, args.output, update=1)
+    if os.path.exists(assets_path):
+      distutils.dir_util.copy_tree(assets_path, args.output, update=1)
     for i in range(0, len(args.copy_tree), 2):
       distutils.dir_util.copy_tree(args.copy_tree[i], args.copy_tree[i + 1],
                                    update=1)
@@ -1317,14 +1321,20 @@ FLATC = BinaryPath(
      os.path.join(str(FLATBUFFERS_ROOT), 'Release')], 'flatc')
 
 # Location of webp compression tool.
+CWEBP_PACKAGE_NAME_BY_OS = {
+  'linux': 'libwebp-0.4.1-linux-x86-32',
+  'darwin': 'libwebp-0.4.1-mac-10.8',
+  'windows': 'libwebp-0.4.1-windows-x64',
+}
 CWEBP = BinaryPath(
     ['bin',
      os.path.join('bin', 'Release'),
      os.path.join('bin', 'Debug'),
-     os.path.join(DefaultPathResolver.PREBUILTS_ROOT,
-                  'libwebp', '%s-x86' % platform.system().lower(),
-                  'libwebp-0.4.1-%s-x86-32' % platform.system().lower(),
-                  'bin')], 'cwebp')
+     os.path.join(
+         DefaultPathResolver.PREBUILTS_ROOT,
+         'libwebp', '%s-x86' % platform.system().lower(),
+         CWEBP_PACKAGE_NAME_BY_OS.get(platform.system().lower(), ''),
+         'bin')], 'cwebp')
 
 # Location of mesh_pipeline conversion tool.
 MESH_PIPELINE = BinaryPath(

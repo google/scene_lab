@@ -198,6 +198,8 @@ class FlatbufferEditor {
   /// See set_root_id().
   const std::string& root_id() const { return root_id_; }
 
+  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
+
  private:
   /// @cond SCENELAB_INTERNAL
   FPL_DISALLOW_COPY_AND_ASSIGN(FlatbufferEditor);

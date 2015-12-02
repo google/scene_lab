@@ -198,6 +198,8 @@ class SceneLab {
 
   const std::string& version() { return version_; }
 
+  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
+
  private:
   /// String which identifies the current version of Scene Lab.
   ///

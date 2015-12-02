@@ -281,9 +281,8 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   }
 
   if (start_dragging && input_mode_ == kEditing && selected_entity_) {
-    auto transform_component =
-        entity_manager_->GetComponent<TransformComponent>();
-    auto raw_data = transform_component->ExportRawData(selected_entity_);
+    auto raw_data = entity_manager_->GetComponent<TransformComponent>()
+                    ->ExportRawData(selected_entity_);
     TransformDef* transform =
         flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
     vec3 position = LoadVec3(transform->position());

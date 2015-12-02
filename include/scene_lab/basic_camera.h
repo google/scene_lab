@@ -170,6 +170,8 @@ class BasicCamera : public corgi::CameraInterface {
     viewport_far_plane_ = viewport_far_plane;
   }
 
+  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
+
  private:
   mathfu::vec3 position_;
   mathfu::vec3 facing_;
