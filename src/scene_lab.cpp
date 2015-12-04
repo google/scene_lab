@@ -281,8 +281,9 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   }
 
   if (start_dragging && input_mode_ == kEditing && selected_entity_) {
-    auto raw_data = entity_manager_->GetComponent<TransformComponent>()
-                    ->ExportRawData(selected_entity_);
+    auto raw_data =
+        entity_manager_->GetComponent<TransformComponent>()->ExportRawData(
+            selected_entity_);
     TransformDef* transform =
         flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
     vec3 position = LoadVec3(transform->position());
@@ -659,9 +660,8 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     if (parser.Parse(schema_text_.c_str(), include_paths.get(),
                      config_->schema_file_text()->c_str())) {
       std::string json;
-      flatbuffers::GeneratorOptions options;
-      options.strict_json = true;
-      GenerateText(parser, entity_list.data(), options, &json);
+      parser.opts.strict_json = true;
+      GenerateText(parser, entity_list.data(), &json);
       std::string json_path =
           (config_->json_output_directory()
                ? flatbuffers::ConCatPathFileName(
