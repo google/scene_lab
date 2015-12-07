@@ -970,7 +970,7 @@ def input_files_add_overlays(input_files, input_roots, overlay_roots,
     List of files to process including files from the specified overlay
     directories.
   """
-  file_list = list(input_files)
+  file_set = set(input_files)
   for input_file in input_files:
     input_file_relative = ''
     input_root = ''
@@ -984,7 +984,7 @@ def input_files_add_overlays(input_files, input_roots, overlay_roots,
         overlay_file = os.path.join(input_root, overlay_root,
                                     input_file_relative)
         if os.path.exists(overlay_file):
-          file_list.append(overlay_file)
+          file_set.add(overlay_file)
         if overlay_globs:
           for overlay_glob in overlay_globs:
             overlay_glob_pattern = os.path.join(os.path.dirname(overlay_file),
@@ -995,10 +995,10 @@ def input_files_add_overlays(input_files, input_roots, overlay_roots,
             if not overlay_glob_pattern in __overlay_glob_cache:
               __overlay_glob_cache[overlay_glob_pattern] = glob.glob(
                   overlay_glob_pattern)
+            file_set = file_set.union(
+                set(__overlay_glob_cache[overlay_glob_pattern]))
 
-            file_list.extend(__overlay_glob_cache[overlay_glob_pattern])
-
-  return file_list
+  return list(file_set)
 
 
 def flatbuffers_conversion_data_add_overlays(conversion_data_list,
