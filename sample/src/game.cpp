@@ -27,7 +27,7 @@
 
 namespace scene_lab_sample {
 
-static const char kAssetsDir[] = "sample/assets";
+static const char kAssetsDir[] = "assets";
 static const char kEntityLibraryFile[] = "entity_prototypes.bin";
 static const char kEntityListFile[] = "entity_list.bin";
 static const char kComponentDefBinarySchema[] =
