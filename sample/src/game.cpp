@@ -27,7 +27,7 @@
 
 namespace scene_lab_sample {
 
-static const char kAssetsDir[] = "sample/assets";
+static const char kAssetsDir[] = "assets";
 static const char kEntityLibraryFile[] = "entity_prototypes.bin";
 static const char kEntityListFile[] = "entity_list.bin";
 static const char kComponentDefBinarySchema[] =
@@ -218,7 +218,8 @@ void Game::LoadNewAssets() {
 }
 
 void Game::SetComponentType(corgi::ComponentId component_id, size_t enum_id) {
-  entity_factory_->SetComponentType(component_id, enum_id,
+  entity_factory_->SetComponentType(component_id,
+                                    static_cast<unsigned int>(enum_id),
                                     EnumNamesComponentDataUnion()[enum_id]);
 }
 

@@ -888,8 +888,10 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
   auto elemobjectdef = element_base_type == reflection::Obj
                            ? schema.objects()->Get(fielddef.type()->index())
                            : nullptr;
-  uoffset_t element_size = flatbuffers::GetTypeSizeInline(
-      element_base_type, fielddef.type()->index(), schema);
+  uoffset_t element_size =
+      static_cast<uoffset_t>(flatbuffers::GetTypeSizeInline(
+          element_base_type, static_cast<int>(fielddef.type()->index()),
+          schema));
   std::string idx = ".size";
   if (IsDraw(mode))
     flatui::StartGroup(flatui::kLayoutHorizontalCenter, 8,

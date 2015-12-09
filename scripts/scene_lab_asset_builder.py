@@ -374,9 +374,10 @@ class FlatbuffersConversionData(object):
   Attributes:
     schema: The path to the flatbuffer schema file.
     input_files: A list of input files to convert.
+    overlay_glob: A list of input files to search for in overlays.
   """
 
-  def __init__(self, schema, extension, input_files):
+  def __init__(self, schema, extension, input_files, overlay_globs=[]):
     """Initializes this object's schema and input_files.
 
     Args:
@@ -388,7 +389,7 @@ class FlatbuffersConversionData(object):
     self.schema = schema
     self.extension = extension
     self.input_files = input_files
-
+    self.overlay_globs = overlay_globs
 
 class BuildError(Exception):
   """Error indicating there was a problem building assets."""
@@ -757,11 +758,12 @@ def meta_value(file_name, meta_file, meta_table_key, key):
   Returns:
     Value associate with the specified key if found, None otherwise.
   """
-  meta_table = meta_file.get(meta_table_key)
-  if meta_table is not None:
-    for entry in meta_table:
-      if entry['name'] in file_name and key in entry:
-        return entry[key]
+  if meta_file is not None:
+    meta_table = meta_file.get(meta_table_key)
+    if meta_table is not None:
+      for entry in meta_table:
+        if entry['name'] in file_name and key in entry:
+          return entry[key]
   return None
 
 
@@ -902,7 +904,9 @@ def generate_flatbuffer_binaries(flatc, conversion_data_list,
       and their associated schemas.
     asset_roots: List of potential root directories each input file.
     target_directory: Path to the target assets directory.
-    schema_output_path: Path to copy schemas to.
+    schema_output_path: Path to copy text schemas to, relative to the target
+      assets directory. If this is blank, text schemas won't be copied. If you
+      want to copy them to the target assets directory itself, use '.'.
 
   Raises:
     BuildError: If flatc path isn't specified.
@@ -914,7 +918,7 @@ def generate_flatbuffer_binaries(flatc, conversion_data_list,
     schema = element.schema.resolve()
     target_schema = os.path.join(target_directory, schema_output_path,
                                  os.path.basename(schema))
-    if distutils.dep_util.newer(schema, target_schema):
+    if schema_output_path and distutils.dep_util.newer(schema, target_schema):
       if not os.path.exists(os.path.dirname(target_schema)):
         os.makedirs(os.path.dirname(target_schema))
       shutil.copy2(schema, target_schema)
@@ -928,6 +932,10 @@ def generate_flatbuffer_binaries(flatc, conversion_data_list,
         convert_json_to_flatbuffer_binary(
             flatc, json_file, schema, target_file_dir, conversion_data_list)
 
+# Used so we don't glob overlay files more times than necessary. This caches the
+# files found for each overlay glob, including its full path.
+# Example: 'overlays/myoverlay/materials/*.json' => [ ...file list...]
+__overlay_glob_cache = {}
 
 def input_files_add_overlays(input_files, input_roots, overlay_roots,
                              overlay_globs=None):
@@ -962,7 +970,7 @@ def input_files_add_overlays(input_files, input_roots, overlay_roots,
     List of files to process including files from the specified overlay
     directories.
   """
-  file_list = list(input_files)
+  file_set = set(input_files)
   for input_file in input_files:
     input_file_relative = ''
     input_root = ''
@@ -976,13 +984,21 @@ def input_files_add_overlays(input_files, input_roots, overlay_roots,
         overlay_file = os.path.join(input_root, overlay_root,
                                     input_file_relative)
         if os.path.exists(overlay_file):
-          file_list.append(overlay_file)
+          file_set.add(overlay_file)
         if overlay_globs:
           for overlay_glob in overlay_globs:
-            file_list.extend(
-                glob.glob(os.path.join(os.path.dirname(overlay_file),
-                                       overlay_glob)))
-  return file_list
+            overlay_glob_pattern = os.path.join(os.path.dirname(overlay_file),
+                                                overlay_glob)
+            # We only actually need to search for overlay globs once for each
+            # directory / file pattern, so once we've found overlay globs for
+            # this directory / file pattern combination, don't glob it again.
+            if not overlay_glob_pattern in __overlay_glob_cache:
+              __overlay_glob_cache[overlay_glob_pattern] = glob.glob(
+                  overlay_glob_pattern)
+            file_set = file_set.union(
+                set(__overlay_glob_cache[overlay_glob_pattern]))
+
+  return list(file_set)
 
 
 def flatbuffers_conversion_data_add_overlays(conversion_data_list,
@@ -1009,7 +1025,8 @@ def flatbuffers_conversion_data_add_overlays(conversion_data_list,
         schema=conversion_data.schema,
         extension=conversion_data.extension,
         input_files=input_files_add_overlays(
-            conversion_data.input_files, input_root, overlay_roots)))
+            conversion_data.input_files, input_root, overlay_roots,
+            conversion_data.overlay_globs)))
   return processed_list
 
 
@@ -1138,9 +1155,12 @@ def parse_metadata(meta_filename):
     module.
   """
   # Load the json file that holds asset metadata.
-  with open(meta_filename) as meta_file:
-    meta = json.load(meta_file)
-  return meta
+  if os.path.isfile(meta_filename):
+    with open(meta_filename) as meta_file:
+      meta = json.load(meta_file)
+      return meta
+  else:
+    return None
 
 
 def main(project_root='', assets_path='', asset_meta='', asset_roots=None,

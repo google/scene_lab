@@ -73,7 +73,7 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
   entity_factory_ = services->entity_factory();
   input_system_ = services->input_system();
   renderer_ = services->renderer();
-  components_to_show_.resize(corgi::kMaxComponentCount, false);
+  components_to_show_.resize(entity_manager->ComponentCount(), false);
   components_to_show_[MetaComponent::GetComponentId()] = true;
   components_to_show_[TransformComponent::GetComponentId()] = true;
   for (int i = 0; i < kEditViewCount; i++) {

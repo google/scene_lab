@@ -158,7 +158,7 @@ if(scene_lab_standalone_mode)
 endif()
 
 set(scene_lab_flatbuffers_generated_includes_dir
-   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
+   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include/scene_lab)
 
 file(GLOB_RECURSE scene_lab_flatbuffers_schemas
      ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)

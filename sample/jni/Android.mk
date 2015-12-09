@@ -30,11 +30,12 @@ ifeq (,$(PROJECT_GLOBAL_BUILD_RULES_DEFINED))
 build_assets: $(flatc_target)
 	$(call host-mkdir,$(SCENE_LAB_SAMPLE_DIR)/assets)
 	$(hide) python $(SCENE_LAB_SAMPLE_DIR)/scripts/build_assets.py \
-       --flatc $(FLATBUFFERS_FLATC) \
-       --copy_tree $(DEPENDENCIES_FLATUI_DIR)/assets/shaders \
-                   $(SCENE_LAB_SAMPLE_DIR)/assets/shaders \
-                   $(DEPENDENCIES_FLATUI_DIR)/assets/fonts \
-                   $(SCENE_LAB_SAMPLE_DIR)/assets/fonts
+          --output ${SCENE_LAB_SAMPLE_DIR}/assets \
+          --flatc $(FLATBUFFERS_FLATC) \
+          --copy_tree $(DEPENDENCIES_FLATUI_DIR)/assets/shaders \
+                      $(SCENE_LAB_SAMPLE_DIR)/assets/shaders \
+                      $(DEPENDENCIES_FLATUI_DIR)/assets/fonts \
+                      $(SCENE_LAB_SAMPLE_DIR)/assets/fonts
 	$(call host-mkdir,$(SCENE_LAB_SAMPLE_DIR)/assets/flatbufferschemas)
         # Make a FlatBuffers binary schema for the components schema.
 	$(FLATBUFFERS_FLATC) -b --schema \
