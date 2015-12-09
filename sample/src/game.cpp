@@ -218,7 +218,8 @@ void Game::LoadNewAssets() {
 }
 
 void Game::SetComponentType(corgi::ComponentId component_id, size_t enum_id) {
-  entity_factory_->SetComponentType(component_id, enum_id,
+  entity_factory_->SetComponentType(component_id,
+                                    static_cast<unsigned int>(enum_id),
                                     EnumNamesComponentDataUnion()[enum_id]);
 }
 

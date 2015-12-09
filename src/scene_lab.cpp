@@ -653,7 +653,9 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     size_t num_paths = config_->schema_include_paths()->size();
     include_paths.reset(new const char*[num_paths + 1]);
     for (size_t i = 0; i < num_paths; i++) {
-      include_paths.get()[i] = config_->schema_include_paths()->Get(i)->c_str();
+      flatbuffers::uoffset_t index = static_cast<flatbuffers::uoffset_t>(i);
+      include_paths.get()[i] =
+          config_->schema_include_paths()->Get(index)->c_str();
     }
     include_paths.get()[num_paths] = nullptr;
     flatbuffers::Parser parser;
