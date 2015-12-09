@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -294,20 +373,22 @@ $(document).ready(function(){initNavTree('basic__camera_8h_source.html','');});
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    viewport_far_plane_ = <a class="code" href="classscene__lab_1_1_basic_camera.html#ab50198207a9a2e7d31d0490f9ddedcd8">viewport_far_plane</a>;</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  }</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  mathfu::vec3 position_;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  mathfu::vec3 facing_;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  mathfu::vec3 up_;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordtype">float</span> viewport_angle_;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  mathfu::vec2 viewport_resolution_;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  <span class="keywordtype">float</span> viewport_near_plane_;</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  <span class="keywordtype">float</span> viewport_far_plane_;</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  mathfu::vec4i viewport_;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;};</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  mathfu::vec3 position_;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  mathfu::vec3 facing_;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  mathfu::vec3 up_;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  <span class="keywordtype">float</span> viewport_angle_;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  mathfu::vec2 viewport_resolution_;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  <span class="keywordtype">float</span> viewport_near_plane_;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  <span class="keywordtype">float</span> viewport_far_plane_;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  mathfu::vec4i viewport_;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;};</div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_BASIC_CAMERA_H_</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_BASIC_CAMERA_H_</span></div>
 <div class="ttc" id="classscene__lab_1_1_basic_camera_html_ac686b1d88c497e69c1f080ee2fe1c0b2"><div class="ttname"><a href="classscene__lab_1_1_basic_camera.html#ac686b1d88c497e69c1f080ee2fe1c0b2">scene_lab::BasicCamera::viewport_angle</a></div><div class="ttdeci">virtual float viewport_angle() const </div><div class="ttdoc">Get the camera&#39;s viewport angle, in radians. </div><div class="ttdef"><b>Definition:</b> basic_camera.h:112</div></div>
 <div class="ttc" id="classscene__lab_1_1_basic_camera_html_ac2f5fac303f4043aa93e5202709743a9"><div class="ttname"><a href="classscene__lab_1_1_basic_camera.html#ac2f5fac303f4043aa93e5202709743a9">scene_lab::BasicCamera::GetTransformMatrix</a></div><div class="ttdeci">virtual mathfu::mat4 GetTransformMatrix(int32_t index) const </div><div class="ttdoc">Returns the View/Projection matrix. index must be 0. </div><div class="ttdef"><b>Definition:</b> basic_camera.h:43</div></div>
 <div class="ttc" id="classscene__lab_1_1_basic_camera_html_a2913ddad87dd56222b5551242e1e53ab"><div class="ttname"><a href="classscene__lab_1_1_basic_camera.html#a2913ddad87dd56222b5551242e1e53ab">scene_lab::BasicCamera::GetViewMatrix</a></div><div class="ttdeci">virtual mathfu::mat4 GetViewMatrix() const </div><div class="ttdoc">Returns just the View matrix. </div></div>

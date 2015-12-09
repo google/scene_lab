@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -322,261 +401,263 @@ $(document).ready(function(){initNavTree('flatbuffer__editor_8h_source.html','')
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment">  /// See set_root_id().</span></div>
 <div class="line"><a name="l00199"></a><span class="lineno"><a class="line" href="classscene__lab_1_1_flatbuffer_editor.html#a1743b89f5b75ac79869348f3f3b25252">  199</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> std::string&amp; <a class="code" href="classscene__lab_1_1_flatbuffer_editor.html#a1743b89f5b75ac79869348f3f3b25252">root_id</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> root_id_; }</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment">  /// @cond SCENELAB_INTERNAL</span></div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment"></span>  FPL_DISALLOW_COPY_AND_ASSIGN(<a class="code" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a>);</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="comment">  /// How VisitFlatbuffer* should traverse the table.</span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment">  /// kCheckEdits: Traverse and check if fields have changed, but don&#39;t commit</span></div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">  /// any changes.</span></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment">  /// kDraw*: Draw the Flatbuffer. ReadOnly means use Labels instead of Edit</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment">  /// fields. Manual means use Edit fields, but require the user to explicitly</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment">  /// save them back out to the Flatbuffer. Auto means automatically commit the</span></div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="comment">  /// values into the Flatbuffer as you edit them.</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment">  /// kCommitEdits: Traverse, and if fields have changed, commit them to the</span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">  /// Flatbuffer.</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> VisitMode {</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    kCheckEdits,      <span class="comment">// Only check if any fields have been modified.</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    kDrawEditAuto,    <span class="comment">// Draw using edit fields that auto-update the FB.</span></div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    kDrawEditManual,  <span class="comment">// Draw using edit fields that manually update the FB.</span></div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    kDrawReadOnly,    <span class="comment">// Draw using label fields, not editable</span></div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    kCommitEdits      <span class="comment">// Write out edits to the Flatbuffer.</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  };</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;  <span class="keyword">enum</span> Button { kNone, kCommit, kRevert };</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;<span class="comment">  /// Copy the table using reflection and the existing schema and table def.</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CopyTable(<span class="keyword">const</span> <span class="keywordtype">void</span>* src, std::vector&lt;uint8_t&gt;* dest);</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="comment">  /// Clear all edited fields, returning them to the value from the Flatbuffer.</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> ClearEditFields() {</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    edit_fields_.clear();</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    edit_fields_modified_ = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    error_fields_.clear();</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;  }</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="comment">  /// This function takes the edit_fields_ that the user has been working on,</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="comment">  /// and writes them all out to the Flatbuffer.  This is an expensive operation</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment">  /// as it may require completely invalidating the existing Flatbuffer and</span></div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment">  /// copying in a new one, so we only do this when the user chooses to commit</span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="comment">  /// their edits.</span></div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CommitEditsToFlatbuffer();</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;  <span class="comment">// Functions for traversing the Flatbuffer and drawing or editing its fields.</span></div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="comment">  /// Visit a single field with the given name and value. The &quot;id&quot; should</span></div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="comment">  /// uniquely identify it in the tree of data structures.</span></div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;<span class="comment">  /// If mode is kDrawEdit, the Flatbuffer field will be drawn using a FlatUI</span></div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="comment">  /// Edit() control. kDrawReadOnly is similar, but it will use a Label()</span></div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;<span class="comment">  /// control</span></div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="comment">  /// and won&#39;t be editable.</span></div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;<span class="comment">  /// If mode is kEdit, it won&#39;t actually draw, but it apply any edits made from</span></div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;<span class="comment">  /// the previously visited fields, hitting all of the previously calculated</span></div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="comment">  /// IDs to apply the edits.</span></div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;<span class="comment">  /// Only returns true if mode = kEdit and if we applied any edits.</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitField(VisitMode mode, <span class="keyword">const</span> std::string&amp; name,</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;                  <span class="keyword">const</span> std::string&amp; value, <span class="keyword">const</span> std::string&amp; type,</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;                  <span class="keyword">const</span> std::string&amp; comment, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="comment">  /// Visit a subtable with the given name. The &quot;id&quot; should uniquely identify it</span></div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;<span class="comment">  /// in the tree of data structures. If mode is kEdit, don&#39;t actually draw, but</span></div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="comment">  /// do still propagate through the tree of data structures so we can apply</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="comment">  /// edits to the previously determined IDs. Returns true if kEdit and if we</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;<span class="comment">  /// applied any edits.</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitSubtable(VisitMode mode, <span class="keyword">const</span> std::string&amp; field,</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;                     <span class="keyword">const</span> std::string&amp; type, <span class="keyword">const</span> std::string&amp; comment,</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;                     <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;                     <span class="keyword">const</span> reflection::Object&amp; subobjdef,</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;                     flatbuffers::Table&amp; subtable);</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferField(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;                            <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferScalar(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferTable(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferVector(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferUnion(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;                            <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferStruct(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;                             <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                             flatbuffers::Struct&amp; fbstruct,</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;                             <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferString(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;  <span class="comment">// Utility functions for dealing with Flatbuffer data. All of them are static.</span></div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;<span class="comment">  /// Get the string representation of a Flatbuffers struct at a given pointer</span></div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="comment">  /// location. For example a Vec3 with x = 1.2, y = 3.4, z = 5 would show up as</span></div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="comment">  /// &lt; 1.2, 3.4, 5 &gt;. Set field_names_only = true to output the field names</span></div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">  /// instead.</span></div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string StructToString(<span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                                    <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                                    <span class="keyword">const</span> flatbuffers::Struct&amp; struct_ptr,</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                                    <span class="keywordtype">bool</span> field_names_only);</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;<span class="comment">  /// Parse a string that specifies a FlatBuffers struct in the format outputted</span></div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="comment">  /// above. The format is &quot;&lt; 1, 2, &lt; 3.4, 5, 6.7 &gt;, 8 &gt;&quot;. Each number must have</span></div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="comment">  /// some combination of whitespace, comma, or angle brackets around it.</span></div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="comment">  /// If you call this with a null struct_ptr it will just check whether your</span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;<span class="comment">  /// string parses correctly.</span></div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> ParseStringIntoStruct(<span class="keyword">const</span> std::string&amp; <span class="keywordtype">string</span>,</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                                    <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;                                    <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;                                    flatbuffers::Struct* struct_ptr);</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="comment">  /// Extract an inline struct definition from a string containing a complex</span></div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="comment">  /// struct definition that may contain nested struct definitions.</span></div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="comment">  /// str is a string that starts with &#39;&lt;&#39;. Returns the string in between that</span></div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;<span class="comment">  /// &#39;&lt;&#39; and the matching &#39;&gt;&#39; (exclusive), or empty string if there is a</span></div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;<span class="comment">  /// mismatch.</span></div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string ExtractInlineStructDef(<span class="keyword">const</span> std::string&amp; str);</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;<span class="comment">  /// If this scalar value is an enum, get its type name and the name of its</span></div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="comment">  /// value. Returns a string with the corrected integer value after parsing.</span></div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string GetEnumTypeAndValue(<span class="keyword">const</span> reflection::Schema&amp; schema,</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;                                         <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                                         <span class="keyword">const</span> std::string&amp; value,</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;                                         std::string* type,</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;                                         std::string* value_name);</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;  <span class="comment">// UI helper functions</span></div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;<span class="comment">  /// For a string for a field name, showing optional type.</span></div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;<span class="comment"></span>  std::string FormatFieldName(<span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::string&amp; type);</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;<span class="comment">  /// Draw a text button with the given text and the given ID.</span></div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;<span class="comment">  /// Size is the vertical size of the button; the text will be smaller inside</span></div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;<span class="comment">  /// that size.</span></div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;<span class="comment"></span>  flatui::Event TextButton(<span class="keyword">const</span> <span class="keywordtype">char</span>* text, <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keywordtype">id</span>, <span class="keywordtype">int</span> size);</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;<span class="comment">  /// If mode is a draw mode, draw a button to add the current field to the</span></div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;<span class="comment">  /// FlatBuffer. If mode is CommitEdits, then return true if this is the</span></div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;<span class="comment">  /// node we want to commit, so the calling code can actually add the</span></div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;<span class="comment">  /// field.</span></div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> AddFieldButton(VisitMode mode, <span class="keyword">const</span> std::string&amp; name,</div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;                      <span class="keyword">const</span> std::string&amp; type_str, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;<span class="comment">  /// If the user is editing a field, keyboard_in_use is set to true.</span></div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> set_keyboard_in_use(<span class="keywordtype">bool</span> b) { keyboard_in_use_ = b; }</div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="comment">  /// Is the VisitMode one of the ones that draws the field?</span></div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> IsDraw(VisitMode mode) {</div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;    <span class="keywordflow">return</span> (mode == kDrawEditAuto || mode == kDrawEditManual ||</div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;            mode == kDrawReadOnly);</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;  }</div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;<span class="comment">  /// Is the VisitMode one of the ones that draws the field and allows it to be</span></div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;<span class="comment">  /// modified by the user?</span></div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> IsDrawEdit(VisitMode mode) {</div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;    <span class="keywordflow">return</span> (mode == kDrawEditAuto || mode == kDrawEditManual);</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;  }</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="comment">  /// @endcond</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment">  /// @cond SCENELAB_INTERNAL</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="comment"></span>  FPL_DISALLOW_COPY_AND_ASSIGN(<a class="code" href="classscene__lab_1_1_flatbuffer_editor.html">FlatbufferEditor</a>);</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">  /// How VisitFlatbuffer* should traverse the table.</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment">  /// kCheckEdits: Traverse and check if fields have changed, but don&#39;t commit</span></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment">  /// any changes.</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment">  /// kDraw*: Draw the Flatbuffer. ReadOnly means use Labels instead of Edit</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="comment">  /// fields. Manual means use Edit fields, but require the user to explicitly</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment">  /// save them back out to the Flatbuffer. Auto means automatically commit the</span></div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">  /// values into the Flatbuffer as you edit them.</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="comment">  /// kCommitEdits: Traverse, and if fields have changed, commit them to the</span></div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;<span class="comment">  /// Flatbuffer.</span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;<span class="comment"></span>  <span class="keyword">enum</span> VisitMode {</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    kCheckEdits,      <span class="comment">// Only check if any fields have been modified.</span></div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    kDrawEditAuto,    <span class="comment">// Draw using edit fields that auto-update the FB.</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    kDrawEditManual,  <span class="comment">// Draw using edit fields that manually update the FB.</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    kDrawReadOnly,    <span class="comment">// Draw using label fields, not editable</span></div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    kCommitEdits      <span class="comment">// Write out edits to the Flatbuffer.</span></div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;  };</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="keyword">enum</span> Button { kNone, kCommit, kRevert };</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="comment">  /// Copy the table using reflection and the existing schema and table def.</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CopyTable(<span class="keyword">const</span> <span class="keywordtype">void</span>* src, std::vector&lt;uint8_t&gt;* dest);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="comment">  /// Clear all edited fields, returning them to the value from the Flatbuffer.</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> ClearEditFields() {</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    edit_fields_.clear();</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    edit_fields_modified_ = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    error_fields_.clear();</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;  }</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment">  /// This function takes the edit_fields_ that the user has been working on,</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment">  /// and writes them all out to the Flatbuffer.  This is an expensive operation</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="comment">  /// as it may require completely invalidating the existing Flatbuffer and</span></div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="comment">  /// copying in a new one, so we only do this when the user chooses to commit</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="comment">  /// their edits.</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> CommitEditsToFlatbuffer();</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;  <span class="comment">// Functions for traversing the Flatbuffer and drawing or editing its fields.</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="comment">  /// Visit a single field with the given name and value. The &quot;id&quot; should</span></div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;<span class="comment">  /// uniquely identify it in the tree of data structures.</span></div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;<span class="comment">  /// If mode is kDrawEdit, the Flatbuffer field will be drawn using a FlatUI</span></div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="comment">  /// Edit() control. kDrawReadOnly is similar, but it will use a Label()</span></div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="comment">  /// control</span></div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;<span class="comment">  /// and won&#39;t be editable.</span></div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="comment">  /// If mode is kEdit, it won&#39;t actually draw, but it apply any edits made from</span></div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;<span class="comment">  /// the previously visited fields, hitting all of the previously calculated</span></div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;<span class="comment">  /// IDs to apply the edits.</span></div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;<span class="comment">  /// Only returns true if mode = kEdit and if we applied any edits.</span></div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitField(VisitMode mode, <span class="keyword">const</span> std::string&amp; name,</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;                  <span class="keyword">const</span> std::string&amp; value, <span class="keyword">const</span> std::string&amp; type,</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;                  <span class="keyword">const</span> std::string&amp; comment, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="comment">  /// Visit a subtable with the given name. The &quot;id&quot; should uniquely identify it</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="comment">  /// in the tree of data structures. If mode is kEdit, don&#39;t actually draw, but</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;<span class="comment">  /// do still propagate through the tree of data structures so we can apply</span></div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="comment">  /// edits to the previously determined IDs. Returns true if kEdit and if we</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="comment">  /// applied any edits.</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitSubtable(VisitMode mode, <span class="keyword">const</span> std::string&amp; field,</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;                     <span class="keyword">const</span> std::string&amp; type, <span class="keyword">const</span> std::string&amp; comment,</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;                     <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;                     <span class="keyword">const</span> reflection::Object&amp; subobjdef,</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;                     flatbuffers::Table&amp; subtable);</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferField(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                            <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferScalar(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferTable(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferVector(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferUnion(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;                            <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                            <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;                            flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferStruct(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;                             <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;                             flatbuffers::Struct&amp; fbstruct,</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;                             <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);<span class="comment"></span></div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="comment">  /// Helper function for traversing elements of a Flatbuffer reflection. May</span></div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="comment">  /// only return true if mode = kEdit and a field was edited in such a way as</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;<span class="comment">  /// to force the flatbuffer to be resized, which means you&#39;ll need to start</span></div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;<span class="comment">  /// over and propagate edits again to catch the subsequent edits.</span></div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> VisitFlatbufferString(VisitMode mode, <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                             <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                             flatbuffers::Table&amp; table, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;  <span class="comment">// Utility functions for dealing with Flatbuffer data. All of them are static.</span></div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="comment">  /// Get the string representation of a Flatbuffers struct at a given pointer</span></div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">  /// location. For example a Vec3 with x = 1.2, y = 3.4, z = 5 would show up as</span></div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="comment">  /// &lt; 1.2, 3.4, 5 &gt;. Set field_names_only = true to output the field names</span></div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;<span class="comment">  /// instead.</span></div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string StructToString(<span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;                                    <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;                                    <span class="keyword">const</span> flatbuffers::Struct&amp; struct_ptr,</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;                                    <span class="keywordtype">bool</span> field_names_only);</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="comment">  /// Parse a string that specifies a FlatBuffers struct in the format outputted</span></div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="comment">  /// above. The format is &quot;&lt; 1, 2, &lt; 3.4, 5, 6.7 &gt;, 8 &gt;&quot;. Each number must have</span></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;<span class="comment">  /// some combination of whitespace, comma, or angle brackets around it.</span></div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;<span class="comment">  /// If you call this with a null struct_ptr it will just check whether your</span></div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;<span class="comment">  /// string parses correctly.</span></div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> ParseStringIntoStruct(<span class="keyword">const</span> std::string&amp; <span class="keywordtype">string</span>,</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;                                    <span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;                                    <span class="keyword">const</span> reflection::Object&amp; objectdef,</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;                                    flatbuffers::Struct* struct_ptr);</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="comment">  /// Extract an inline struct definition from a string containing a complex</span></div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="comment">  /// struct definition that may contain nested struct definitions.</span></div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;<span class="comment">  /// str is a string that starts with &#39;&lt;&#39;. Returns the string in between that</span></div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;<span class="comment">  /// &#39;&lt;&#39; and the matching &#39;&gt;&#39; (exclusive), or empty string if there is a</span></div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;<span class="comment">  /// mismatch.</span></div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string ExtractInlineStructDef(<span class="keyword">const</span> std::string&amp; str);</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;<span class="comment">  /// If this scalar value is an enum, get its type name and the name of its</span></div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;<span class="comment">  /// value. Returns a string with the corrected integer value after parsing.</span></div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> std::string GetEnumTypeAndValue(<span class="keyword">const</span> reflection::Schema&amp; schema,</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;                                         <span class="keyword">const</span> reflection::Field&amp; fielddef,</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;                                         <span class="keyword">const</span> std::string&amp; value,</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;                                         std::string* type,</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;                                         std::string* value_name);</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;  <span class="comment">// UI helper functions</span></div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;<span class="comment">  /// For a string for a field name, showing optional type.</span></div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;<span class="comment"></span>  std::string FormatFieldName(<span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> std::string&amp; type);</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;<span class="comment">  /// Draw a text button with the given text and the given ID.</span></div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;<span class="comment">  /// Size is the vertical size of the button; the text will be smaller inside</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="comment">  /// that size.</span></div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;<span class="comment"></span>  flatui::Event TextButton(<span class="keyword">const</span> <span class="keywordtype">char</span>* text, <span class="keyword">const</span> <span class="keywordtype">char</span>* <span class="keywordtype">id</span>, <span class="keywordtype">int</span> size);</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;<span class="comment">  /// If mode is a draw mode, draw a button to add the current field to the</span></div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;<span class="comment">  /// FlatBuffer. If mode is CommitEdits, then return true if this is the</span></div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;<span class="comment">  /// node we want to commit, so the calling code can actually add the</span></div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;<span class="comment">  /// field.</span></div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> AddFieldButton(VisitMode mode, <span class="keyword">const</span> std::string&amp; name,</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;                      <span class="keyword">const</span> std::string&amp; type_str, <span class="keyword">const</span> std::string&amp; <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="comment">  /// If the user is editing a field, keyboard_in_use is set to true.</span></div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> set_keyboard_in_use(<span class="keywordtype">bool</span> b) { keyboard_in_use_ = b; }</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;<span class="comment">  /// Is the VisitMode one of the ones that draws the field?</span></div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> IsDraw(VisitMode mode) {</div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    <span class="keywordflow">return</span> (mode == kDrawEditAuto || mode == kDrawEditManual ||</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;            mode == kDrawReadOnly);</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;  }</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;<span class="comment">  /// Is the VisitMode one of the ones that draws the field and allows it to be</span></div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;<span class="comment">  /// modified by the user?</span></div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">bool</span> IsDrawEdit(VisitMode mode) {</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;    <span class="keywordflow">return</span> (mode == kDrawEditAuto || mode == kDrawEditManual);</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;  }</div>
 <div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;  <span class="keyword">const</span> reflection::Schema&amp; schema_;</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;  <span class="keyword">const</span> reflection::Object&amp; table_def_;</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;  std::unordered_map&lt;std::string, std::string&gt; edit_fields_;</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;  <span class="comment">// List of table names we have expanded the view for.</span></div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;  std::set&lt;std::string&gt; expanded_subtables_;</div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;  <span class="comment">// List of modified fields that were committed into the Flatbuffer. This is</span></div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;  <span class="comment">// cleared whenever ClearFlatbufferModifiedFlag() is called, as this assumes</span></div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;  <span class="comment">// that your code is now using the new Flatbuffer data.</span></div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;  std::set&lt;std::string&gt; committed_fields_;</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;  <span class="comment">// List of fields that are currently causing errors. For example, badly</span></div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;  <span class="comment">// parsing structs, etc.</span></div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;  std::set&lt;std::string&gt; error_fields_;</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;  <span class="comment">// The actual Flatbuffer data.</span></div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;  std::vector&lt;uint8_t&gt; flatbuffer_;</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;  <span class="comment">// The root ID for our UI controls.</span></div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;  std::string root_id_;</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;  std::string currently_editing_field_;  <span class="comment">// What field has focus now?</span></div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;  std::string force_commit_field_;  <span class="comment">// If set, force this field to be committed</span></div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;                                    <span class="comment">// to the Flatbuffer next Update.</span></div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;  <span class="comment">// What on-screen button was pressed?</span></div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;  Button button_pressed_;</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;  <span class="comment">// UI settings.</span></div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;  <span class="keywordtype">int</span> ui_size_;            <span class="comment">// Set to kDefaultUISize by default.</span></div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;  <span class="keywordtype">int</span> ui_spacing_;         <span class="comment">// Set to kDefaultUISpacing by default.</span></div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;  <span class="keywordtype">int</span> blank_field_width_;  <span class="comment">// How wide an edit area for blank strings?</span></div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;  <span class="keywordtype">bool</span> keyboard_in_use_;   <span class="comment">// Is the keyboard in use?</span></div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;  <span class="keywordtype">bool</span> show_types_;        <span class="comment">// Show type names?</span></div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;  <span class="keywordtype">bool</span> expand_all_;        <span class="comment">// Expand all subtables?</span></div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;  <span class="comment">// Configuration settings, defaults taken from Flatbuffer.</span></div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;  <span class="keywordtype">bool</span> config_read_only_;     <span class="comment">// If true, only draw and don&#39;t allow edits.</span></div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;  <span class="keywordtype">bool</span> config_auto_commit_;   <span class="comment">// Auto-commit edited fields to the Flatbuffer.</span></div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;  <span class="keywordtype">bool</span> config_allow_resize_;  <span class="comment">// If false, disallow edits that might change the</span></div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;                              <span class="comment">// size of the Flatbuffer.</span></div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;  <span class="keywordtype">bool</span> config_allow_adding_fields_;  <span class="comment">// If false, disallow adding new fields to</span></div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;                                     <span class="comment">// the Flatbuffer.</span></div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;  <span class="comment">// Information about fields being edited.</span></div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;  <span class="keywordtype">bool</span> edit_fields_modified_;  <span class="comment">// Have GUI edit fields been modified?</span></div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;  <span class="keywordtype">bool</span> flatbuffer_modified_;   <span class="comment">// Has the Flatbuffer data been modified?</span></div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;</div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;  <span class="comment">// Temporary: Colors to use for rendering the Flatbuffer UI.</span></div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;  <span class="comment">// TODO: Move these to a standalone config structure.</span></div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;  mathfu::vec4 bg_button_color_;</div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;  mathfu::vec4 bg_button_hover_color_;</div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;  mathfu::vec4 bg_button_click_color_;</div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;</div>
-<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;  mathfu::vec4 text_button_color_;</div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;  mathfu::vec4 text_normal_color_;</div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;  mathfu::vec4 text_comment_color_;</div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;  mathfu::vec4 text_disabled_color_;</div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;  mathfu::vec4 text_editable_color_;</div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;  mathfu::vec4 text_editing_color_;</div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;  mathfu::vec4 text_modified_color_;</div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;  mathfu::vec4 text_committed_color_;</div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;  mathfu::vec4 text_error_color_;</div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;};</div>
-<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;</div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;<span class="comment">  /// @endcond</span></div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;  <span class="keyword">const</span> reflection::Schema&amp; schema_;</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;  <span class="keyword">const</span> reflection::Object&amp; table_def_;</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;  std::unordered_map&lt;std::string, std::string&gt; edit_fields_;</div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;  <span class="comment">// List of table names we have expanded the view for.</span></div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;  std::set&lt;std::string&gt; expanded_subtables_;</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;  <span class="comment">// List of modified fields that were committed into the Flatbuffer. This is</span></div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;  <span class="comment">// cleared whenever ClearFlatbufferModifiedFlag() is called, as this assumes</span></div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;  <span class="comment">// that your code is now using the new Flatbuffer data.</span></div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;  std::set&lt;std::string&gt; committed_fields_;</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;  <span class="comment">// List of fields that are currently causing errors. For example, badly</span></div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;  <span class="comment">// parsing structs, etc.</span></div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;  std::set&lt;std::string&gt; error_fields_;</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;  <span class="comment">// The actual Flatbuffer data.</span></div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;  std::vector&lt;uint8_t&gt; flatbuffer_;</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;  <span class="comment">// The root ID for our UI controls.</span></div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;  std::string root_id_;</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;  std::string currently_editing_field_;  <span class="comment">// What field has focus now?</span></div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;  std::string force_commit_field_;  <span class="comment">// If set, force this field to be committed</span></div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;                                    <span class="comment">// to the Flatbuffer next Update.</span></div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;  <span class="comment">// What on-screen button was pressed?</span></div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;  Button button_pressed_;</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;  <span class="comment">// UI settings.</span></div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;  <span class="keywordtype">int</span> ui_size_;            <span class="comment">// Set to kDefaultUISize by default.</span></div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;  <span class="keywordtype">int</span> ui_spacing_;         <span class="comment">// Set to kDefaultUISpacing by default.</span></div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;  <span class="keywordtype">int</span> blank_field_width_;  <span class="comment">// How wide an edit area for blank strings?</span></div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;  <span class="keywordtype">bool</span> keyboard_in_use_;   <span class="comment">// Is the keyboard in use?</span></div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;  <span class="keywordtype">bool</span> show_types_;        <span class="comment">// Show type names?</span></div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;  <span class="keywordtype">bool</span> expand_all_;        <span class="comment">// Expand all subtables?</span></div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;  <span class="comment">// Configuration settings, defaults taken from Flatbuffer.</span></div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;  <span class="keywordtype">bool</span> config_read_only_;     <span class="comment">// If true, only draw and don&#39;t allow edits.</span></div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;  <span class="keywordtype">bool</span> config_auto_commit_;   <span class="comment">// Auto-commit edited fields to the Flatbuffer.</span></div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;  <span class="keywordtype">bool</span> config_allow_resize_;  <span class="comment">// If false, disallow edits that might change the</span></div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;                              <span class="comment">// size of the Flatbuffer.</span></div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;  <span class="keywordtype">bool</span> config_allow_adding_fields_;  <span class="comment">// If false, disallow adding new fields to</span></div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;                                     <span class="comment">// the Flatbuffer.</span></div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;  <span class="comment">// Information about fields being edited.</span></div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;  <span class="keywordtype">bool</span> edit_fields_modified_;  <span class="comment">// Have GUI edit fields been modified?</span></div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;  <span class="keywordtype">bool</span> flatbuffer_modified_;   <span class="comment">// Has the Flatbuffer data been modified?</span></div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;</div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;  <span class="comment">// Temporary: Colors to use for rendering the Flatbuffer UI.</span></div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;  <span class="comment">// TODO: Move these to a standalone config structure.</span></div>
+<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;  mathfu::vec4 bg_button_color_;</div>
+<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;  mathfu::vec4 bg_button_hover_color_;</div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;  mathfu::vec4 bg_button_click_color_;</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;</div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;  mathfu::vec4 text_button_color_;</div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;  mathfu::vec4 text_normal_color_;</div>
+<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;  mathfu::vec4 text_comment_color_;</div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;  mathfu::vec4 text_disabled_color_;</div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;  mathfu::vec4 text_editable_color_;</div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;  mathfu::vec4 text_editing_color_;</div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;  mathfu::vec4 text_modified_color_;</div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;  mathfu::vec4 text_committed_color_;</div>
+<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;  mathfu::vec4 text_error_color_;</div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;};</div>
 <div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;</div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_FLATBUFFER_EDITOR_H_</span></div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;}  <span class="comment">// namespace scene_lab</span></div>
+<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;</div>
+<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;<span class="preprocessor">#endif  // SCENE_LAB_FLATBUFFER_EDITOR_H_</span></div>
 <div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html_a425ba59716551b0c236ed4b97646cbc0"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html#a425ba59716551b0c236ed4b97646cbc0">scene_lab::FlatbufferEditor::expand_all</a></div><div class="ttdeci">bool expand_all() const </div><div class="ttdoc">Expand all subtables in the Flatbuffer table? </div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:185</div></div>
 <div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html_a923a1e7d078082847fd5bf0cd22ec576"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html#a923a1e7d078082847fd5bf0cd22ec576">scene_lab::FlatbufferEditor::set_config_allow_adding_fields</a></div><div class="ttdeci">void set_config_allow_adding_fields(bool b)</div><div class="ttdoc">Set the &quot;Allow adding fields&quot; config value. </div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:153</div></div>
 <div class="ttc" id="classscene__lab_1_1_flatbuffer_editor_html_aff985c40edc06a82fef3e63f03e632c5"><div class="ttname"><a href="classscene__lab_1_1_flatbuffer_editor.html#aff985c40edc06a82fef3e63f03e632c5">scene_lab::FlatbufferEditor::set_show_types</a></div><div class="ttdeci">void set_show_types(bool b)</div><div class="ttdoc">See show_types(). </div><div class="ttdef"><b>Definition:</b> flatbuffer_editor.h:182</div></div>
