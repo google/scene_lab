@@ -31,7 +31,6 @@ build_assets: $(flatc_target)
 	$(call host-mkdir,$(SCENE_LAB_SAMPLE_DIR)/assets)
 	$(hide) python $(SCENE_LAB_SAMPLE_DIR)/scripts/build_assets.py \
           --output ${SCENE_LAB_SAMPLE_DIR}/assets \
-          --flatc $(FLATBUFFERS_FLATC) \
           --copy_tree $(DEPENDENCIES_FLATUI_DIR)/assets/shaders \
                       $(SCENE_LAB_SAMPLE_DIR)/assets/shaders \
                       $(DEPENDENCIES_FLATUI_DIR)/assets/fonts \
