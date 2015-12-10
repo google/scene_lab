@@ -43,6 +43,8 @@ DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
 DEPENDENCIES_MOTIVE_DIR?=$(FPL_ROOT)/motive
 # Location of the CORGI library.
 DEPENDENCIES_CORGI_DIR?=$(FPL_ROOT)/corgi
+# Location of the Pindrop library.
+DEPENDENCIES_PINDROP_DIR?=$(FPL_ROOT)/pindrop
 # Location of the FlatUI library.
 DEPENDENCIES_FLATUI_DIR?=$(FPL_ROOT)/flatui
 # Location of the CORGI Component Library.
@@ -61,4 +63,6 @@ DEPENDENCIES_BREADBOARD_MODULE_LIBRARY_DIR?=\
     $(DEPENDENCIES_BREADBOARD_DIR)/module_library
 # Location of the Bullet Physics library.
 DEPENDENCIES_BULLETPHYSICS_DIR?=$(THIRD_PARTY_ROOT)/bulletphysics
+# Location of the webp library.
+DEPENDENCIES_WEBP_DIR?=$(THIRD_PARTY_ROOT)/webp
 
