@@ -238,9 +238,11 @@ endif()
 # Compiler flags.
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
-  # We need to ignore a bunch of different warnings because of the Bullet headers.
-  # This will go away if we ever fix PhysicsComponent to stop exposing Bullet.
-  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355 /wd4127 /wd4244 /wd4512 /wd4800")
+  # C4127: conditional expression is constant
+  # C4577: 'noexcept' used with no exception handling mode specified.
+  set(C_FLAGS_WARNINGS "/W4 /WX /wd4127 /wd4577")
+  set(CMAKE_CXX_FLAGS "/MP")
+  add_definitions(-DNOMINMAX -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNINGS)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
