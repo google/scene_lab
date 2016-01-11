@@ -156,24 +156,24 @@ class FlatbufferEditor {
 
   /// Get the size of all the UI elements passed to FlatUI. Defaults are set
   /// in the FlatbufferEditorConfig.
-  int ui_size() const { return ui_size_; }
+  float ui_size() const { return ui_size_; }
 
   /// Set the UI size. See ui_size().
-  void set_ui_size(int s) { ui_size_ = s; }
+  void set_ui_size(float s) { ui_size_ = s; }
 
   /// Get the spacing of all the UI elements passed to FlatUI. Defaults are set
   /// in the FlatbufferEditorConfig.
-  int ui_spacing() const { return ui_spacing_; }
+  float ui_spacing() const { return ui_spacing_; }
 
   /// Set the UI spacing. See ui_spacing().
-  void set_ui_spacing(int s) { ui_spacing_ = s; }
+  void set_ui_spacing(float s) { ui_spacing_ = s; }
 
   /// When an editable text field is blank, we force the width of the
   /// gui Edit field to this value so that it can still be clicked on.
-  int blank_field_width() const { return blank_field_width_; }
+  float blank_field_width() const { return blank_field_width_; }
 
   /// Set the blank field width. See blank_filed_width().
-  void set_blank_field_width(int w) { blank_field_width_ = w; }
+  void set_blank_field_width(float w) { blank_field_width_ = w; }
 
   /// Show the type of each subtable / struct in the Flatbuffer table?
   bool show_types() const { return show_types_; }
@@ -369,7 +369,7 @@ class FlatbufferEditor {
   /// Draw a text button with the given text and the given ID.
   /// Size is the vertical size of the button; the text will be smaller inside
   /// that size.
-  flatui::Event TextButton(const char* text, const char* id, int size);
+  flatui::Event TextButton(const char* text, const char* id, float size);
 
   /// If mode is a draw mode, draw a button to add the current field to the
   /// FlatBuffer. If mode is CommitEdits, then return true if this is the
@@ -418,12 +418,12 @@ class FlatbufferEditor {
   // What on-screen button was pressed?
   Button button_pressed_;
   // UI settings.
-  int ui_size_;            // Set to kDefaultUISize by default.
-  int ui_spacing_;         // Set to kDefaultUISpacing by default.
-  int blank_field_width_;  // How wide an edit area for blank strings?
-  bool keyboard_in_use_;   // Is the keyboard in use?
-  bool show_types_;        // Show type names?
-  bool expand_all_;        // Expand all subtables?
+  float ui_size_;             // Set to kDefaultUISize by default.
+  float ui_spacing_;          // Set to kDefaultUISpacing by default.
+  float blank_field_width_;   // How wide an edit area for blank strings?
+  bool keyboard_in_use_;      // Is the keyboard in use?
+  bool show_types_;           // Show type names?
+  bool expand_all_;           // Expand all subtables?
   // Configuration settings, defaults taken from Flatbuffer.
   bool config_read_only_;     // If true, only draw and don't allow edits.
   bool config_auto_commit_;   // Auto-commit edited fields to the Flatbuffer.

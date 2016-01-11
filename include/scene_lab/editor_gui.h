@@ -165,13 +165,9 @@ class EditorGui {
   };
   enum WindowState { kNormal, kMaximized };
 
-  static const int kVirtualResolution = 1000;
   static const int kToolbarHeight = 30;
-  static const int kSpacing = 3;
-  static const int kBlankEditWidth = 20;
   static const int kIndent = 3;
   static const int kFontSize = 18;
-  static const int kButtonMargin = 5;
 
   /// Commit only the requested component flatbuffer to the entity.
   void CommitComponentData(corgi::ComponentId id);
@@ -203,10 +199,10 @@ class EditorGui {
   void FinishDrawEditView();
 
   /// Create a text button; call this inside a gui::Run.
-  flatui::Event TextButton(const char* text, const char* id, int size);
+  flatui::Event TextButton(const char* text, const char* id, float size);
 
   /// Show a button that, if you click on it, selects an entity.
-  void EntityButton(const corgi::EntityRef& entity, int size);
+  void EntityButton(const corgi::EntityRef& entity, float size);
 
   /// Get the virtual resolution (for FlatUI) of the whole screen.
   void GetVirtualResolution(mathfu::vec2* resolution_output);

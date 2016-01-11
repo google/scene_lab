@@ -353,7 +353,7 @@ void SceneLab::HighlightEntity(const corgi::EntityRef& entity, float tint) {
     for (auto iter = transform_data->children.begin();
          iter != transform_data->children.end(); ++iter) {
       // Highlight the child, but slightly less brightly.
-      HighlightEntity(iter->owner, 1 + ((tint - 1) * .8));
+      HighlightEntity(iter->owner, 1.0f + ((tint - 1.0f) * 0.8f));
     }
   }
 }

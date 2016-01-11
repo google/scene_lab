@@ -26,8 +26,8 @@ using mathfu::vec2;
 using mathfu::vec4;
 
 // Default UI layout, override in Flatbuffers.
-static const int kDefaultUISize = 20;
-static const int kDefaultUISpacing = 4;
+static const float kDefaultUISize = 20.0f;
+static const float kDefaultUISpacing = 4.0f;
 static const int kDefaultBlankStringWidth = 10;
 static const float kDefaultBGColor[] = {0, 0, 0, 1};
 static const float kDefaultFGColor[] = {1, 1, 1, 1};
@@ -103,9 +103,9 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
 }
 
 flatui::Event FlatbufferEditor::TextButton(const char* text, const char* id,
-                                           int size) {
-  const float kMargin = 1;
-  float text_size = size - 2 * kMargin;
+                                           float size) {
+  const float kMargin = 1.0f;
+  float text_size = size - 2.0f * kMargin;
   flatui::StartGroup(flatui::kLayoutHorizontalTop, 0, id);
   flatui::SetMargin(flatui::Margin(kMargin));
   auto event = flatui::CheckEvent();
@@ -487,7 +487,7 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
   if (IsDrawEdit(mode)) {
     vec2 edit_vec = vec2(0, 0);
     if (edit_fields_[id].length() == 0) {
-      edit_vec.x() = blank_field_width();
+      edit_vec.x() = static_cast<float>(blank_field_width());
     }
     if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), &edit_fields_[id])) {
       if (mode == kDrawEditAuto) {
@@ -904,8 +904,8 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
   if (VisitField(size_mode, fielddef.name()->str() + idx,
                  flatbuffers::NumToString(vec->size()), "size_t", "",
                  id + idx)) {
-    uoffset_t new_size =
-        flatbuffers::StringToInt(edit_fields_[id + idx].c_str());
+    uoffset_t new_size = static_cast<uoffset_t>(
+        flatbuffers::StringToInt(edit_fields_[id + idx].c_str()));
     flatbuffers::ResizeAnyVector(schema, new_size, vec, vec->size(),
                                  element_size, &flatbuffer_, &table_def_);
     if (IsDraw(mode)) flatui::EndGroup();  // id + idx + "-commit"

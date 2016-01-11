@@ -37,6 +37,11 @@ using flatbuffers::uoffset_t;
 using flatbuffers::Vector;
 using mathfu::vec2;
 
+static const float kSpacing = 3.0f;
+static const float kVirtualResolution = 1000.0f;
+static const float kButtonMargin = 5.0f;
+static const float kBlankEditWidth = 20.0f;
+
 // Names of the mouse modes from SceneLab.cpp, in the same order as
 // the mouse_mode_ enum. nullptr is an end sentinel to start over at 0.
 static const char* const kMouseModeNames[] = {
@@ -294,7 +299,7 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
   flatui::StartGroup(flatui::kLayoutOverlay, 0, "we:overall-ui");
 
   const float kButtonSize = config_->gui_toolbar_size();
-  const float kTextSize = kButtonSize - 2 * kButtonMargin;
+  const float kTextSize = kButtonSize - 2.0f * kButtonMargin;
 
   // Show a bunch of buttons along the top of the screen.
   flatui::StartGroup(flatui::kLayoutHorizontalCenter, 10, "we:button-bg");
@@ -619,8 +624,8 @@ void EditorGui::DrawEntityListUI() {
 }
 
 void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
-  const int kTableNameSize = 30;
-  const int kTableButtonSize = kTableNameSize - 8;
+  const float kTableNameSize = 30.0f;
+  const float kTableButtonSize = kTableNameSize - 8.0f;
 
   // Check if we have a FlatbufferEditor for this component.
   corgi::ComponentInterface* component = entity_manager_->GetComponent(id);
@@ -749,7 +754,7 @@ void EditorGui::DrawEntityFamily() {
   }
 }
 
-void EditorGui::EntityButton(const corgi::EntityRef& entity, int size) {
+void EditorGui::EntityButton(const corgi::EntityRef& entity, float size) {
   MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(entity);
   std::string entity_id =
       meta_data
@@ -770,9 +775,9 @@ void EditorGui::EntityButton(const corgi::EntityRef& entity, int size) {
 }
 
 flatui::Event EditorGui::TextButton(const char* text, const char* id,
-                                    int size) {
+                                    float size) {
   float text_size = size - 2 * kButtonMargin;
-  flatui::StartGroup(flatui::kLayoutHorizontalTop, size / 4, id);
+  flatui::StartGroup(flatui::kLayoutHorizontalTop, size / 4.0f, id);
   flatui::SetMargin(flatui::Margin(kButtonMargin));
   auto event = flatui::CheckEvent();
   if (event & ~flatui::kEventHover) {
