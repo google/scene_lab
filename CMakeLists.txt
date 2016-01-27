@@ -22,21 +22,26 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
 # Scene Lab source files.
+# TODO: Separate out corgi_adapter and edit_options from the rest of Scene Lab.
 set(scene_lab_SRCS
     include/scene_lab/basic_camera.h
-    include/scene_lab/edit_options.h
     include/scene_lab/editor_controller.h
     include/scene_lab/editor_gui.h
+    include/scene_lab/entity_system_adapter.h
     include/scene_lab/flatbuffer_editor.h
     include/scene_lab/scene_lab.h
     include/scene_lab/util.h
+    include/scene_lab/corgi/corgi_adapter.h
+    include/scene_lab/corgi/edit_options.h
     src/basic_camera.cpp
-    src/edit_options.cpp
     src/editor_controller.cpp
     src/editor_gui.cpp
+    src/entity_system_adapter.cpp
     src/flatbuffer_editor.cpp
     src/scene_lab.cpp
     src/util.cpp
+    src/corgi/corgi_adapter.cpp
+    src/corgi/edit_options.cpp
     )
 
 # Compile the game with the debug flag

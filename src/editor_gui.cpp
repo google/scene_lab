@@ -16,9 +16,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <string>
-#include "corgi_component_library/common_services.h"
-#include "corgi_component_library/meta.h"
-#include "corgi_component_library/transform.h"
+#include <vector>
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
@@ -26,11 +24,6 @@
 
 namespace scene_lab {
 
-using corgi::component_library::CommonServicesComponent;
-using corgi::component_library::MetaComponent;
-using corgi::component_library::MetaData;
-using corgi::component_library::TransformComponent;
-using corgi::component_library::TransformData;
 using flatbuffers::Offset;
 using flatbuffers::NumToString;
 using flatbuffers::Table;
@@ -51,17 +44,21 @@ static const char* const kMouseModeNames[] = {
     "Scale Y",           "Scale Z",         nullptr};
 
 EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
-                     corgi::EntityManager* entity_manager,
-                     flatui::FontManager* font_manager,
-                     const std::string* schema_data)
+                     fplbase::AssetManager* asset_manager,
+                     fplbase::InputSystem* input_system,
+                     fplbase::Renderer* renderer,
+                     flatui::FontManager* font_manager)
     : config_(config),
       scene_lab_(scene_lab),
-      entity_manager_(entity_manager),
+      asset_manager_(asset_manager),
+      input_system_(input_system),
+      renderer_(renderer),
       font_manager_(font_manager),
-      schema_data_(schema_data),
-      auto_commit_component_(0),
-      auto_revert_component_(0),
-      auto_recreate_component_(0),
+      edit_entity_(EntitySystemAdapter::kNoEntityId),
+      changed_edit_entity_(EntitySystemAdapter::kNoEntityId),
+      auto_commit_component_(EntitySystemAdapter::kNoComponentId),
+      auto_revert_component_(EntitySystemAdapter::kNoComponentId),
+      auto_recreate_component_(EntitySystemAdapter::kNoComponentId),
       button_pressed_(kNone),
       edit_window_state_(kNormal),
       edit_view_(kEditEntity),
@@ -74,14 +71,6 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
       keyboard_in_use_(false),
       prompting_for_exit_(false),
       updated_via_gui_(false) {
-  auto services = entity_manager_->GetComponent<CommonServicesComponent>();
-  asset_manager_ = services->asset_manager();
-  entity_factory_ = services->entity_factory();
-  input_system_ = services->input_system();
-  renderer_ = services->renderer();
-  components_to_show_.resize(entity_manager->ComponentCount(), false);
-  components_to_show_[MetaComponent::GetComponentId()] = true;
-  components_to_show_[TransformComponent::GetComponentId()] = true;
   for (int i = 0; i < kEditViewCount; i++) {
     scroll_offset_[i] = mathfu::kZeros2f;
   }
@@ -103,7 +92,7 @@ EditorGui::EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
   lock_camera_height_ = config->camera_movement_parallel_to_ground();
 
   scene_lab_->AddOnUpdateEntityCallback(
-      [this](const corgi::EntityRef& entity) { EntityUpdated(entity); });
+      [this](const GenericEntityId& entity) { EntityUpdated(entity); });
 
   set_menu_title_string(scene_lab_->version());
 }
@@ -126,7 +115,7 @@ bool EditorGui::CanExit() {
   }
 }
 
-void EditorGui::EntityUpdated(corgi::EntityRef entity) {
+void EditorGui::EntityUpdated(const GenericEntityId& entity) {
   if (updated_via_gui_) return;  // Ignore this event if the GUI did the update.
   // If the entity we are looking at was updated externally, clear out its data.
   if (edit_entity_ == entity) {
@@ -134,7 +123,7 @@ void EditorGui::EntityUpdated(corgi::EntityRef entity) {
   }
 }
 
-void EditorGui::SetEditEntity(corgi::EntityRef& entity) {
+void EditorGui::SetEditEntity(const GenericEntityId& entity) {
   if (edit_entity_ != entity) {
     ClearEntityData();
     scroll_offset_[kEditEntity] = mathfu::kZeros2f;
@@ -180,69 +169,21 @@ void EditorGui::FinishRender() {
     editor->Update();
     if (editor->keyboard_in_use()) keyboard_in_use_ = true;
   }
-  if (auto_commit_component_ != 0) {
+  if (auto_commit_component_ != EntitySystemAdapter::kNoComponentId) {
     CommitComponentData(auto_commit_component_);
-    auto_commit_component_ = 0;
+    auto_commit_component_ = EntitySystemAdapter::kNoComponentId;
     SendUpdateEvent();
-  } else if (auto_revert_component_ != 0 &&
+  } else if (auto_revert_component_ != EntitySystemAdapter::kNoComponentId &&
              component_guis_.find(auto_revert_component_) !=
                  component_guis_.end()) {
     component_guis_.erase(auto_revert_component_);
-    auto_revert_component_ = 0;
-  } else if (auto_recreate_component_ != 0 &&
+    auto_revert_component_ = EntitySystemAdapter::kNoComponentId;
+  } else if (auto_recreate_component_ != EntitySystemAdapter::kNoComponentId &&
              component_guis_.find(auto_recreate_component_) !=
                  component_guis_.end()) {
-    // Delete and recreate the entity, but with one component's data replaced.
-    auto meta_component = entity_manager_->GetComponent<MetaComponent>();
-
-    std::vector<corgi::ComponentInterface::RawDataUniquePtr> exported_data;
-    std::vector<const void*> exported_pointers;  // Indexed by component ID.
-    exported_pointers.resize(entity_factory_->max_component_id() + 1, nullptr);
-    for (corgi::ComponentId component_id = 0;
-         component_id <= entity_factory_->max_component_id(); component_id++) {
-      const MetaData* meta_data =
-          meta_component->GetComponentData(edit_entity_);
-      if (component_id == auto_recreate_component_) {
-        exported_pointers[component_id] =
-            component_guis_[auto_recreate_component_]->flatbuffer();
-      } else if (meta_data->components_from_prototype.find(component_id) ==
-                 meta_data->components_from_prototype.end()) {
-        corgi::ComponentInterface* component =
-            entity_manager_->GetComponent(component_id);
-        if (component != nullptr) {
-          exported_data.push_back(component->ExportRawData(edit_entity_));
-          exported_pointers[component_id] = exported_data.back().get();
-        }
-      }
-    }
-    std::string old_source_file =
-        meta_component->GetComponentData(edit_entity_)->source_file;
-    std::vector<uint8_t> entity_serialized;
-    if (entity_factory_->CreateEntityDefinition(exported_pointers,
-                                                &entity_serialized)) {
-      std::vector<std::vector<uint8_t>> entity_defs;
-      entity_defs.push_back(entity_serialized);
-      std::vector<uint8_t> entity_list_def;
-      if (entity_factory_->SerializeEntityList(entity_defs, &entity_list_def)) {
-        // create a new copy of the entity...
-        std::vector<corgi::EntityRef> entities_created;
-        if (entity_factory_->LoadEntityListFromMemory(entity_list_def.data(),
-                                                      entity_manager_,
-                                                      &entities_created) > 0) {
-          for (size_t i = 0; i < entities_created.size(); i++) {
-            MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(
-                entities_created[i]);
-            meta_data->source_file = old_source_file;
-          }
-          // delete the old entity...
-          corgi::EntityRef old_entity = edit_entity_;
-          SetEditEntity(entities_created[0]);
-          entity_manager_->DeleteEntityImmediately(old_entity);
-          entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
-        }
-      }
-    }
-    auto_recreate_component_ = 0;
+    // TODO: Implement recreating the entity. This requires you to
+    // delete and recreate the entity, but with one component's data replaced.
+    auto_recreate_component_ = EntitySystemAdapter::kNoComponentId;
   }
 
   switch (button_pressed_) {
@@ -411,14 +352,13 @@ void EditorGui::SendUpdateEvent() {
   updated_via_gui_ = false;
 }
 
-void EditorGui::CommitComponentData(corgi::ComponentId id) {
-  corgi::ComponentInterface* component = entity_manager_->GetComponent(id);
+void EditorGui::CommitComponentData(const GenericComponentId& id) {
   if (component_guis_.find(id) != component_guis_.end()) {
     FlatbufferEditor* editor = component_guis_[id].get();
     if (editor->flatbuffer_modified()) {
-      component->AddFromRawData(
-          edit_entity_, flatbuffers::GetAnyRoot(
-                            static_cast<const uint8_t*>(editor->flatbuffer())));
+      entity_system_adapter()->DeserializeEntityComponent(
+          edit_entity_, id,
+          static_cast<const unsigned char*>(editor->flatbuffer()));
       scene_lab_->set_entities_modified(true);
     }
     editor->ClearFlatbufferModifiedFlag();
@@ -517,7 +457,9 @@ void EditorGui::DrawTabs() {
     if (event & flatui::kEventWentUp) {
       new_edit_view = i;
       if (new_edit_view == kPrototypeList) {
-        RefreshPrototypeList();
+        entity_system_adapter()->RefreshPrototypeIDs();
+      } else if (new_edit_view == kEntityList) {
+        entity_system_adapter()->RefreshEntityIDs();
       }
     }
     flatui::EndGroup();  // we:toolbar-tab-overlay-view
@@ -568,28 +510,29 @@ void EditorGui::DrawSettingsUI() {
 }
 
 void EditorGui::DrawEditEntityUI() {
-  if (!edit_entity_) {
+  if (edit_entity_ == EntitySystemAdapter::kNoEntityId) {
     flatui::Label("No entity selected!", config_->gui_button_size());
   } else {
-    changed_edit_entity_ = corgi::EntityRef();
+    changed_edit_entity_ = EntitySystemAdapter::kNoEntityId;
 
-    for (corgi::ComponentId id = 0; id <= entity_factory_->max_component_id();
-         id++) {
-      DrawEntityComponent(id);
+    std::vector<GenericComponentId> components;
+    entity_system_adapter()->GetEntityComponentList(edit_entity_, &components);
+    for (auto i = components.begin(); i != components.end(); ++i) {
+      DrawEntityComponent(*i);
     }
     DrawEntityFamily();
 
-    if (changed_edit_entity_) {
+    if (changed_edit_entity_ != EntitySystemAdapter::kNoEntityId) {
       // Something during the course of rendering the UI caused the selected
       // entity to change, so let's select the new entity.
       SetEditEntity(changed_edit_entity_);
-      changed_edit_entity_ = corgi::EntityRef();
+      changed_edit_entity_ = EntitySystemAdapter::kNoEntityId;
     }
   }
 }
 
 void EditorGui::DrawEntityListUI() {
-  changed_edit_entity_ = corgi::EntityRef();
+  changed_edit_entity_ = EntitySystemAdapter::kNoEntityId;
 
   flatui::StartGroup(flatui::kLayoutHorizontalCenter, kSpacing,
                      "ws:entity-list-filter");
@@ -604,38 +547,26 @@ void EditorGui::DrawEntityListUI() {
   }
   flatui::EndGroup();  // ws:entity-list-filter
 
-  for (auto e = entity_manager_->begin(); e != entity_manager_->end(); ++e) {
-    MetaData* meta_data =
-        entity_manager_->GetComponentData<MetaData>(e.ToReference());
-    // TODO: Use regular expressions or globbing
-    if (entity_list_filter_.length() == 0 ||
-        (meta_data != nullptr &&
-         (entity_manager_->GetComponent<MetaComponent>()
-                  ->GetEntityID(e.ToReference())
-                  .find(entity_list_filter_) != std::string::npos ||
-          meta_data->prototype.find(entity_list_filter_) !=
-              std::string::npos))) {
-      EntityButton(e.ToReference(), config_->gui_button_size());
+  std::vector<GenericEntityId> entity_list;
+  if (entity_system_adapter()->GetAllEntityIDs(&entity_list)) {
+    for (auto e = entity_list.begin(); e != entity_list.end(); ++e) {
+      const GenericEntityId& entity_id = *e;
+      if (entity_system_adapter()->FilterShowEntityID(entity_id,
+                                                      entity_list_filter_)) {
+        EntityButton(entity_id, config_->gui_button_size());
+      }
     }
   }
-  if (changed_edit_entity_ != corgi::EntityRef()) {
+
+  if (changed_edit_entity_ != EntitySystemAdapter::kNoEntityId) {
     // select new entity
     if (changed_edit_entity_ == edit_entity_) {
       // select the same entity again, so change the tab mode
       edit_view_ = kEditEntity;
     }
     SetEditEntity(changed_edit_entity_);
-    changed_edit_entity_ = corgi::EntityRef();
+    changed_edit_entity_ = EntitySystemAdapter::kNoEntityId;
   }
-}
-
-void EditorGui::RefreshPrototypeList() {
-  auto prototype_data = entity_factory_->prototype_data();
-  prototype_list_.clear();
-  for (auto it = prototype_data.begin(); it != prototype_data.end(); ++it) {
-    prototype_list_.push_back(it->first);
-  }
-  std::sort(prototype_list_.begin(), prototype_list_.end());
 }
 
 void EditorGui::DrawPrototypeListUI() {
@@ -655,51 +586,61 @@ void EditorGui::DrawPrototypeListUI() {
   flatui::EndGroup();  // ws:prototype-list-filter
 
   const float kButtonSize = config_->gui_toolbar_size();
-  for (auto it = prototype_list_.begin(); it != prototype_list_.end(); ++it) {
-    if (prototype_list_filter_.length() == 0 ||
-        it->find(prototype_list_filter_) != std::string::npos) {
-      if (TextButton(it->c_str(), ("we:prototype-button-" + (*it)).c_str(),
-                     kButtonSize) &
-          flatui::kEventWentUp) {
-        corgi::EntityRef new_entity =
-            entity_factory_->CreateEntityFromPrototype(it->c_str(),
-                                                       entity_manager_);
-        entity_manager_->GetComponent<EditOptionsComponent>()->EntityCreated(
-            new_entity);
-        scene_lab_->MoveEntityToCamera(new_entity);
-        SetEditEntity(new_entity);
-        scene_lab_->SelectEntity(new_entity);
+
+  std::vector<GenericEntityId> prototype_list;
+  if (entity_system_adapter()->GetAllPrototypeIDs(&prototype_list)) {
+    int i = 0;
+    for (auto it = prototype_list.begin(); it != prototype_list.end(); ++it) {
+      const GenericEntityId& prototype_id = *it;
+      if (entity_system_adapter()->FilterShowEntityID(prototype_id,
+                                                      prototype_list_filter_)) {
+        std::string prototype_id_str;
+        if (!entity_system_adapter()->GetEntityName(prototype_id,
+                                                    &prototype_id_str)) {
+          prototype_id_str = "prototype-" + std::to_string(i);
+        }
+        if (TextButton(prototype_id_str.c_str(),
+                       (std::string("we:prototype-button-") + prototype_id_str)
+                           .c_str(),
+                       kButtonSize) &
+            flatui::kEventWentUp) {
+          GenericEntityId new_entity;
+          if (entity_system_adapter()->CreateEntityFromPrototype(prototype_id,
+                                                                 &new_entity)) {
+            scene_lab_->MoveEntityToCamera(new_entity);
+            SetEditEntity(new_entity);
+            scene_lab_->SelectEntity(new_entity);
+          }
+        }
       }
     }
+    ++i;
   }
 }
 
-void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
+void EditorGui::DrawEntityComponent(const GenericComponentId& id) {
   const float kTableNameSize = 30.0f;
   const float kTableButtonSize = kTableNameSize - 8.0f;
 
-  // Check if we have a FlatbufferEditor for this component.
-  corgi::ComponentInterface* component = entity_manager_->GetComponent(id);
-  if (component != nullptr &&
-      component->GetComponentDataAsVoid(edit_entity_) != nullptr) {
-    std::string table_name = entity_factory_->ComponentIdToTableName(id);
-    if (component_guis_.find(id) == component_guis_.end()) {
-      auto services = entity_manager_->GetComponent<CommonServicesComponent>();
-      bool prev_force_defaults = services->export_force_defaults();
-      // Force all default fields to have values that the user can edit
-      services->set_export_force_defaults(true);
+  if (component_guis_.find(id) == component_guis_.end()) {
+    // No GUI editor found for this component, can we create one?
+    flatbuffers::unique_ptr_t entity_data;
+    if (entity_system_adapter()->SerializeEntityComponent(edit_entity_, id,
+                                                          &entity_data)) {
+      const reflection::Schema* schema = nullptr;
+      const reflection::Object* obj = nullptr;
+      entity_system_adapter()->GetSchema(&schema);
+      entity_system_adapter()->GetTableObject(id, &obj);
 
-      auto raw_data = component->ExportRawData(edit_entity_);
-      services->set_export_force_defaults(prev_force_defaults);
-
-      const reflection::Schema* schema =
-          reflection::GetSchema(schema_data_->c_str());
-      const reflection::Object* obj =
-          schema->objects()->LookupByKey(table_name.c_str());
-      FlatbufferEditor* editor = new FlatbufferEditor(
-          config_->flatbuffer_editor_config(), *schema, *obj, raw_data.get());
+      FlatbufferEditor* editor =
+          new FlatbufferEditor(config_->flatbuffer_editor_config(), *schema,
+                               *obj, entity_data.get());
       component_guis_[id].reset(editor);
     }
+  }
+  if (component_guis_.find(id) != component_guis_.end()) {
+    std::string table_name;
+    entity_system_adapter()->GetTableName(id, &table_name);
 
     bool has_data = component_guis_[id]->HasFlatbufferData();
 
@@ -727,12 +668,8 @@ void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
     flatui::Label(table_name.c_str(), kTableNameSize);
     flatui::SetTextColor(text_normal_color_);
     flatui::EndGroup();  // $table_name-title
-    MetaData* meta_data =
-        entity_manager_->GetComponentData<MetaData>(edit_entity_);
-    bool from_proto = meta_data
-                          ? (meta_data->components_from_prototype.find(id) !=
-                             meta_data->components_from_prototype.end())
-                          : false;
+    bool from_proto = entity_system_adapter()->IsEntityComponentFromPrototype(
+        edit_entity_, id);
     if (component_guis_[id]->flatbuffer_modified()) {
       if (TextButton("[Commit]", (table_name + "-commit-to-entity").c_str(),
                      kTableButtonSize) &
@@ -743,11 +680,6 @@ void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
                      kTableButtonSize) &
           flatui::kEventWentUp) {
         auto_revert_component_ = id;
-      }
-      if (TextButton("[Reload]", (table_name + "-reload-entity").c_str(),
-                     kTableButtonSize) &
-          flatui::kEventWentUp) {
-        auto_recreate_component_ = id;
       }
     } else if (has_data) {
       // Draw the title of the component table.
@@ -777,51 +709,49 @@ void EditorGui::DrawEntityComponent(corgi::ComponentId id) {
 
 void EditorGui::DrawEntityFamily() {
   // Show a list of this entity's parents and children.
-  TransformData* transform_data =
-      entity_manager_->GetComponentData<TransformData>(edit_entity_);
-  if (transform_data != nullptr) {
+  std::vector<GenericEntityId> children;
+  GenericEntityId parent;
+  if (entity_system_adapter()->GetEntityParent(edit_entity_, &parent)) {
     flatui::Label(" ", 20);  // insert some blank space
-    if (transform_data->parent) {
+    if (parent != EntitySystemAdapter::kNoEntityId) {
       flatui::StartGroup(flatui::kLayoutVerticalLeft, kSpacing, "we:parent");
       flatui::Label("Parent:", 24);
-      EntityButton(transform_data->parent, config_->gui_button_size());
+      EntityButton(parent, config_->gui_button_size());
       flatui::EndGroup();  // we:parent
     }
-    bool has_child = false;
-    for (auto iter = transform_data->children.begin();
-         iter != transform_data->children.end(); ++iter) {
-      corgi::EntityRef& child = iter->owner;
-      if (!has_child) {
-        has_child = true;
-        flatui::StartGroup(flatui::kLayoutVerticalLeft, kSpacing,
-                           "we:children");
-        flatui::Label("Children:", 24);
+  }
+  if (entity_system_adapter()->GetEntityChildren(edit_entity_, &children)) {
+    flatui::Label(" ", 20);  // insert some blank space
+    if (children.size() > 0) {
+      flatui::StartGroup(flatui::kLayoutVerticalLeft, kSpacing, "we:children");
+      flatui::Label("Children:", 24);
+      for (auto it = children.begin(); it != children.end(); ++it) {
+        EntityButton(*it, config_->gui_button_size());
       }
-      EntityButton(child, config_->gui_button_size());
-    }
-    if (has_child) {
       flatui::EndGroup();  // we:children
     }
   }
 }
 
-void EditorGui::EntityButton(const corgi::EntityRef& entity, float size) {
-  MetaData* meta_data = entity_manager_->GetComponentData<MetaData>(entity);
-  std::string entity_id =
-      meta_data
-          ? entity_manager_->GetComponent<MetaComponent>()->GetEntityID(
-                const_cast<corgi::EntityRef&>(entity))
-          : "Unknown entity ID";
-  if (meta_data) {
-    entity_id += "  (";
-    entity_id += meta_data->prototype;
-    entity_id += ")";
-  }
-  auto event =
-      TextButton(entity_id.c_str(),
-                 (std::string("we:entity-button-") + entity_id).c_str(), size);
-  if (event & flatui::kEventWentUp) {
-    changed_edit_entity_ = entity;
+void EditorGui::EntityButton(const GenericEntityId& entity_id, float size) {
+  std::string entity_id_str;
+  std::string entity_id_text;
+  std::string entity_desc;
+  if (entity_system_adapter()->GetEntityName(entity_id, &entity_id_str)) {
+    entity_id_text = entity_id_str;
+    if (entity_system_adapter()->GetEntityDescription(entity_id,
+                                                      &entity_desc) &&
+        entity_desc.length() > 0) {
+      entity_id_text += "  (";
+      entity_id_text += entity_desc;
+      entity_id_text += ")";
+    }
+    auto event = TextButton(
+        entity_id_text.c_str(),
+        (std::string("we:entity-button-") + entity_id_str).c_str(), size);
+    if (event & flatui::kEventWentUp) {
+      changed_edit_entity_ = entity_id;
+    }
   }
 }
 
@@ -843,6 +773,10 @@ flatui::Event EditorGui::TextButton(const char* text, const char* id,
   flatui::Label(text, text_size);
   flatui::EndGroup();  // $id
   return event;
+}
+
+EntitySystemAdapter* EditorGui::entity_system_adapter() {
+  return scene_lab_->entity_system_adapter();
 }
 
 }  // namespace scene_lab

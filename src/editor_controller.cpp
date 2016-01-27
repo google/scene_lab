@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "fplbase/utilities.h"
 #include "scene_lab/editor_controller.h"
+#include "fplbase/utilities.h"
 
 #include <math.h>
 using mathfu::vec2i;
@@ -50,25 +50,26 @@ void EditorController::Update() {
   }
 }
 
-bool EditorController::GetMouseWorldRay(const corgi::CameraInterface& camera,
-                                        const vec2i& screen_size, vec3* near,
-                                        vec3* far) const {
-  float fov_y_tan = 2 * tan(camera.viewport_angle() * 0.5f);
-  float fov_x_tan = fov_y_tan * camera.viewport_resolution().x() /
-                    camera.viewport_resolution().y();
+bool EditorController::ScreenPointToWorldRay(const GenericCamera& camera,
+                                             const ViewportSettings& viewport,
+                                             const vec2& screen_point,
+                                             const vec2i& screen_size,
+                                             vec3* near, vec3* dir) const {
+  float fov_y_tan = 2 * tan(viewport.vertical_angle * 0.5f);
+  float fov_x_tan = fov_y_tan * viewport.aspect_ratio;
 
-  vec2 pointer = vec2(fov_x_tan, -fov_y_tan) *
-                 (GetPointer() / vec2(screen_size) - vec2(0.5f, 0.5f));
-  // pointer goes from (-tan(FOVx)/2, tan(FOVy)/2) to (tan(FOVx)/2,
+  vec2 point = vec2(fov_x_tan, -fov_y_tan) *
+               (screen_point / vec2(screen_size) - vec2(0.5f, 0.5f));
+  // point goes from (-tan(FOVx)/2, tan(FOVy)/2) to (tan(FOVx)/2,
   // -tan(FOVy)/2) (upper right to lower left); 0,0 is center of screen.
 
-  vec3 forward = camera.facing().Normalized();
-  vec3 up = camera.up().Normalized();
+  vec3 forward = camera.facing.Normalized();
+  vec3 up = camera.up.Normalized();
   vec3 right = vec3::CrossProduct(forward, up).Normalized();
   up = vec3::CrossProduct(right, forward).Normalized();
 
-  *near = camera.position();
-  *far = camera.position() + forward + up * pointer.y() + right * pointer.x();
+  *near = camera.position;
+  *dir = forward + up * point.y() + right * point.x();
 
   return true;
 }

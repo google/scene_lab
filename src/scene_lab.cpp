@@ -17,78 +17,62 @@
 #include <math.h>
 #include <set>
 #include <string>
-#include "corgi_component_library/common_services.h"
+#include <unordered_map>
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
 #include "fplbase/utilities.h"
-#include "library_components_generated.h"
 #include "mathfu/utilities.h"
 #include "scene_lab/basic_camera.h"
 
 namespace scene_lab {
 
-static const float kDegreesToRadians = static_cast<float>(M_PI) / 180.0f;
-
-using corgi::component_library::CommonServicesComponent;
-using corgi::component_library::MetaComponent;
-using corgi::component_library::MetaData;
-using corgi::component_library::PhysicsComponent;
-using corgi::component_library::RenderMeshComponent;
-using corgi::component_library::RenderMeshData;
-using corgi::component_library::TransformComponent;
-using corgi::component_library::TransformData;
-using corgi::component_library::EntityFactory;
-using corgi::TransformDef;
 using fplbase::Vec3;
 using mathfu::mat4;
 using mathfu::vec3;
 using mathfu::vec4;
 
-static const float kRaycastDistance = 100.0f;
 static const float kMinValidDistance = 0.00001f;
 
 static const char kDefaultBinaryEntityFileExtension[] = "bin";
 
+static const char kDefaultEntityFile[] = "entities_default";
+
 // String which identifies the current version of Scene Lab. See the comment on
 // kVersion in scene_lab.h for more information on how this is used.
-const char SceneLab::kVersion[] = "Scene Lab 1.0.1";
+const char SceneLab::kVersion[] = "Scene Lab 1.1.0";
 
 void SceneLab::Initialize(const SceneLabConfig* config,
-                          corgi::EntityManager* entity_manager,
+                          fplbase::AssetManager* asset_manager,
+                          fplbase::InputSystem* input,
+                          fplbase::Renderer* renderer,
                           flatui::FontManager* font_manager) {
   version_ = kVersion;
   config_ = config;
-  entity_manager_ = entity_manager;
   font_manager_ = font_manager;
 
-  auto services = entity_manager_->GetComponent<CommonServicesComponent>();
-  renderer_ = services->renderer();
-  input_system_ = services->input_system();
-  entity_factory_ = services->entity_factory();
+  asset_manager_ = asset_manager;
+  renderer_ = renderer;
+  input_system_ = input;
 
   if (config_->gui_font() != nullptr) {
     font_manager_->Open(config_->gui_font()->c_str());
   }
 
-  entity_cycler_.reset(
-      new corgi::EntityManager::EntityStorageContainer::Iterator(
-          entity_manager->end()));
-  LoadSchemaFiles();
   horizontal_forward_ = mathfu::kAxisY3f;
   horizontal_right_ = mathfu::kAxisX3f;
   controller_.reset(new EditorController(config_, input_system_));
   input_mode_ = kMoving;
   mouse_mode_ = kMoveHorizontal;
+  gui_.reset(new EditorGui(config_, this, asset_manager_, input_system_,
+                           renderer_, font_manager_));
+  initial_camera_set_ = false;
+}
 
-  gui_.reset(new EditorGui(config_, this, entity_manager_, font_manager_,
-                           &schema_data_));
-
-  auto edit_options = entity_manager_->GetComponent<EditOptionsComponent>();
-  if (edit_options) {
-    edit_options->SetSceneLabCallbacks(this);
-  }
+void SceneLab::SetEntitySystemAdapter(
+    std::unique_ptr<EntitySystemAdapter> adapter) {
+  entity_system_adapter_ = std::move(adapter);
 }
 
 // Project `v` onto `unit`. That is, return the vector colinear with `unit`
@@ -97,13 +81,15 @@ static inline vec3 ProjectOntoUnitVector(const vec3& v, const vec3& unit) {
   return vec3::DotProduct(v, unit) * unit;
 }
 
-void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
-  assert(camera_ != nullptr);
+void SceneLab::AdvanceFrame(double time_delta_seconds) {
+  GenericCamera camera;
+  entity_system_adapter()->GetCamera(&camera);
+
   // Update the editor's forward and right vectors in the horizontal plane.
   // Remove the up component from the camera's facing vector.
-  vec3 forward = camera_->facing() -
-                 ProjectOntoUnitVector(camera_->facing(), camera_->up());
-  vec3 right = vec3::CrossProduct(camera_->facing(), camera_->up());
+  vec3 forward =
+      camera.facing - ProjectOntoUnitVector(camera.facing, camera.up);
+  vec3 right = vec3::CrossProduct(camera.facing, camera.up);
 
   // If we're in gimbal lock, use previous frame's forward calculations.
   if (forward.Normalize() > kMinValidDistance &&
@@ -114,10 +100,13 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
 
   if (input_mode_ == kMoving) {
     // Allow the camera to look around and move.
-    camera_->set_facing(controller_->GetFacing());
+    camera.facing = controller_->GetFacing();
 
     vec3 movement = GetMovement();
-    camera_->set_position(camera_->position() + movement * (float)delta_time);
+    camera.position =
+        camera.position + movement * static_cast<float>(time_delta_seconds);
+
+    entity_system_adapter()->SetCamera(camera);
 
     if (!gui_->InputCaptured() &&
         controller_->ButtonWentDown(config_->toggle_mode_button())) {
@@ -127,7 +116,7 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   } else if (input_mode_ == kEditing) {
     if (!gui_->InputCaptured() &&
         controller_->ButtonWentDown(config_->toggle_mode_button())) {
-      controller_->SetFacing(camera_->facing());
+      controller_->SetFacing(camera.facing);
       controller_->LockMouse();
       input_mode_ = kMoving;
     }
@@ -138,117 +127,79 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
 
     if (!gui_->InputCaptured() &&
         controller_->ButtonWentDown(config_->toggle_mode_button())) {
-      controller_->SetFacing(camera_->facing());
+      controller_->SetFacing(camera.facing);
       controller_->LockMouse();
       input_mode_ = kMoving;
     }
   }
 
-  bool entity_changed = false;
-  do {
-    if (gui_->CanDeselectEntity()) {
-      if (!gui_->InputCaptured() &&
-          controller_->KeyWentDown(fplbase::FPLK_RIGHTBRACKET)) {
-        // select next entity to edit
-        if (*entity_cycler_ != entity_manager_->end()) {
-          (*entity_cycler_)++;
-        }
-        if (*entity_cycler_ == entity_manager_->end()) {
-          *entity_cycler_ = entity_manager_->begin();
-        }
-        entity_changed = true;
-      }
-      if (!gui_->InputCaptured() &&
-          controller_->KeyWentDown(fplbase::FPLK_LEFTBRACKET)) {
-        if (*entity_cycler_ == entity_manager_->begin()) {
-          *entity_cycler_ = entity_manager_->end();
-        }
-        (*entity_cycler_)--;
-        entity_changed = true;
-      }
+  GenericEntityId next_entity = EntitySystemAdapter::kNoEntityId;
+  if (gui_->CanDeselectEntity()) {
+    if (!gui_->InputCaptured() &&
+        controller_->KeyWentDown(fplbase::FPLK_RIGHTBRACKET)) {
+      entity_system_adapter()->CycleEntities(1, &next_entity);
     }
-    if (entity_changed) {
-      corgi::EntityRef entity_ref = entity_cycler_->ToReference();
-      auto data =
-          entity_manager_->GetComponentData<EditOptionsData>(entity_ref);
-      if (data != nullptr) {
-        // Are we allowed to cycle through this entity?
-        if (data->selection_option == SelectionOption_Unspecified ||
-            data->selection_option == SelectionOption_Any ||
-            data->selection_option == SelectionOption_CycleOnly) {
-          SelectEntity(entity_ref);
-        }
-      }
+    if (!gui_->InputCaptured() &&
+        controller_->KeyWentDown(fplbase::FPLK_LEFTBRACKET)) {
+      entity_system_adapter()->CycleEntities(-1, &next_entity);
     }
-  } while (entity_changed && entity_cycler_->ToReference() != selected_entity_);
+  }
+  if (next_entity != EntitySystemAdapter::kNoEntityId &&
+      next_entity != selected_entity_) {
+    SelectEntity(next_entity);
+  }
 
-  entity_changed = false;
+  GenericEntityId clicked_entity = EntitySystemAdapter::kNoEntityId;
+
   if (!gui_->InputCaptured() && gui_->CanDeselectEntity() &&
       controller_->ButtonWentDown(config_->interact_button())) {
     // Use position of the mouse pointer for the ray cast.
-    vec3 start, end;
+    vec3 start, dir;
+    bool got_ray = false;
     if (controller_->mouse_locked()) {
-      start = camera_->position();
-      end = start + camera_->facing() * kRaycastDistance;
+      start = camera.position;
+      dir = camera.facing;
+      got_ray = true;
     } else {
-      controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
-                                    &end);
-      vec3 dir = (end - start).Normalized();
-      end = start + (dir * camera_->viewport_far_plane());
-    }
-    corgi::EntityRef result =
-        entity_manager_->GetComponent<PhysicsComponent>()->RaycastSingle(
-            start, end, &drag_point_);
-    if (result.IsValid()) {
-      *entity_cycler_ = result.ToIterator();
-      entity_changed = true;
-    } else {
-      // deselet entity
-      *entity_cycler_ = entity_manager_->end();
-      SelectEntity(corgi::EntityRef());
-    }
-  }
-  bool start_dragging = false;
-  if (entity_changed) {
-    corgi::EntityRef entity_ref = entity_cycler_->ToReference();
-    if (input_mode_ == kEditing && entity_ref == selected_entity_) {
-      start_dragging = true;
-    } else {
-      auto data =
-          entity_manager_->GetComponentData<EditOptionsData>(entity_ref);
-      if (data != nullptr) {
-        // Are we allowed to click on this entity?
-        if (data->selection_option == SelectionOption_Unspecified ||
-            data->selection_option == SelectionOption_Any ||
-            data->selection_option == SelectionOption_PointerOnly) {
-          SelectEntity(entity_cycler_->ToReference());
+      ViewportSettings viewport;
+      if (entity_system_adapter()->GetViewportSettings(&viewport)) {
+        mathfu::vec2 pointer = controller_->GetPointer();
+        if (controller_->ScreenPointToWorldRay(camera, viewport, pointer,
+                                               renderer_->window_size(), &start,
+                                               &dir)) {
+          got_ray = true;
         }
       }
     }
+    if (got_ray) {
+      if (!entity_system_adapter()->GetRayIntersection(
+              start, dir, &clicked_entity, &drag_point_)) {
+        // Clicked on no entity.
+        SelectEntity(EntitySystemAdapter::kNoEntityId);
+      }
+      // If we clicked an entity, clicked_entity will be set.
+    }
+  }
+  bool start_dragging = false;
+  if (clicked_entity != EntitySystemAdapter::kNoEntityId) {
+    if (input_mode_ == kEditing && clicked_entity == selected_entity_) {
+      // If we click on the same entity again, we start dragging it around.
+      start_dragging = true;
+    } else {
+      // If we click on an entity for the first time, select it.
+      SelectEntity(clicked_entity);
+    }
   }
 
-  auto transform_component =
-      entity_manager_->GetComponent<TransformComponent>();
-  if (selected_entity_.IsValid()) {
+  if (selected_entity_ != EntitySystemAdapter::kNoEntityId) {
     // We have an entity selected, let's allow it to be modified
-    auto raw_data = transform_component->ExportRawData(selected_entity_);
-    if (raw_data != nullptr) {
-      // TODO(jsimantov): in the future, don't just assume the type of this
-      TransformDef* transform =
-          flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
-      if (ModifyTransformBasedOnInput(transform)) {
+    GenericTransform transform;
+    if (entity_system_adapter()->GetEntityTransform(selected_entity_,
+                                                    &transform)) {
+      if (ModifyTransformBasedOnInput(&transform)) {
         set_entities_modified(true);
-        transform_component->AddFromRawData(selected_entity_, transform);
-        auto physics = entity_manager_->GetComponent<PhysicsComponent>();
-        if (physics->GetComponentData(selected_entity_)) {
-          physics->UpdatePhysicsFromTransform(selected_entity_);
-          if (physics->GetComponentData(selected_entity_)->enabled()) {
-            // Workaround for an issue with the physics library where modifying
-            // a raycast physics volume causes raycasts to stop working on it.
-            physics->DisablePhysics(selected_entity_);
-            physics->EnablePhysics(selected_entity_);
-          }
-        }
+        entity_system_adapter()->SetEntityTransform(selected_entity_,
+                                                    transform);
         NotifyUpdateEntity(selected_entity_);
       }
     }
@@ -256,66 +207,68 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
     if (!gui_->InputCaptured() &&
         (controller_->KeyWentDown(fplbase::FPLK_INSERT) ||
          controller_->KeyWentDown(fplbase::FPLK_v))) {
-      corgi::EntityRef new_entity = DuplicateEntity(selected_entity_);
-      *entity_cycler_ = new_entity.ToIterator();
-      SelectEntity(entity_cycler_->ToReference());
-      NotifyUpdateEntity(new_entity);
+      GenericEntityId new_entity;
+      if (entity_system_adapter()->DuplicateEntity(selected_entity_,
+                                                   &new_entity)) {
+        SelectEntity(new_entity);
+        NotifyUpdateEntity(new_entity);
+      }
     }
     if (!gui_->InputCaptured() &&
         (controller_->KeyWentDown(fplbase::FPLK_DELETE) ||
          controller_->KeyWentDown(fplbase::FPLK_x))) {
-      corgi::EntityRef entity = selected_entity_;
-      NotifyDeleteEntity(entity);
-      *entity_cycler_ = entity_manager_->end();
-      selected_entity_ = corgi::EntityRef();
-      DestroyEntity(entity);
+      NotifyDeleteEntity(selected_entity_);
+      if (entity_system_adapter()->DeleteEntity(selected_entity_)) {
+        SelectEntity(EntitySystemAdapter::kNoEntityId);
+      }
     }
   }
 
-  transform_component->PostLoadFixup();
+  entity_system_adapter()->AdvanceFrame(time_delta_seconds);
 
-  // Any components we specifically still want to update should be updated here.
-  for (size_t i = 0; i < components_to_update_.size(); i++) {
-    entity_manager_->GetComponent(components_to_update_[i])
-        ->UpdateAllEntities(0);
-  }
+  if (start_dragging && input_mode_ == kEditing &&
+      selected_entity_ != EntitySystemAdapter::kNoEntityId) {
+    GenericTransform transform;
+    ViewportSettings viewport;
+    if (entity_system_adapter()->GetEntityTransform(selected_entity_,
+                                                    &transform) &&
+        entity_system_adapter()->GetViewportSettings(&viewport)) {
+      vec3 position = transform.position;
+      vec3 intersect;
 
-  if (start_dragging && input_mode_ == kEditing && selected_entity_) {
-    auto raw_data =
-        entity_manager_->GetComponent<TransformComponent>()->ExportRawData(
-            selected_entity_);
-    TransformDef* transform =
-        flatbuffers::GetMutableRoot<TransformDef>(raw_data.get());
-    vec3 position = LoadVec3(transform->position());
-    vec3 intersect;
+      mathfu::vec2 pointer = controller_->GetPointer();
+      vec3 mouse_ray_origin;
+      vec3 mouse_ray_dir;
+      controller_->ScreenPointToWorldRay(camera, viewport, pointer,
+                                         renderer_->window_size(),
+                                         &mouse_ray_origin, &mouse_ray_dir);
 
-    vec3 start, end;
-    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
-                                  &end);
-    vec3 mouse_ray_origin = start;
-    vec3 mouse_ray_dir = (end - start).Normalized();
-    if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
-        mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
-      // For scaling, the normal for the drag plane is just a vector pointing
-      // back towards the camera.
-      drag_plane_normal_ = -camera_->facing();
-    } else if (mouse_mode_ == kMoveVertical || mouse_mode_ == kRotateVertical) {
-      // For Vertical actions, the normal for the drag plane is a vector
-      // pointing back towards the camera with the up component zeroed, so it's
-      // perpendicular to the ground.
-      drag_plane_normal_ = -camera_->facing();
-      drag_plane_normal_.z() = 0;
-      drag_plane_normal_.Normalize();
-    } else {
-      // For Horizontal, the normal for the drag plane is the up-vector.
-      drag_plane_normal_ = vec3(0, 0, 1);
-    }
-    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
-                            drag_plane_normal_, &intersect)) {
-      drag_offset_ = position - intersect;
-      drag_prev_intersect_ = intersect;
-      drag_orig_scale_ = LoadVec3(transform->scale());
-      input_mode_ = kDragging;
+      if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
+          mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
+        // For scaling, the normal for the drag plane is just a vector pointing
+        // back towards the camera.
+        drag_plane_normal_ = -camera.facing;
+      } else if (mouse_mode_ == kMoveVertical ||
+                 mouse_mode_ == kRotateVertical) {
+        // For Vertical actions, the normal for the drag plane is a vector
+        // pointing back towards the camera with the up component zeroed, so
+        // it's
+        // perpendicular to the ground.
+        drag_plane_normal_ = -camera.facing;
+        drag_plane_normal_.z() = 0;
+        drag_plane_normal_.Normalize();
+      } else {
+        // For Horizontal, the normal for the drag plane is the up-vector.
+        drag_plane_normal_ = vec3(0, 0, 1);
+      }
+      if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                              drag_plane_normal_, &intersect)) {
+        drag_offset_ = position - intersect;
+        drag_prev_intersect_ = intersect;
+        drag_orig_scale_ = transform.scale;
+
+        input_mode_ = kDragging;
+      }
     }
   }
 
@@ -330,8 +283,6 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
     gui_->set_mouse_mode_index(mouse_mode_);
   }
 
-  entity_manager_->DeleteMarkedEntities();
-
   if (exit_requested_ && gui_->CanExit()) {
     exit_ready_ = !entities_modified_;
   } else {
@@ -339,81 +290,62 @@ void SceneLab::AdvanceFrame(corgi::WorldTime delta_time) {
   }
 }
 
-void SceneLab::HighlightEntity(const corgi::EntityRef& entity, float tint) {
-  if (!entity.IsValid()) return;
-  auto render_data = entity_manager_->GetComponentData<RenderMeshData>(entity);
-  if (render_data != nullptr) {
-    render_data->tint = vec4(tint, tint, tint, 1);
+void SceneLab::SelectEntity(const GenericEntityId& entity_id) {
+  if (selected_entity_ != EntitySystemAdapter::kNoEntityId &&
+      selected_entity_ != entity_id) {
+    // Un-highlight the old entity.
+    entity_system_adapter()->SetEntityHighlighted(selected_entity_, false);
   }
-  // Highlight the node's children as well.
-  auto transform_data =
-      entity_manager_->GetComponentData<TransformData>(entity);
-
-  if (transform_data != nullptr) {
-    for (auto iter = transform_data->children.begin();
-         iter != transform_data->children.end(); ++iter) {
-      // Highlight the child, but slightly less brightly.
-      HighlightEntity(iter->owner, 1.0f + ((tint - 1.0f) * 0.8f));
-    }
+  if (entity_id == EntitySystemAdapter::kNoEntityId) {
+    // Select no entity.
+    selected_entity_ = entity_id;
+  } else if (entity_system_adapter()->EntityExists(entity_id)) {
+    // Select and highlight the new entity.
+    selected_entity_ = entity_id;
+    entity_system_adapter()->SetEntityHighlighted(selected_entity_, true);
   }
 }
 
-void SceneLab::SelectEntity(const corgi::EntityRef& entity_ref) {
-  if (selected_entity_.IsValid() && selected_entity_ != entity_ref) {
-    // un-highlight the old one
-    HighlightEntity(selected_entity_, 1);
+void SceneLab::MoveEntityToCamera(const GenericEntityId& id) {
+  GenericCamera camera;
+  entity_system_adapter()->GetCamera(&camera);
+  GenericTransform transform;
+  if (entity_system_adapter()->GetEntityTransform(id, &transform)) {
+    transform.position =
+        camera.position + camera.facing * config_->entity_spawn_distance();
+    if (transform.position.z() < 0) transform.position.z() = 0;
+    entity_system_adapter()->SetEntityTransform(id, transform);
   }
-  if (entity_ref.IsValid()) {
-    auto data = entity_manager_->GetComponentData<MetaData>(entity_ref);
-    if (data != nullptr) {
-    }
-    HighlightEntity(entity_ref, 2);
-  }
-  selected_entity_ = entity_ref;
-}
-
-void SceneLab::MoveEntityToCamera(const corgi::EntityRef& entity_ref) {
- TransformData* transform_data =
-     entity_manager_->GetComponentData<TransformData>(entity_ref);
-  transform_data->position = camera_->position() +
-      camera_->facing() * config_->entity_spawn_distance();
-  if (transform_data->position.z() < 0) transform_data->position.z() = 0;
-  entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
 }
 
 void SceneLab::Render(fplbase::Renderer* /*renderer*/) {
   // Render any editor-specific things
   gui_->SetEditEntity(selected_entity_);
-  if (selected_entity_ && gui_->show_physics()) {
-    auto physics = entity_manager_->GetComponent<PhysicsComponent>();
-    mathfu::mat4 cam = camera_->GetTransformMatrix();
-    physics->DebugDrawObject(renderer_, cam, selected_entity_,
-                             vec3(1.0f, 0.5f, 0.5f));
+  if (selected_entity_ != EntitySystemAdapter::kNoEntityId &&
+      gui_->show_physics()) {
+    entity_system_adapter()->DebugDrawPhysics(selected_entity_);
   }
   gui_->Render();
   if (gui_->edit_entity() != selected_entity_) {
     // The GUI changed who we have selected.
-    *entity_cycler_ = gui_->edit_entity().ToIterator();
     SelectEntity(gui_->edit_entity());
   }
   controller_->Update();  // update the controller now so we can block its input
                           // via the gui
 }
 
-void SceneLab::SetInitialCamera(const corgi::CameraInterface& initial_camera) {
-  if (camera_ == nullptr) {
-    CreateDefaultCamera();
+void SceneLab::SetInitialCamera(const GenericCamera& initial_camera) {
+  // If we can't set the initial camera now, queue it for later.
+  initial_camera_set_ = false;
+  if (entity_system_adapter() == nullptr ||
+      !entity_system_adapter()->SetCamera(initial_camera)) {
+    initial_camera_set_ = true;
+    initial_camera_ = initial_camera;
   }
-  camera_->set_position(initial_camera.position());
-  camera_->set_facing(initial_camera.facing());
-  camera_->set_up(initial_camera.up());
 }
 
-corgi::CameraInterface* SceneLab::GetCamera() {
-  if (camera_ == nullptr) {
-    CreateDefaultCamera();
-  }
-  return camera_.get();
+void SceneLab::GetCamera(GenericCamera* camera) {
+  entity_system_adapter()->GetCamera(camera);
 }
 
 void SceneLab::NotifyEnterEditor() const {
@@ -430,21 +362,24 @@ void SceneLab::NotifyExitEditor() const {
   }
 }
 
-void SceneLab::NotifyCreateEntity(const corgi::EntityRef& entity) const {
+void SceneLab::NotifyCreateEntity(const GenericEntityId& entity) const {
+  entity_system_adapter()->OnEntityCreated(entity);
   for (auto iter = on_create_entity_callbacks_.begin();
        iter != on_create_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyUpdateEntity(const corgi::EntityRef& entity) const {
+void SceneLab::NotifyUpdateEntity(const GenericEntityId& entity) const {
+  entity_system_adapter()->OnEntityUpdated(entity);
   for (auto iter = on_update_entity_callbacks_.begin();
        iter != on_update_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
   }
 }
 
-void SceneLab::NotifyDeleteEntity(const corgi::EntityRef& entity) const {
+void SceneLab::NotifyDeleteEntity(const GenericEntityId& entity) const {
+  entity_system_adapter()->OnEntityDeleted(entity);
   for (auto iter = on_delete_entity_callbacks_.begin();
        iter != on_delete_entity_callbacks_.end(); ++iter) {
     (*iter)(entity);
@@ -452,152 +387,96 @@ void SceneLab::NotifyDeleteEntity(const corgi::EntityRef& entity) const {
 }
 
 void SceneLab::Activate() {
-  if (camera_ == nullptr) {
-    CreateDefaultCamera();
-  }
   exit_requested_ = false;
   exit_ready_ = false;
   set_entities_modified(false);
 
-  // Set up the initial camera position.
-  controller_->SetFacing(camera_->facing());
-  controller_->LockMouse();
-
-  // Disable distance culling, if enabled.
-  auto render_mesh_component =
-      entity_manager_->GetComponent<RenderMeshComponent>();
-  if (render_mesh_component != nullptr) {
-    rendermesh_culling_distance_squared_ =
-        render_mesh_component->culling_distance_squared();
-    // Only cull past the far clipping plane.
-    render_mesh_component->set_culling_distance_squared(
-        camera_->viewport_far_plane() * camera_->viewport_far_plane());
-  }
-
   input_mode_ = kMoving;
-  *entity_cycler_ = entity_manager_->end();
 
   NotifyEnterEditor();
 
   gui_->Activate();
+
+  // De-select all entities.
+  SelectEntity(EntitySystemAdapter::kNoEntityId);
+
+  entity_system_adapter()->OnActivate();
+
+  if (initial_camera_set_) {
+    initial_camera_set_ = false;
+    entity_system_adapter()->SetCamera(initial_camera_);
+  }
+  GenericCamera camera;
+  entity_system_adapter()->GetCamera(&camera);
+  // Set up the initial camera position.
+  controller_->SetFacing(camera.facing);
+  controller_->LockMouse();
 }
 
 void SceneLab::Deactivate() {
+  // De-select all entities.
+  SelectEntity(EntitySystemAdapter::kNoEntityId);
+
   SaveScene(false);
+
+  entity_system_adapter()->OnDeactivate();
 
   gui_->Deactivate();
 
-  // Restore previous distance culling setting.
-  auto render_mesh_component =
-      entity_manager_->GetComponent<RenderMeshComponent>();
-  if (render_mesh_component != nullptr) {
-    render_mesh_component->set_culling_distance_squared(
-        rendermesh_culling_distance_squared_);
-  }
-  auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
-  if (physics_component != nullptr) {
-    physics_component->AwakenAllEntities();
-  }
   NotifyExitEditor();
-
-  // de-select all entities
-  SelectEntity(corgi::EntityRef());
-
-  *entity_cycler_ = entity_manager_->end();
 }
 
-void SceneLab::SaveScene(bool to_disk) {
-  auto editor_component = entity_manager_->GetComponent<MetaComponent>();
-  // get a list of all filenames in the world
-  std::set<std::string> filenames;
-  for (auto entity = editor_component->begin();
-       entity != editor_component->end(); ++entity) {
-    filenames.insert(entity->data.source_file);
+bool SceneLab::SaveScene(bool to_disk) {
+  // Get a list of all filenames in the world.
+  std::vector<GenericEntityId> entity_ids;
+  if (!entity_system_adapter()->GetAllEntityIDs(&entity_ids)) {
+    fplbase::LogInfo("Scene Lab: Couldn't get entity IDs.");
+    return false;
   }
-  for (auto iter = filenames.begin(); iter != filenames.end(); ++iter) {
-    const std::string& filename = *iter;
-    if (to_disk) {
-      SaveEntitiesInFile(filename);
+  // Deselect the selected entity.
+  GenericEntityId prev_selected = selected_entity_;
+  if (prev_selected != EntitySystemAdapter::kNoEntityId)
+    SelectEntity(EntitySystemAdapter::kNoEntityId);
+
+  // Divide up entity IDs by filename.
+  std::string filename;
+  std::unordered_map<std::string, std::vector<GenericEntityId>> ids_by_file;
+  for (auto e = entity_ids.begin(); e != entity_ids.end(); ++e) {
+    if (entity_system_adapter()->GetEntitySourceFile(*e, &filename)) {
+      if (filename.length() == 0) {
+        // Blank filename indicates save to a default file.
+        filename = kDefaultEntityFile;
+      }
+      auto file = ids_by_file.find(filename);
+      if (file == ids_by_file.end()) {
+        ids_by_file[filename] = std::vector<GenericEntityId>();
+        file = ids_by_file.find(filename);
+      }
+      file->second.push_back(*e);
     }
-    std::vector<uint8_t> entity_buffer;
-    if (SerializeEntitiesFromFile(filename, &entity_buffer)) {
-      entity_factory_->OverrideCachedFile(
-          (filename + "." + BinaryEntityFileExtension()).c_str(),
-          std::unique_ptr<std::string>(new std::string(
-              reinterpret_cast<const char*>(entity_buffer.data()),
-              entity_buffer.size())));
+  }
+  // Save entities in each file.
+  for (auto iter = ids_by_file.begin(); iter != ids_by_file.end(); ++iter) {
+    const std::string& filename = iter->first;
+    if (filename.length() == 0) {
+      // Skip blank filename.
+      continue;
+    }
+    std::vector<uint8_t> output;
+    if (entity_system_adapter()->SerializeEntities(iter->second, &output)) {
+      if (to_disk) {
+        // Write "output" to disk. Also write the JSON version.
+        WriteEntityFile(filename, output);
+      }
+      entity_system_adapter()->OverrideFileCache(
+          filename + "." + BinaryEntityFileExtension(), output);
     }
   }
   set_entities_modified(false);
-}
 
-corgi::EntityRef SceneLab::DuplicateEntity(corgi::EntityRef& entity) {
-  std::vector<uint8_t> entity_serialized;
-  if (!entity_factory_->SerializeEntity(entity, entity_manager_,
-                                        &entity_serialized)) {
-    fplbase::LogError("DuplicateEntity: Couldn't serialize entity");
-  }
-  std::vector<std::vector<uint8_t>> entity_defs;
-  entity_defs.push_back(entity_serialized);
-  std::vector<uint8_t> entity_list;
-  if (!entity_factory_->SerializeEntityList(entity_defs, &entity_list)) {
-    fplbase::LogError("DuplicateEntity: Couldn't create entity list");
-  }
-  std::vector<corgi::EntityRef> entities_created;
-  if (entity_factory_->LoadEntityListFromMemory(
-          entity_list.data(), entity_manager_, &entities_created) > 0) {
-    // We created some new duplicate entities! (most likely exactly one.)  We
-    // need to remove their entity IDs since otherwise they will have
-    // duplicate entity IDs to the one we created.  We also need to make sure
-    // the new entity IDs are marked with the same source file as the old.
-
-    for (size_t i = 0; i < entities_created.size(); i++) {
-      corgi::EntityRef& new_entity = entities_created[i];
-      MetaData* old_editor_data =
-          entity_manager_->GetComponentData<MetaData>(entity);
-      MetaData* editor_data =
-          entity_manager_->GetComponentData<MetaData>(new_entity);
-      if (editor_data != nullptr) {
-        editor_data->entity_id = "";
-        if (old_editor_data != nullptr)
-          editor_data->source_file = old_editor_data->source_file;
-      }
-    }
-    entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
-    for (size_t i = 0; i < entities_created.size(); i++) {
-      NotifyCreateEntity(entities_created[i]);
-    }
-    return entities_created[0];
-  }
-  return corgi::EntityRef();
-}
-
-void SceneLab::DestroyEntity(corgi::EntityRef& entity) {
-  entity_manager_->DeleteEntity(entity);
-}
-
-void SceneLab::LoadSchemaFiles() {
-  const char* schema_file_text = config_->schema_file_text()->c_str();
-  const char* schema_file_binary = config_->schema_file_binary()->c_str();
-
-  if (!fplbase::LoadFile(schema_file_binary, &schema_data_)) {
-    fplbase::LogError("Failed to open binary schema file: %s",
-                      schema_file_binary);
-    return;
-  }
-  auto schema = reflection::GetSchema(schema_data_.c_str());
-  if (schema != nullptr) {
-    fplbase::LogInfo("Scene Lab: Binary schema %s loaded", schema_file_binary);
-  }
-  if (fplbase::LoadFile(schema_file_text, &schema_text_)) {
-    fplbase::LogInfo("Scene Lab: Text schema %s loaded", schema_file_text);
-  }
-}
-
-void SceneLab::CreateDefaultCamera() {
-  fplbase::LogInfo("Creating a default BasicCamera for Scene Lab");
-  std::unique_ptr<corgi::CameraInterface> basic_camera(new BasicCamera());
-  SetCamera(std::move(basic_camera));
+  if (prev_selected != EntitySystemAdapter::kNoEntityId)
+    SelectEntity(prev_selected);
+  return true;
 }
 
 const char* SceneLab::BinaryEntityFileExtension() const {
@@ -608,46 +487,10 @@ const char* SceneLab::BinaryEntityFileExtension() const {
   }
 }
 
-bool SceneLab::SerializeEntitiesFromFile(const std::string& filename,
-                                         std::vector<uint8_t>* output) {
-  if (filename == "") {
-    fplbase::LogInfo("Skipping serializing entities to blank filename.");
-    return false;
-  }
-  fplbase::LogInfo("Serializing entities from file: '%s'", filename.c_str());
-  // We know the FlatBuffer format we're using: components
-  flatbuffers::FlatBufferBuilder builder;
-  std::vector<std::vector<uint8_t>> entities_serialized;
-
-  auto editor_component = entity_manager_->GetComponent<MetaComponent>();
-  // loop through all entities
-  for (auto entityiter = entity_manager_->begin();
-       entityiter != entity_manager_->end(); ++entityiter) {
-    corgi::EntityRef entity = entityiter.ToReference();
-    const MetaData* editor_data = editor_component->GetComponentData(entity);
-    if (editor_data != nullptr && editor_data->source_file == filename) {
-      entities_serialized.push_back(std::vector<uint8_t>());
-      entity_factory_->SerializeEntity(entity, entity_manager_,
-                                       &entities_serialized.back());
-    }
-  }
-  std::vector<uint8_t> entity_list;
-  if (!entity_factory_->SerializeEntityList(entities_serialized, output)) {
-    fplbase::LogError("Couldn't serialize entity list.");
-    return false;
-  }
-  return true;
-}
-
-void SceneLab::SaveEntitiesInFile(const std::string& filename) {
-  std::vector<uint8_t> entity_list;
-  if (!SerializeEntitiesFromFile(filename, &entity_list)) {
-    fplbase::LogError("SerializeEntitiesFromFile failed.");
-    return;
-  }
-  fplbase::LogInfo("Saving entities in file: '%s'", filename.c_str());
+void SceneLab::WriteEntityFile(const std::string& filename,
+                               const std::vector<uint8_t>& file_contents) {
   if (fplbase::SaveFile((filename + "." + BinaryEntityFileExtension()).c_str(),
-                        entity_list.data(), entity_list.size())) {
+                        file_contents.data(), file_contents.size())) {
     fplbase::LogInfo("Save (binary) to file '%s' successful.",
                      filename.c_str());
   } else {
@@ -655,7 +498,8 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
   }
   // Now save to JSON file.
   // First load and parse the flatbuffer schema, then generate text.
-  if (schema_text_ != "") {
+  std::string schema_text;
+  if (entity_system_adapter()->GetTextSchema(&schema_text)) {
     // Make a list of include paths that parser.Parse can parse.
     // char** with nullptr termination.
     std::unique_ptr<const char*> include_paths;
@@ -668,11 +512,11 @@ void SceneLab::SaveEntitiesInFile(const std::string& filename) {
     }
     include_paths.get()[num_paths] = nullptr;
     flatbuffers::Parser parser;
-    if (parser.Parse(schema_text_.c_str(), include_paths.get(),
+    if (parser.Parse(schema_text.c_str(), include_paths.get(),
                      config_->schema_file_text()->c_str())) {
       std::string json;
       parser.opts.strict_json = true;
-      GenerateText(parser, entity_list.data(), &json);
+      GenerateText(parser, file_contents.data(), &json);
       std::string json_path =
           (config_->json_output_directory()
                ? flatbuffers::ConCatPathFileName(
@@ -705,10 +549,10 @@ bool SceneLab::PreciseMovement() const {
            controller_->KeyIsDown(fplbase::FPLK_RSHIFT)));
 }
 
-vec3 SceneLab::GlobalFromHorizontal(float forward, float right,
-                                    float up) const {
+vec3 SceneLab::GlobalFromHorizontal(float forward, float right, float up,
+                                    const mathfu::vec3& plane_normal) const {
   return horizontal_forward_ * forward + horizontal_right_ * right +
-         camera_->up() * up;
+         plane_normal * up;
 }
 
 bool SceneLab::IntersectRayToPlane(const vec3& ray_origin,
@@ -758,6 +602,9 @@ vec3 SceneLab::GetMovement() const {
   // Get a movement vector to move the user forward, up, or right.
   // Movement is always relative to the camera facing, but parallel to
   // ground.
+  GenericCamera camera;
+  entity_system_adapter()->GetCamera(&camera);
+
   float forward_speed = 0;
   float up_speed = 0;
   float right_speed = 0;
@@ -789,89 +636,98 @@ vec3 SceneLab::GetMovement() const {
       up_speed -= move_speed;
     }
     // Translate the keypresses into movement parallel to the ground plane.
-    return GlobalFromHorizontal(forward_speed, right_speed, up_speed);
+    return GlobalFromHorizontal(forward_speed, right_speed, up_speed,
+                                camera.up);
   } else {
     // Just move relative to the direction of the camera.
     // forward-vector X up-vector = right-vector
-    return camera_->facing() * forward_speed +
-           vec3::CrossProduct(camera_->facing(), camera_->up()) * right_speed;
+    return camera.facing * forward_speed +
+           vec3::CrossProduct(camera.facing, camera.up) * right_speed;
   }
 }
 
-bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
+bool SceneLab::ModifyTransformBasedOnInput(GenericTransform* transform) {
+  GenericCamera camera;
+  entity_system_adapter()->GetCamera(&camera);
+
   if (input_mode_ == kDragging) {
-    vec3 start, end;
-    controller_->GetMouseWorldRay(*camera_, renderer_->window_size(), &start,
-                                  &end);
-    vec3 mouse_ray_origin = start;
-    vec3 mouse_ray_dir = (end - start).Normalized();
-    vec3 intersect;
+    ViewportSettings viewport;
+    if (entity_system_adapter()->GetViewportSettings(&viewport)) {
+      mathfu::vec2 pointer = controller_->GetPointer();
+      vec3 mouse_ray_origin;
+      vec3 mouse_ray_dir;
+      if (controller_->ScreenPointToWorldRay(
+              camera, viewport, pointer, renderer_->window_size(),
+              &mouse_ray_origin, &mouse_ray_dir)) {
+        vec3 intersect;
 
-    if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
-                            drag_plane_normal_, &intersect)) {
-      if (mouse_mode_ == kMoveHorizontal || mouse_mode_ == kMoveVertical) {
-        vec3 new_pos = intersect + drag_offset_;
-        *transform->mutable_position() =
-            Vec3(new_pos.x(), new_pos.y(), new_pos.z());
-        return true;
-      } else {
-        // Rotation and scaling are both based on the relative position of the
-        // mouse intersection point and the object's origin as projected onto
-        // the drag plane.
-        vec3 origin = LoadVec3(transform->position());
-        vec3 origin_on_plane;
-        if (!ProjectPointToPlane(origin, drag_point_, drag_plane_normal_,
-                                 &origin_on_plane)) {
-          // For some reason we couldn't project the origin point onto the drag
-          // plane. This is a weird situation; best just not modify anything.
-          return false;
-        }
-        if (mouse_mode_ == kRotateHorizontal ||
-            mouse_mode_ == kRotateVertical) {
-          // Figure out how much the drag point has rotated about the object's
-          // origin since last frame, and add that to our current rotation.
-          vec3 new_rot = (intersect - origin).Normalized();
-          vec3 old_rot = (drag_prev_intersect_ - origin).Normalized();
-          vec3 cross = vec3::CrossProduct(old_rot, new_rot);
-          float sin_a = vec3::DotProduct(cross, drag_plane_normal_) > 0
-                            ? -cross.Length()
-                            : cross.Length();
-          float cos_a = vec3::DotProduct(old_rot, new_rot);
-          float angle = atan2(sin_a, cos_a);
-          drag_prev_intersect_ = intersect;
+        if (IntersectRayToPlane(mouse_ray_origin, mouse_ray_dir, drag_point_,
+                                drag_plane_normal_, &intersect)) {
+          if (mouse_mode_ == kMoveHorizontal || mouse_mode_ == kMoveVertical) {
+            vec3 new_pos = intersect + drag_offset_;
+            transform->position = new_pos;
+            return true;
+          } else {
+            // Rotation and scaling are both based on the relative position of
+            // the mouse intersection point and the object's origin as projected
+            // onto the drag plane.
+            vec3 origin = transform->position;
+            vec3 origin_on_plane;
+            if (!ProjectPointToPlane(origin, drag_point_, drag_plane_normal_,
+                                     &origin_on_plane)) {
+              // For some reason we couldn't project the origin point onto the
+              // drag plane. This is a weird situation; best just not modify
+              // anything.
+              return false;
+            }
+            if (mouse_mode_ == kRotateHorizontal ||
+                mouse_mode_ == kRotateVertical) {
+              // Figure out how much the drag point has rotated about the
+              // object's origin since last frame, and add that to our current
+              // rotation.
+              vec3 new_rot = (intersect - origin).Normalized();
+              vec3 old_rot = (drag_prev_intersect_ - origin).Normalized();
+              vec3 cross = vec3::CrossProduct(old_rot, new_rot);
+              float sin_a = vec3::DotProduct(cross, drag_plane_normal_) > 0
+                                ? -cross.Length()
+                                : cross.Length();
+              float cos_a = vec3::DotProduct(old_rot, new_rot);
+              float angle = atan2(sin_a, cos_a);
+              drag_prev_intersect_ = intersect;
 
-          // Apply 'angle' with axis 'drag_plane_normal_' to existing
-          // orientation.
-          mathfu::quat orientation = mathfu::quat::FromEulerAngles(
-              mathfu::vec3(transform->orientation()->x(),
-                           transform->orientation()->y(),
-                           transform->orientation()->z()) *
-              kDegreesToRadians);
-          orientation = orientation *
-                        mathfu::quat::FromAngleAxis(angle, drag_plane_normal_);
-          mathfu::vec3 euler = orientation.ToEulerAngles() / kDegreesToRadians;
-          *transform->mutable_orientation() =
-              fplbase::Vec3(euler.x(), euler.y(), euler.z());
-          return true;
+              // Apply 'angle' with axis 'drag_plane_normal_' to existing
+              // orientation.
+              mathfu::quat orientation = transform->orientation;
+              orientation = orientation * mathfu::quat::FromAngleAxis(
+                                              angle, drag_plane_normal_);
+              transform->orientation = orientation;
+              return true;
 
-        } else if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
-                   mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
-          float old_offset = (drag_point_ - origin).Length();
-          float new_offset = (intersect - origin).Length();
-          if (old_offset == 0) return false;  // Avoid division by zero.
-          // Use the ratio of the original and current distance between mouse
-          // cursor and object origin to determine scale. Direction is ignored.
-          float scale = new_offset / old_offset;
-          float xscale =
-              (mouse_mode_ == kScaleX || mouse_mode_ == kScaleAll) ? scale : 1;
-          float yscale =
-              (mouse_mode_ == kScaleY || mouse_mode_ == kScaleAll) ? scale : 1;
-          float zscale =
-              (mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) ? scale : 1;
-          *transform->mutable_scale() =
-              Vec3(drag_orig_scale_.x() * xscale, drag_orig_scale_.y() * yscale,
-                   drag_orig_scale_.z() * zscale);
-          return true;
+            } else if (mouse_mode_ == kScaleX || mouse_mode_ == kScaleY ||
+                       mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) {
+              float old_offset = (drag_point_ - origin).Length();
+              float new_offset = (intersect - origin).Length();
+              if (old_offset == 0) return false;  // Avoid division by zero.
+              // Use the ratio of the original and current distance between
+              // mouse
+              // cursor and object origin to determine scale. Direction is
+              // ignored.
+              float scale = new_offset / old_offset;
+              float xscale =
+                  (mouse_mode_ == kScaleX || mouse_mode_ == kScaleAll) ? scale
+                                                                       : 1;
+              float yscale =
+                  (mouse_mode_ == kScaleY || mouse_mode_ == kScaleAll) ? scale
+                                                                       : 1;
+              float zscale =
+                  (mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) ? scale
+                                                                       : 1;
+              transform->scale = mathfu::vec3(drag_orig_scale_.x() * xscale,
+                                              drag_orig_scale_.y() * yscale,
+                                              drag_orig_scale_.z() * zscale);
+              return true;
+            }
+          }
         }
       }
     }
@@ -940,31 +796,35 @@ bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
     } else if (controller_->KeyIsDown(fplbase::FPLK_MINUS)) {
       scale_speed = 1.0f / config_->object_scale_speed();
     }
-    const vec3 position =
-        LoadVec3(transform->mutable_position()) +
-        GlobalFromHorizontal(fwd_speed, right_speed, up_speed);
+    const vec3 new_position =
+        transform->position +
+        GlobalFromHorizontal(fwd_speed, right_speed, up_speed, camera.up);
 
-    Vec3 orientation = *transform->mutable_orientation();
-    orientation =
-        Vec3(orientation.x() + pitch_speed, orientation.y() + roll_speed,
-             orientation.z() + yaw_speed);
-    Vec3 scale = *transform->scale();
+    vec3 new_orientation = transform->orientation.ToEulerAngles() +
+                           vec3(pitch_speed, roll_speed, yaw_speed);
+
+    vec3 new_scale = transform->scale;
     if (controller_->KeyIsDown(fplbase::FPLK_0) &&
         controller_->KeyIsDown(fplbase::FPLK_LCTRL)) {
-      scale = Vec3(1.0f, 1.0f, 1.0f);
-      scale_speed = 0;  // to trigger returning true
+      new_scale = mathfu::kOnes3f;
+      scale_speed = 0;  // to trigger modified = true
     } else {
-      scale = Vec3(scale.x() * scale_speed, scale.y() * scale_speed,
-                   scale.z() * scale_speed);
+      new_scale = scale_speed * new_scale;
     }
-    if (fwd_speed != 0 || right_speed != 0 || up_speed != 0 || yaw_speed != 0 ||
-        roll_speed != 0 || pitch_speed != 0 || scale_speed != 1) {
-      *(transform->mutable_position()) =
-          Vec3(position.x(), position.y(), position.z());
-      *(transform->mutable_orientation()) = orientation;
-      *(transform->mutable_scale()) = scale;
-      return true;
+    bool modified = false;
+    if (fwd_speed != 0 || right_speed != 0 || up_speed != 0) {
+      modified = true;
+      transform->position = new_position;
     }
+    if (yaw_speed != 0 || roll_speed != 0 || pitch_speed != 0) {
+      modified = true;
+      transform->orientation = mathfu::quat::FromEulerAngles(new_orientation);
+    }
+    if (scale_speed != 1) {
+      modified = true;
+      transform->scale = new_scale;
+    }
+    if (modified) return true;
   }
   return false;
 }

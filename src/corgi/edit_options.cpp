@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_lab/corgi/edit_options.h"
 #include <assert.h>
 #include <string.h>
 #include "corgi_component_library/common_services.h"
@@ -19,26 +20,34 @@
 #include "corgi_component_library/rendermesh.h"
 #include "library_components_generated.h"
 #include "mathfu/utilities.h"
-#include "scene_lab/edit_options.h"
+#include "scene_lab/corgi/corgi_adapter.h"
 #include "scene_lab/scene_lab.h"
 
-CORGI_DEFINE_COMPONENT(scene_lab::EditOptionsComponent,
-                       scene_lab::EditOptionsData)
+CORGI_DEFINE_COMPONENT(scene_lab_corgi::EditOptionsComponent,
+                       scene_lab_corgi::EditOptionsData)
 
-namespace scene_lab {
+namespace scene_lab_corgi {
 
 using corgi::component_library::CommonServicesComponent;
 using corgi::component_library::PhysicsComponent;
 using corgi::component_library::PhysicsData;
 using corgi::component_library::RenderMeshComponent;
 using corgi::component_library::RenderMeshData;
+using scene_lab::EditOptionsDef;
+using scene_lab::EditOptionsDefBuilder;
+using scene_lab::SceneLab;
 
-void EditOptionsComponent::SetSceneLabCallbacks(SceneLab* scene_lab) {
+void EditOptionsComponent::SetSceneLabCallbacks(CorgiAdapter* corgi_adapter) {
+  corgi_adapter_ = corgi_adapter;
+  SceneLab* scene_lab = corgi_adapter_->scene_lab();
   assert(scene_lab);
   scene_lab->AddOnEnterEditorCallback([this]() { EditorEnter(); });
   scene_lab->AddOnExitEditorCallback([this]() { EditorExit(); });
   scene_lab->AddOnCreateEntityCallback(
-      [this](const corgi::EntityRef& entity) { EntityCreated(entity); });
+      [this](const scene_lab::GenericEntityId& id) {
+        corgi::EntityRef entity = corgi_adapter_->GetEntityRef(id);
+        EntityCreated(entity);
+      });
 }
 
 void EditOptionsComponent::AddFromRawData(corgi::EntityRef& entity,
@@ -46,10 +55,11 @@ void EditOptionsComponent::AddFromRawData(corgi::EntityRef& entity,
   const EditOptionsDef* edit_def = static_cast<const EditOptionsDef*>(raw_data);
   EditOptionsData* edit_data = AddEntity(entity);
   if (raw_data != nullptr) {
-    if (edit_def->selection_option() != SelectionOption_Unspecified) {
+    if (edit_def->selection_option() !=
+        scene_lab::SelectionOption_Unspecified) {
       edit_data->selection_option = edit_def->selection_option();
     }
-    if (edit_def->render_option() != RenderOption_Unspecified) {
+    if (edit_def->render_option() != scene_lab::RenderOption_Unspecified) {
       edit_data->render_option = edit_def->render_option();
     }
   }
@@ -65,10 +75,11 @@ corgi::ComponentInterface::RawDataUniquePtr EditOptionsComponent::ExportRawData(
                       ->export_force_defaults();
   fbb.ForceDefaults(defaults);
   EditOptionsDefBuilder builder(fbb);
-  if (defaults || data->selection_option != SelectionOption_Unspecified)
+  if (defaults ||
+      data->selection_option != scene_lab::SelectionOption_Unspecified)
     builder.add_selection_option(data->selection_option);
 
-  if (defaults || data->render_option != RenderOption_Unspecified)
+  if (defaults || data->render_option != scene_lab::RenderOption_Unspecified)
     builder.add_render_option(data->render_option);
 
   fbb.Finish(builder.Finish());
@@ -82,20 +93,23 @@ void EditOptionsComponent::EditorEnter() {
   for (auto iter = component_data_.begin(); iter != component_data_.end();
        ++iter) {
     corgi::EntityRef entity = iter->entity;
-    if (iter->data.render_option == RenderOption_OnlyInEditor ||
-        iter->data.render_option == RenderOption_NotInEditor) {
+    if (iter->data.render_option == scene_lab::RenderOption_OnlyInEditor ||
+        iter->data.render_option == scene_lab::RenderOption_NotInEditor) {
       RenderMeshData* rendermesh_data =
           render_mesh_component->GetComponentData(entity);
       if (rendermesh_data != nullptr) {
-        bool hide = (iter->data.render_option == RenderOption_NotInEditor);
+        bool hide =
+            (iter->data.render_option == scene_lab::RenderOption_NotInEditor);
         iter->data.backup_rendermesh_hidden = !rendermesh_data->visible;
         rendermesh_data->visible = !hide;
       }
     }
     if (physics_component &&
-        (iter->data.selection_option == SelectionOption_PointerOnly ||
-         iter->data.selection_option == SelectionOption_Any ||
-         iter->data.selection_option == SelectionOption_Unspecified)) {
+        (iter->data.selection_option ==
+             scene_lab::SelectionOption_PointerOnly ||
+         iter->data.selection_option == scene_lab::SelectionOption_Any ||
+         iter->data.selection_option ==
+             scene_lab::SelectionOption_Unspecified)) {
       entity_manager_->AddEntityToComponent<PhysicsComponent>(entity);
       // Generate shapes for raycasting, setting the results to not be
       // included on export.
@@ -109,20 +123,20 @@ void EditOptionsComponent::EntityCreated(corgi::EntityRef entity) {
       entity_manager_->GetComponent<RenderMeshComponent>();
   auto physics_component = entity_manager_->GetComponent<PhysicsComponent>();
   EditOptionsData* data = Data<EditOptionsData>(entity);
-  if (data->render_option == RenderOption_OnlyInEditor ||
-      data->render_option == RenderOption_NotInEditor) {
+  if (data->render_option == scene_lab::RenderOption_OnlyInEditor ||
+      data->render_option == scene_lab::RenderOption_NotInEditor) {
     RenderMeshData* rendermesh_data =
         render_mesh_component->GetComponentData(entity);
     if (rendermesh_data != nullptr) {
-      bool hide = (data->render_option == RenderOption_NotInEditor);
+      bool hide = (data->render_option == scene_lab::RenderOption_NotInEditor);
       data->backup_rendermesh_hidden = !rendermesh_data->visible;
       rendermesh_data->visible = !hide;
     }
   }
   if (physics_component &&
-      (data->selection_option == SelectionOption_PointerOnly ||
-       data->selection_option == SelectionOption_Any ||
-       data->selection_option == SelectionOption_Unspecified)) {
+      (data->selection_option == scene_lab::SelectionOption_PointerOnly ||
+       data->selection_option == scene_lab::SelectionOption_Any ||
+       data->selection_option == scene_lab::SelectionOption_Unspecified)) {
     entity_manager_->AddEntityToComponent<PhysicsComponent>(entity);
     // Generate shapes for raycasting, setting the results to not be
     // included on export.
@@ -135,8 +149,8 @@ void EditOptionsComponent::EditorExit() {
       entity_manager_->GetComponent<RenderMeshComponent>();
   for (auto iter = component_data_.begin(); iter != component_data_.end();
        ++iter) {
-    if (iter->data.render_option == RenderOption_OnlyInEditor ||
-        iter->data.render_option == RenderOption_NotInEditor) {
+    if (iter->data.render_option == scene_lab::RenderOption_OnlyInEditor ||
+        iter->data.render_option == scene_lab::RenderOption_NotInEditor) {
       RenderMeshData* rendermesh_data =
           render_mesh_component->GetComponentData(iter->entity);
       if (rendermesh_data != nullptr) {
@@ -146,4 +160,4 @@ void EditOptionsComponent::EditorExit() {
   }
 }
 
-}  // namespace scene_lab
+}  // namespace scene_lab_corgi

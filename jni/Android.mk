@@ -54,12 +54,14 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
   src/basic_camera.cpp \
-  src/edit_options.cpp \
   src/editor_controller.cpp \
   src/editor_gui.cpp \
+  src/entity_system_adapter.cpp \
   src/flatbuffer_editor.cpp \
   src/scene_lab.cpp \
-  src/util.cpp
+  src/util.cpp \
+  src/corgi/corgi_adapter.cpp \
+  src/corgi/edit_options.cpp
 
 SCENE_LAB_SCHEMA_DIR := $(SCENE_LAB_DIR)/schemas
 SCENE_LAB_SCHEMA_INCLUDE_DIRS := \

@@ -83,9 +83,15 @@ bool Game::Initialize(const char* const binary_directory) {
   SetupComponents();
 
   scene_lab_->Initialize(scene_lab::GetSceneLabConfig(config_.c_str()),
-                         &entity_manager_, &font_manager_);
-  scene_lab_->GetCamera()->set_position(
-      mathfu::vec3(0.0f, 0.0f, kStartingHeight));
+                         &asset_manager_, &input_, &renderer_, &font_manager_);
+
+  std::unique_ptr<scene_lab_corgi::CorgiAdapter> adapter(
+      new scene_lab_corgi::CorgiAdapter(scene_lab_.get(), &entity_manager_));
+  scene_lab_->SetEntitySystemAdapter(std::move(adapter));
+
+  scene_lab::GenericCamera camera;
+  camera.position = mathfu::vec3(0.0f, 0.0f, kStartingHeight);
+  scene_lab_->SetInitialCamera(camera);
 
   in_editor_ = false;
 
@@ -154,7 +160,7 @@ bool Game::Update(corgi::WorldTime delta_time) {
 void Game::Render() {
   renderer_.AdvanceFrame(input_.minimized(), input_.Time());
 
-  corgi::CameraInterface* camera = scene_lab_->GetCamera();
+  corgi::CameraInterface* camera = corgi_adapter()->GetCorgiCamera();
   camera->set_viewport_resolution(mathfu::vec2(renderer_.window_size()));
 
   mathfu::mat4 camera_transform = camera->GetTransformMatrix();
