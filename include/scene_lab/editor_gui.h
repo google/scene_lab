@@ -185,10 +185,15 @@ class EditorGui {
   void DrawEntityListUI();
   /// Draw an interface for changing editor settings.
   void DrawSettingsUI();
+  /// Draw an interface for choosing a prototype from a list.
+  void DrawPrototypeListUI();
   /// Draw a list of all of the component data that this entity has.
   void DrawEntityComponent(corgi::ComponentId id);
   /// Draw a list of the entity's parent and children, if any.
   void DrawEntityFamily();
+
+  /// Reload and sort the list of currently available prototypes.
+  void RefreshPrototypeList();
 
   /// Draw tab bars for the different edit views.
   void DrawTabs();
@@ -230,8 +235,10 @@ class EditorGui {
   corgi::ComponentId auto_recreate_component_;
 
   std::vector<bool> components_to_show_;  // Components to display on screen.
+  std::vector<std::string> prototype_list_; // Currently available protoypes.
 
   std::string entity_list_filter_;
+  std::string prototype_list_filter_;
   std::string menu_title_string_;
 
   mathfu::vec4 bg_edit_ui_color_;

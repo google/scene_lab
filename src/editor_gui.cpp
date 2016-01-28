@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <stdlib.h>
 #include <string>
 #include "corgi_component_library/common_services.h"
@@ -348,6 +349,8 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
       DrawEntityListUI();
     } else if (edit_view_ == kSettings) {
       DrawSettingsUI();
+    } else if (edit_view_ == kPrototypeList) {
+      DrawPrototypeListUI();
     }
     FinishDrawEditView();
   }
@@ -513,6 +516,9 @@ void EditorGui::DrawTabs() {
     auto event = flatui::CheckEvent();
     if (event & flatui::kEventWentUp) {
       new_edit_view = i;
+      if (new_edit_view == kPrototypeList) {
+        RefreshPrototypeList();
+      }
     }
     flatui::EndGroup();  // we:toolbar-tab-overlay-view
     flatui::StartGroup(flatui::kLayoutHorizontalBottom, 0,
@@ -620,6 +626,39 @@ void EditorGui::DrawEntityListUI() {
     }
     SetEditEntity(changed_edit_entity_);
     changed_edit_entity_ = corgi::EntityRef();
+  }
+}
+
+void EditorGui::RefreshPrototypeList() {
+  auto prototype_data = entity_factory_->prototype_data();
+  prototype_list_.clear();
+  for(auto it = prototype_data.begin(); it != prototype_data.end(); ++it) {
+    prototype_list_.push_back(it->first);
+  }
+  std::sort(prototype_list_.begin(), prototype_list_.end());
+}
+
+void EditorGui::DrawPrototypeListUI() {
+  flatui::StartGroup(flatui::kLayoutHorizontalCenter, kSpacing,
+                     "ws:prototype-list-filter");
+  flatui::SetTextColor(text_normal_color_);
+  flatui::Label("Filter:", config_->gui_button_size());
+  vec2 size_vec = prototype_list_filter_.length() > 0 ?
+      vec2(0, 0) : vec2(kBlankEditWidth, 0);
+  flatui::SetTextColor(text_editable_color_);
+  if (flatui::Edit(config_->gui_button_size(), size_vec,
+                   "ws:prototype-list-edit", &prototype_list_filter_)) {
+    keyboard_in_use_ = true;
+  }
+  flatui::EndGroup();  // ws:prototype-list-filter
+
+  const float kButtonSize = config_->gui_toolbar_size();
+  for (auto it = prototype_list_.begin(); it != prototype_list_.end(); ++it) {
+    if (prototype_list_filter_.length() == 0 ||
+        it->find(prototype_list_filter_) != std::string::npos) {
+      TextButton(it->c_str(), ("we:prototype-button-" + (*it)).c_str(),
+                 kButtonSize);
+    }
   }
 }
 
