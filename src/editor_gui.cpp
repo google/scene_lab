@@ -656,8 +656,16 @@ void EditorGui::DrawPrototypeListUI() {
   for (auto it = prototype_list_.begin(); it != prototype_list_.end(); ++it) {
     if (prototype_list_filter_.length() == 0 ||
         it->find(prototype_list_filter_) != std::string::npos) {
-      TextButton(it->c_str(), ("we:prototype-button-" + (*it)).c_str(),
-                 kButtonSize);
+      if (TextButton(it->c_str(), ("we:prototype-button-" + (*it)).c_str(),
+                     kButtonSize) & flatui::kEventWentUp){
+        corgi::EntityRef new_entity = entity_factory_
+            ->CreateEntityFromPrototype(it->c_str(), entity_manager_);
+        entity_manager_->GetComponent<EditOptionsComponent>()
+            ->EntityCreated(new_entity);
+        scene_lab_->MoveEntityToCamera(new_entity);
+        SetEditEntity(new_entity);
+        scene_lab_->SelectEntity(new_entity);
+      }
     }
   }
 }

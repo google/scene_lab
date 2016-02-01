@@ -106,6 +106,9 @@ class SceneLab {
   /// Highlight the specified entity, so that you can change its properties.
   void SelectEntity(const corgi::EntityRef& entity_ref);
 
+  /// Move the specified entity to directly in front of the camera.
+  void MoveEntityToCamera(const corgi::EntityRef& entity_ref);
+
   /// Save the current positions and properties of all entities.
   ///
   /// If `to_disk` is true, save to .bin and .json files and update the entity

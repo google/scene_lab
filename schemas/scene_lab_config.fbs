@@ -46,6 +46,9 @@ table SceneLabConfig {
   // in units per frame.
   precise_movement_scale:float;
 
+  // Radial distance to spawn a new entity in front of the camera.
+  entity_spawn_distance:float = 20;
+
   // Sensitivity of mouse movement. 0.001 is a good value to start with.
   mouse_sensitivity:float;
 

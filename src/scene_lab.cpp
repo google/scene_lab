@@ -372,6 +372,15 @@ void SceneLab::SelectEntity(const corgi::EntityRef& entity_ref) {
   selected_entity_ = entity_ref;
 }
 
+void SceneLab::MoveEntityToCamera(const corgi::EntityRef& entity_ref) {
+ TransformData* transform_data =
+     entity_manager_->GetComponentData<TransformData>(entity_ref);
+  transform_data->position = camera_->position() +
+      camera_->facing() * config_->entity_spawn_distance();
+  if (transform_data->position.z() < 0) transform_data->position.z() = 0;
+  entity_manager_->GetComponent<TransformComponent>()->PostLoadFixup();
+}
+
 void SceneLab::Render(fplbase::Renderer* /*renderer*/) {
   // Render any editor-specific things
   gui_->SetEditEntity(selected_entity_);
