@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_lab/flatbuffer_editor.h"
+#include <algorithm>
 #include <bitset>
 #include "flatbuffer_editor_config_generated.h"
 #include "fplbase/flatbuffer_utils.h"
 #include "fplbase/utilities.h"
-#include "scene_lab/flatbuffer_editor.h"
 
 namespace scene_lab {
 
@@ -332,6 +333,12 @@ static std::string ConsumeNumber(const std::string& str) {
   return "";  // Everything was consumed!
 }
 
+struct compare_field_offsets {
+  bool operator()(const reflection::Field* a, const reflection::Field* b) {
+    return a->offset() < b->offset();
+  }
+};
+
 bool FlatbufferEditor::ParseStringIntoStruct(
     const std::string& struct_def, const reflection::Schema& schema,
     const reflection::Object& objectdef, flatbuffers::Struct* struct_ptr) {
@@ -341,7 +348,17 @@ bool FlatbufferEditor::ParseStringIntoStruct(
     return false;
   }
 
+  // Gather pointers to the struct fields, and put them in offset order.
+  std::vector<const reflection::Field*> fields_in_order;
+  fields_in_order.reserve(objectdef.fields()->size());
   for (auto sit = objectdef.fields()->begin(); sit != objectdef.fields()->end();
+       ++sit) {
+    fields_in_order.push_back(*sit);
+  }
+  std::sort(fields_in_order.begin(), fields_in_order.end(),
+            compare_field_offsets());
+
+  for (auto sit = fields_in_order.begin(); sit != fields_in_order.end();
        ++sit) {
     str = ConsumeWhitespace(str);
     const reflection::Field& fielddef = **sit;
@@ -393,10 +410,20 @@ bool FlatbufferEditor::ParseStringIntoStruct(
 std::string FlatbufferEditor::StructToString(
     const reflection::Schema& schema, const reflection::Object& objectdef,
     const flatbuffers::Struct& fbstruct, bool field_names_only) {
-  std::string output = kStructBegin;
+  // Gather pointers to the struct fields, and put them in offset order.
+  std::vector<const reflection::Field*> fields_in_order;
+  fields_in_order.reserve(objectdef.fields()->size());
   for (auto sit = objectdef.fields()->begin(); sit != objectdef.fields()->end();
        ++sit) {
-    if (sit != objectdef.fields()->begin()) {
+    fields_in_order.push_back(*sit);
+  }
+  std::sort(fields_in_order.begin(), fields_in_order.end(),
+            compare_field_offsets());
+
+  std::string output = kStructBegin;
+  for (auto sit = fields_in_order.begin(); sit != fields_in_order.end();
+       ++sit) {
+    if (sit != fields_in_order.begin()) {
       output += kStructSep;
     }
     const reflection::Field& fielddef = **sit;
