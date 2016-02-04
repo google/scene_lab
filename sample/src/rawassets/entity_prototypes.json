@@ -53,7 +53,9 @@
           "data_type": "RenderMeshDef",
           "data" : {
             "source_file":"meshes/cube2.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
           }
         },
         {

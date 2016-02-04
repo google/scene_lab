@@ -6,7 +6,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/skybox.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -46,7 +48,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/ground.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -116,7 +120,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube2.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -193,7 +199,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -270,7 +278,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -347,7 +357,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube4.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -424,7 +436,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube3.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -501,7 +515,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube4.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
@@ -578,7 +594,9 @@
           "data_type": "RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
