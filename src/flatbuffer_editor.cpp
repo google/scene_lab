@@ -516,7 +516,8 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
     if (edit_fields_[id].length() == 0) {
       edit_vec.x() = static_cast<float>(blank_field_width());
     }
-    if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), &edit_fields_[id])) {
+    if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), nullptr,
+                     &edit_fields_[id])) {
       if (mode == kDrawEditAuto) {
         // In this mode, we track which field the user is editing; once they
         // stop editing it, we auto-commit.

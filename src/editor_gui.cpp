@@ -599,7 +599,7 @@ void EditorGui::DrawEntityListUI() {
       entity_list_filter_.length() > 0 ? vec2(0, 0) : vec2(kBlankEditWidth, 0);
   flatui::SetTextColor(text_editable_color_);
   if (flatui::Edit(config_->gui_button_size(), size_vec, "ws:entity-list-edit",
-                   &entity_list_filter_)) {
+                   nullptr, &entity_list_filter_)) {
     keyboard_in_use_ = true;
   }
   flatui::EndGroup();  // ws:entity-list-filter
@@ -647,7 +647,8 @@ void EditorGui::DrawPrototypeListUI() {
       vec2(0, 0) : vec2(kBlankEditWidth, 0);
   flatui::SetTextColor(text_editable_color_);
   if (flatui::Edit(config_->gui_button_size(), size_vec,
-                   "ws:prototype-list-edit", &prototype_list_filter_)) {
+                   "ws:prototype-list-edit", nullptr,
+                   &prototype_list_filter_)) {
     keyboard_in_use_ = true;
   }
   flatui::EndGroup();  // ws:prototype-list-filter
