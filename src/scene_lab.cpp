@@ -53,7 +53,7 @@ static const char kDefaultBinaryEntityFileExtension[] = "bin";
 
 // String which identifies the current version of Scene Lab. See the comment on
 // kVersion in scene_lab.h for more information on how this is used.
-const char SceneLab::kVersion[] = "Scene Lab 1.0.0";
+const char SceneLab::kVersion[] = "Scene Lab 1.0.1";
 
 void SceneLab::Initialize(const SceneLabConfig* config,
                           corgi::EntityManager* entity_manager,
