@@ -33,6 +33,7 @@ need to include the FlatBuffers parser in your project:
         ...  # lots of other source files
         ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
         ${dependencies_flatbuffers_dir}/src/idl_gen_text.cpp
+        ${dependencies_flatbuffers_dir}/src/util.cpp
     )
 ~~~
 
