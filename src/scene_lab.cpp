@@ -949,7 +949,8 @@ bool SceneLab::ModifyTransformBasedOnInput(TransformDef* transform) {
         Vec3(orientation.x() + pitch_speed, orientation.y() + roll_speed,
              orientation.z() + yaw_speed);
     Vec3 scale = *transform->scale();
-    if (controller_->KeyIsDown(fplbase::FPLK_0)) {
+    if (controller_->KeyIsDown(fplbase::FPLK_0) &&
+        controller_->KeyIsDown(fplbase::FPLK_LCTRL)) {
       scale = Vec3(1.0f, 1.0f, 1.0f);
       scale_speed = 0;  // to trigger returning true
     } else {

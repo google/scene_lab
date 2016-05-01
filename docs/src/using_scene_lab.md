@@ -117,7 +117,7 @@ O | Rotate the entity counter-clockwise about the X axis.
 Y | Rotate the entity clockwise about the Y axis.
 H | Rotate the entity counter-clockwise about the Y axis.
 N | Rotate the entity clockwise about the Z axis.
-M | Rotate the entity counter-clockwise abou the Z axis.
+M | Rotate the entity counter-clockwise about the Z axis.
 SHIFT | Hold SHIFT to rotate the entity more slowly.
 
 ### Scaling
@@ -126,7 +126,7 @@ Key | Action
 --- | ---
 + (plus) or = (equals) | Scale the entity to be larger in all 3 axes.
 - (minus) | Scale the entity to be smaller in all 3 axes.
-0 (zero) | Set the entity's scale to (1, 1, 1).
+LCTRL and 0 (zero) | Set the entity's scale to (1, 1, 1).
 
 ### Miscellaneous Keyboard Shortcuts
 
