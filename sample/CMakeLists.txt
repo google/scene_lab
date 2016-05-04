@@ -172,9 +172,6 @@ set(scene_lab_sample_SRCS
     src/game.cpp
     src/game.h
     src/main.cpp
-    # For outputting flatbuffer files as json.
-    ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
-    ${dependencies_flatbuffers_dir}/src/idl_gen_text.cpp
     )
 
 if(scene_lab_build_cwebp)
