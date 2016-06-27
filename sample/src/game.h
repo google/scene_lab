@@ -16,6 +16,7 @@
 #define GAME_H_
 
 #include <unordered_map>
+#include "corgi/entity_manager.h"
 #include "corgi_component_library/animation.h"
 #include "corgi_component_library/common_services.h"
 #include "corgi_component_library/entity_factory.h"
@@ -23,7 +24,6 @@
 #include "corgi_component_library/physics.h"
 #include "corgi_component_library/rendermesh.h"
 #include "corgi_component_library/transform.h"
-#include "corgi/entity_manager.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatui/font_manager.h"
 #include "fplbase/asset_manager.h"
@@ -79,12 +79,6 @@ class Game {
   /// Set up all of the components you are using in your game. If you are using
   /// a different list of components in your game, you can override this method.
   virtual void SetupComponents();
-
-  /// Set the component type for each component based on the enum. If you are
-  /// using a different Flatbuffers enum definition, you should override this
-  /// method to refer to the enum names you use.
-  virtual void SetComponentType(corgi::ComponentId component_id,
-                                size_t enum_id);
 
   /// @endcond
  private:

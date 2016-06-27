@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <algorithm>
+#include "scene_lab/editor_gui.h"
 #include <stdlib.h>
+#include <algorithm>
 #include <string>
 #include "corgi_component_library/common_services.h"
 #include "corgi_component_library/meta.h"
@@ -21,7 +22,6 @@
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/reflection.h"
 #include "fplbase/flatbuffer_utils.h"
-#include "scene_lab/editor_gui.h"
 #include "scene_lab/scene_lab.h"
 
 namespace scene_lab {
@@ -632,7 +632,7 @@ void EditorGui::DrawEntityListUI() {
 void EditorGui::RefreshPrototypeList() {
   auto prototype_data = entity_factory_->prototype_data();
   prototype_list_.clear();
-  for(auto it = prototype_data.begin(); it != prototype_data.end(); ++it) {
+  for (auto it = prototype_data.begin(); it != prototype_data.end(); ++it) {
     prototype_list_.push_back(it->first);
   }
   std::sort(prototype_list_.begin(), prototype_list_.end());
@@ -643,8 +643,9 @@ void EditorGui::DrawPrototypeListUI() {
                      "ws:prototype-list-filter");
   flatui::SetTextColor(text_normal_color_);
   flatui::Label("Filter:", config_->gui_button_size());
-  vec2 size_vec = prototype_list_filter_.length() > 0 ?
-      vec2(0, 0) : vec2(kBlankEditWidth, 0);
+  vec2 size_vec = prototype_list_filter_.length() > 0
+                      ? vec2(0, 0)
+                      : vec2(kBlankEditWidth, 0);
   flatui::SetTextColor(text_editable_color_);
   if (flatui::Edit(config_->gui_button_size(), size_vec,
                    "ws:prototype-list-edit", nullptr,
@@ -658,11 +659,13 @@ void EditorGui::DrawPrototypeListUI() {
     if (prototype_list_filter_.length() == 0 ||
         it->find(prototype_list_filter_) != std::string::npos) {
       if (TextButton(it->c_str(), ("we:prototype-button-" + (*it)).c_str(),
-                     kButtonSize) & flatui::kEventWentUp){
-        corgi::EntityRef new_entity = entity_factory_
-            ->CreateEntityFromPrototype(it->c_str(), entity_manager_);
-        entity_manager_->GetComponent<EditOptionsComponent>()
-            ->EntityCreated(new_entity);
+                     kButtonSize) &
+          flatui::kEventWentUp) {
+        corgi::EntityRef new_entity =
+            entity_factory_->CreateEntityFromPrototype(it->c_str(),
+                                                       entity_manager_);
+        entity_manager_->GetComponent<EditOptionsComponent>()->EntityCreated(
+            new_entity);
         scene_lab_->MoveEntityToCamera(new_entity);
         SetEditEntity(new_entity);
         scene_lab_->SelectEntity(new_entity);

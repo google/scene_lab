@@ -3,13 +3,13 @@
     {
       "component_list": [
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "Cube",
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -43,14 +43,14 @@
     {
       "component_list": [
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "Cube1Proto",
             "prototype": "CubeProto",
           }
         },
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data" : {
             "source_file":"meshes/cube2.fplmesh",
             "shaders": [
@@ -59,7 +59,7 @@
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {

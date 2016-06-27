@@ -217,12 +217,6 @@ void Game::LoadNewAssets() {
   }
 }
 
-void Game::SetComponentType(corgi::ComponentId component_id, size_t enum_id) {
-  entity_factory_->SetComponentType(component_id,
-                                    static_cast<unsigned int>(enum_id),
-                                    EnumNamesComponentDataUnion()[enum_id]);
-}
-
 void Game::SetupComponents() {
   common_services_component_.Initialize(&asset_manager_, entity_factory_.get(),
                                         nullptr, &input_, &renderer_);
@@ -230,23 +224,29 @@ void Game::SetupComponents() {
   physics_component_.set_gravity(-30.0);
   physics_component_.set_max_steps(5);
 
-  SetComponentType(
+  entity_factory_->SetComponentType(
       entity_manager_.RegisterComponent(&common_services_component_),
-      ComponentDataUnion_CommonServicesDef);
+      ComponentDataUnion_corgi_CommonServicesDef, "CommonServicesDef");
 
-  SetComponentType(entity_manager_.RegisterComponent(&render_mesh_component_),
-                   ComponentDataUnion_RenderMeshDef);
-  SetComponentType(entity_manager_.RegisterComponent(&physics_component_),
-                   ComponentDataUnion_PhysicsDef);
-  SetComponentType(entity_manager_.RegisterComponent(&meta_component_),
-                   ComponentDataUnion_MetaDef);
-  SetComponentType(entity_manager_.RegisterComponent(&edit_options_component_),
-                   ComponentDataUnion_EditOptionsDef);
-  SetComponentType(entity_manager_.RegisterComponent(&animation_component_),
-                   ComponentDataUnion_AnimationDef);
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&render_mesh_component_),
+      ComponentDataUnion_corgi_RenderMeshDef, "RenderMeshDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&physics_component_),
+      ComponentDataUnion_corgi_PhysicsDef, "PhysicsDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&meta_component_),
+      ComponentDataUnion_corgi_MetaDef, "MetaDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&edit_options_component_),
+      ComponentDataUnion_scene_lab_EditOptionsDef, "EditOptionsDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&animation_component_),
+      ComponentDataUnion_corgi_AnimationDef, "AnimationDef");
   // Make sure you register TransformComponent after any components that use it.
-  SetComponentType(entity_manager_.RegisterComponent(&transform_component_),
-                   ComponentDataUnion_TransformDef);
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&transform_component_),
+      ComponentDataUnion_corgi_TransformDef, "TransformDef");
 
   scene_lab_->AddComponentToUpdate(
       corgi::component_library::TransformComponent::GetComponentId());
