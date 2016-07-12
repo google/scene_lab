@@ -179,7 +179,7 @@ class CorgiAdapter : public scene_lab::EntitySystemAdapter {
 
   /// Convert a Scene Lab component ID to a Corgi component ID.
   /// This is public so that Corgi components can talk to Scene Lab properly.
-  int GetCorgiComponentId(const GenericComponentId& id) const;
+  corgi::ComponentId GetCorgiComponentId(const GenericComponentId& id) const;
 
   /// Convert a Corgi component ID to a Scene Lab component ID.
   /// This is public so that Corgi components can talk to Scene Lab properly.

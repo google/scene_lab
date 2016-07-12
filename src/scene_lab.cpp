@@ -439,9 +439,9 @@ bool SceneLab::SaveScene(bool to_disk) {
     SelectEntity(EntitySystemAdapter::kNoEntityId);
 
   // Divide up entity IDs by filename.
-  std::string filename;
   std::unordered_map<std::string, std::vector<GenericEntityId>> ids_by_file;
   for (auto e = entity_ids.begin(); e != entity_ids.end(); ++e) {
+    std::string filename;
     if (entity_system_adapter()->GetEntitySourceFile(*e, &filename)) {
       if (filename.length() == 0) {
         // Blank filename indicates save to a default file.

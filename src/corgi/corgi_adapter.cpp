@@ -81,7 +81,8 @@ CorgiAdapter::CorgiAdapter(SceneLab* scene_lab,
 }
 
 void CorgiAdapter::AdvanceFrame(double delta_seconds) {
-  corgi::WorldTime delta_time = delta_seconds * corgi::kMillisecondsPerSecond;
+  corgi::WorldTime delta_time = static_cast<corgi::WorldTime>(
+      delta_seconds * corgi::kMillisecondsPerSecond);
   (void)delta_time;
 
   auto transform_component =
@@ -649,7 +650,7 @@ bool CorgiAdapter::HighlightEntity(const corgi::EntityRef& entity, float tint) {
     for (auto iter = transform_data->children.begin();
          iter != transform_data->children.end(); ++iter) {
       // Highlight the child, but slightly less brightly.
-      if (HighlightEntity(iter->owner, 1 + ((tint - 1) * .8)))
+      if (HighlightEntity(iter->owner, 1 + ((tint - 1) * .8f)))
         did_highlight = true;
     }
   }
@@ -674,9 +675,10 @@ GenericEntityId CorgiAdapter::GetEntityId(const corgi::EntityRef& ref) const {
   return meta_component->GetEntityID(ref);
 }
 
-int CorgiAdapter::GetCorgiComponentId(const GenericComponentId& id) const {
+corgi::ComponentId CorgiAdapter::GetCorgiComponentId(
+    const GenericComponentId& id) const {
   if (id == kNoComponentId) return corgi::kInvalidComponent;
-  return std::stoi(id);
+  return static_cast<corgi::ComponentId>(std::stoi(id));
 }
 
 GenericComponentId CorgiAdapter::GetGenericComponentId(
