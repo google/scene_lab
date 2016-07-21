@@ -597,7 +597,9 @@ void EditorGui::DrawPrototypeListUI() {
         std::string prototype_id_str;
         if (!entity_system_adapter()->GetEntityName(prototype_id,
                                                     &prototype_id_str)) {
-          prototype_id_str = "prototype-" + std::to_string(i);
+          std::stringstream ss;
+          ss << "prototype-" << i;
+          prototype_id_str = ss.str();
         }
         if (TextButton(prototype_id_str.c_str(),
                        (std::string("we:prototype-button-") + prototype_id_str)

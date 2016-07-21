@@ -678,13 +678,16 @@ GenericEntityId CorgiAdapter::GetEntityId(const corgi::EntityRef& ref) const {
 corgi::ComponentId CorgiAdapter::GetCorgiComponentId(
     const GenericComponentId& id) const {
   if (id == kNoComponentId) return corgi::kInvalidComponent;
-  return static_cast<corgi::ComponentId>(std::stoi(id));
+  return static_cast<corgi::ComponentId>(atoi(id.c_str()));
 }
 
 GenericComponentId CorgiAdapter::GetGenericComponentId(
     corgi::ComponentId c) const {
   if (c == corgi::kInvalidComponent) return kNoComponentId;
-  return std::to_string(c);
+
+  std::stringstream ss;
+  ss << c;
+  return ss.str();
 }
 
 }  // namespace scene_lab_corgi
