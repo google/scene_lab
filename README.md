@@ -110,7 +110,7 @@ To contribute to this project see [CONTRIBUTING][].
   [landing page]: http://google.github.io/scene_lab
   [mathfu]: http://google.github.io/mathfu/
   [OS X]: http://www.apple.com/osx/
-  [Scene Lab Google Group]: http://group.google.com/group/scene_lab
+  [Scene Lab Google Group]: https://groups.google.com/forum/#!forum/scene_lab
   [Scene Lab Issues Tracker]: http://github.com/google/scene_lab/issues
   [stackoverflow.com]: http://www.stackoverflow.com
   [Windows]: http://windows.microsoft.com/
