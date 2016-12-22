@@ -135,11 +135,11 @@ void EditorGui::GetVirtualResolution(vec2* resolution_output) {
   assert(resolution_output != nullptr);
   // calculate virtual x/y
   vec2 window_size = vec2(renderer_->window_size());
-  if (window_size.x() > window_size.y()) {
-    float aspect = window_size.x() / window_size.y();
+  if (window_size.x > window_size.y) {
+    float aspect = window_size.x / window_size.y;
     *resolution_output = vec2(aspect * kVirtualResolution, kVirtualResolution);
   } else {
-    float aspect = window_size.y() / window_size.x();
+    float aspect = window_size.y / window_size.x;
     *resolution_output = vec2(kVirtualResolution, aspect * kVirtualResolution);
   }
 }
@@ -234,9 +234,9 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
   virtual_resolution_ = virtual_resolution;
 
   if (edit_window_state_ == kMaximized)
-    edit_width_ = virtual_resolution_.x();
+    edit_width_ = virtual_resolution_.x;
   else if (edit_window_state_ == kNormal)
-    edit_width_ = virtual_resolution_.x() / 3.0f;
+    edit_width_ = virtual_resolution_.x / 3.0f;
 
   flatui::StartGroup(flatui::kLayoutOverlay, 0, "we:overall-ui");
 
@@ -249,7 +249,7 @@ void EditorGui::DrawGui(const vec2& virtual_resolution) {
                         mathfu::kZeros2f);
   CaptureMouseClicks();
   flatui::ColorBackground(bg_toolbar_color_);
-  flatui::SetMargin(flatui::Margin(virtual_resolution_.x(),
+  flatui::SetMargin(flatui::Margin(virtual_resolution_.x,
                                    config_->gui_toolbar_size(), 0, 0));
   flatui::EndGroup();  // button-bg
 
@@ -376,9 +376,9 @@ void EditorGui::CaptureMouseClicks() {
 void EditorGui::BeginDrawEditView() {
   flatui::StartGroup(flatui::kLayoutVerticalLeft, 0, "we:edit-ui-container");
   flatui::PositionGroup(flatui::kAlignLeft, flatui::kAlignTop,
-                        vec2(virtual_resolution_.x() - edit_width_,
+                        vec2(virtual_resolution_.x - edit_width_,
                              2 * config_->gui_toolbar_size()));
-  flatui::StartScroll(vec2(edit_width_, virtual_resolution_.y() -
+  flatui::StartScroll(vec2(edit_width_, virtual_resolution_.y -
                                             2 * config_->gui_toolbar_size()),
                       &scroll_offset_[edit_view_]);
   flatui::ColorBackground(bg_edit_ui_color_);
@@ -390,7 +390,7 @@ void EditorGui::BeginDrawEditView() {
   flatui::StartGroup(flatui::kLayoutHorizontalTop, kSpacing, "we:edit-ui-h");
   CaptureMouseClicks();
   flatui::StartGroup(flatui::kLayoutVerticalLeft, kSpacing);
-  flatui::SetMargin(flatui::Margin(1, virtual_resolution_.y(), 0, 0));
+  flatui::SetMargin(flatui::Margin(1, virtual_resolution_.y, 0, 0));
   flatui::EndGroup();
   flatui::StartGroup(flatui::kLayoutVerticalLeft, kSpacing,
                      "we:edit-ui-scroll");
@@ -418,7 +418,7 @@ void EditorGui::DrawTabs() {
   flatui::StartGroup(flatui::kLayoutOverlay, 0, "we:toolbar-bg");
   flatui::PositionGroup(
       flatui::kAlignLeft, flatui::kAlignTop,
-      vec2(virtual_resolution_.x() - edit_width_, config_->gui_toolbar_size()));
+      vec2(virtual_resolution_.x - edit_width_, config_->gui_toolbar_size()));
   CaptureMouseClicks();
 
   flatui::StartGroup(flatui::kLayoutHorizontalBottom, 0, "we:toolbar-fill");

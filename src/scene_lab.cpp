@@ -255,7 +255,7 @@ void SceneLab::AdvanceFrame(double time_delta_seconds) {
         // it's
         // perpendicular to the ground.
         drag_plane_normal_ = -camera.facing;
-        drag_plane_normal_.z() = 0;
+        drag_plane_normal_.z = 0;
         drag_plane_normal_.Normalize();
       } else {
         // For Horizontal, the normal for the drag plane is the up-vector.
@@ -313,7 +313,7 @@ void SceneLab::MoveEntityToCamera(const GenericEntityId& id) {
   if (entity_system_adapter()->GetEntityTransform(id, &transform)) {
     transform.position =
         camera.position + camera.facing * config_->entity_spawn_distance();
-    if (transform.position.z() < 0) transform.position.z() = 0;
+    if (transform.position.z < 0) transform.position.z = 0;
     entity_system_adapter()->SetEntityTransform(id, transform);
   }
 }
@@ -722,9 +722,9 @@ bool SceneLab::ModifyTransformBasedOnInput(GenericTransform* transform) {
               float zscale =
                   (mouse_mode_ == kScaleZ || mouse_mode_ == kScaleAll) ? scale
                                                                        : 1;
-              transform->scale = mathfu::vec3(drag_orig_scale_.x() * xscale,
-                                              drag_orig_scale_.y() * yscale,
-                                              drag_orig_scale_.z() * zscale);
+              transform->scale = mathfu::vec3(drag_orig_scale_.x * xscale,
+                                              drag_orig_scale_.y * yscale,
+                                              drag_orig_scale_.z * zscale);
               return true;
             }
           }

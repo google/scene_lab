@@ -35,8 +35,8 @@ void EditorController::Update() {
                                          mathfu::kAxisZ3f) *
                      facing_current_;
 
-    quat pitch_adjustment = quat::FromAngleAxis(-delta.y(), side_axis);
-    quat yaw_adjustment = quat::FromAngleAxis(-delta.x(), mathfu::kAxisZ3f);
+    quat pitch_adjustment = quat::FromAngleAxis(-delta.y, side_axis);
+    quat yaw_adjustment = quat::FromAngleAxis(-delta.x, mathfu::kAxisZ3f);
 
     facing_current_ = pitch_adjustment * yaw_adjustment * facing_previous_;
   } else {
@@ -69,7 +69,7 @@ bool EditorController::ScreenPointToWorldRay(const GenericCamera& camera,
   up = vec3::CrossProduct(right, forward).Normalized();
 
   *near = camera.position;
-  *dir = forward + up * point.y() + right * point.x();
+  *dir = forward + up * point.y + right * point.x;
 
   return true;
 }

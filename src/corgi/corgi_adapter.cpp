@@ -276,7 +276,7 @@ bool CorgiAdapter::GetViewportSettings(ViewportSettings* viewport_out) {
   if (viewport_out != nullptr) {
     viewport_out->vertical_angle = camera_->viewport_angle();
     viewport_out->aspect_ratio =
-        camera_->viewport_resolution().x() / camera_->viewport_resolution().y();
+        camera_->viewport_resolution().x / camera_->viewport_resolution().y;
   }
   return true;
 }

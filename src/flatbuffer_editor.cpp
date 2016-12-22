@@ -514,7 +514,7 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
   if (IsDrawEdit(mode)) {
     vec2 edit_vec = vec2(0, 0);
     if (edit_fields_[id].length() == 0) {
-      edit_vec.x() = static_cast<float>(blank_field_width());
+      edit_vec.x = static_cast<float>(blank_field_width());
     }
     if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), nullptr,
                      &edit_fields_[id])) {

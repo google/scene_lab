@@ -41,7 +41,7 @@ BasicCamera::BasicCamera()
 // (The M is the world transform of the model.)
 mathfu::mat4 BasicCamera::GetTransformMatrix() const {
   mat4 perspective_matrix_ = mat4::Perspective(
-      viewport_angle_, viewport_resolution_.x() / viewport_resolution_.y(),
+      viewport_angle_, viewport_resolution_.x / viewport_resolution_.y,
       viewport_near_plane_, viewport_far_plane_, 1.0f);
 
   // Subtract the facing vector because we need to be right handed.
