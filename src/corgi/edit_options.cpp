@@ -30,7 +30,6 @@ namespace scene_lab_corgi {
 
 using corgi::component_library::CommonServicesComponent;
 using corgi::component_library::PhysicsComponent;
-using corgi::component_library::PhysicsData;
 using corgi::component_library::RenderMeshComponent;
 using corgi::component_library::RenderMeshData;
 using scene_lab::EditOptionsDef;

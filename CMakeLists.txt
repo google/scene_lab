@@ -50,17 +50,11 @@ set(scene_lab_DEBUG ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 get_directory_property(scene_lab_has_parent PARENT_DIRECTORY)
 
-# Configure fpl_root
-if(NOT DEFINED fpl_root)
-  get_filename_component(fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../libs"
-       REALPATH)
-  if(NOT EXISTS "${fpl_root}")
-    set(fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
-  endif ()
-endif()
-
-include (${fpl_root}/fplutil/buildutil/cmake_common.txt)
+# Call fplutil to get locations of dependencies and set common build settings.
+include("cmake/find_fplutil.cmake")
+include("${fplutil_dir}/buildutil/cmake_common.txt")
 set_common_build_variables()
+
 # Additional compiler flags.
 if(APPLE)
   # These additional flags are needed because of Bullet's btSolverBody.h and
@@ -77,8 +71,8 @@ else()
   message(STATUS "Scene Lab library: not building sample game")
 endif()
 
-option(scene_lab_build_sample "Build a sample game for Scene Lab"
-       ${scene_lab_standalone_mode})
+# The sample build is currently broken.
+option(scene_lab_build_sample "Build a sample game for Scene Lab" OFF)
 
 option(scene_lab_build_cwebp "Build cwebp for Scene Lab from source." OFF)
 
@@ -137,7 +131,7 @@ if(scene_lab_standalone_mode)
 endif()
 
 set(scene_lab_flatbuffers_generated_includes_dir
-   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include/scene_lab)
+    ${CMAKE_CURRENT_BINARY_DIR}/include/scene_lab)
 
 file(GLOB_RECURSE scene_lab_flatbuffers_schemas
      ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)

@@ -26,7 +26,6 @@
 #include "fplbase/renderer.h"
 #include "fplbase/utilities.h"
 #include "mathfu/vector_3.h"
-#include "scene_lab/corgi/edit_options.h"
 #include "scene_lab/editor_controller.h"
 #include "scene_lab/editor_gui.h"
 #include "scene_lab/entity_system_adapter.h"
@@ -131,17 +130,6 @@ class SceneLab {
   /// discarded, etc), or false if not. Once it returns true, you can safely
   /// deactivate the editor.
   bool IsReadyToExit();
-
-  /// Add a component to the list of components Scene Lab updates each frame.
-  ///
-  /// While Scene Lab is activated, you should no longer be calling
-  /// EntityManager::UpdateComponents(); you should let Scene Lab update only
-  /// the components it cares about. If you have any components you are sure you
-  /// also want updated while editing the scene, add them to the list by calling
-  /// this function.
-  void AddComponentToUpdate(corgi::ComponentId component_id) {
-    components_to_update_.push_back(component_id);
-  }
 
   /// Externally mark that some entities have been modified.
   ///
@@ -288,7 +276,6 @@ class SceneLab {
   InputMode input_mode_;
   MouseMode mouse_mode_;
 
-  std::vector<corgi::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
   std::unique_ptr<EditorGui> gui_;
   GenericCamera initial_camera_;
