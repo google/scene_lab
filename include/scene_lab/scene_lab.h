@@ -25,7 +25,7 @@
 #include "fplbase/input.h"
 #include "fplbase/renderer.h"
 #include "fplbase/utilities.h"
-#include "mathfu/vector_3.h"
+#include "mathfu/vector.h"
 #include "scene_lab/editor_controller.h"
 #include "scene_lab/editor_gui.h"
 #include "scene_lab/entity_system_adapter.h"
