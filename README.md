@@ -12,8 +12,8 @@ Go to our [landing page][] to browse our documentation and see some examples.
    * Discuss Scene Lab with other developers and users on the
      [Scene Lab Google Group][].
    * File issues on the [Scene Lab Issues Tracker][].
-   * Post your questoins to [stackoverflow.com][] with a mention of
-     **scene-lab**.
+   * Post your questions to [stackoverflow.com][] with a mention of
+     **fpl scene-lab**.
 
 ## Features
 
@@ -112,5 +112,5 @@ To contribute to this project see [CONTRIBUTING][].
   [OS X]: http://www.apple.com/osx/
   [Scene Lab Google Group]: http://groups.google.com/group/scene_lab
   [Scene Lab Issues Tracker]: http://github.com/google/scene_lab/issues
-  [stackoverflow.com]: http://www.stackoverflow.com
+  [stackoverflow.com]: http://stackoverflow.com/search?q=fpl+scene-lab
   [Windows]: http://windows.microsoft.com/
