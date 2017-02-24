@@ -55,9 +55,9 @@
 [submodule "dependencies/harfbuzz"]
 	path = dependencies/harfbuzz
 	url = http://github.com/behdad/harfbuzz.git
-[submodule "dependencies/googletest"]
-	path = dependencies/googletest
-	url = http://github.com/google/fplutil.git
 [submodule "dependencies/flatbuffers"]
 	path = dependencies/flatbuffers
 	url = http://github.com/google/flatbuffers.git
+[submodule "dependencies/googletest"]
+	path = dependencies/googletest
+	url = http://github.com/google/googletest.git
