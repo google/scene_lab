@@ -25,23 +25,16 @@ And add Scene Lab's include directories to your include directories:
     include_directories(${SCENE_LAB_DIR}/include)
 ~~~
 
-If you'd like to output your world's FlatBuffers files as JSON files, you will
-need to include the FlatBuffers parser in your project:
-
-~~~
-    set(my_project_SRCS
-        ...  # lots of other source files
-        ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
-        ${dependencies_flatbuffers_dir}/src/idl_gen_text.cpp
-    )
-~~~
-
-And finally, link scene_lab into your project.
+And finally, link scene_lab into your project. If you'd like to output your
+world's FlatBuffers files as JSON files, you will need to link the flatbuffers
+library, too. Note that scene_lab needs to come before flatbuffers to support
+single pass linkers like gcc.
 
 ~~~
     target_link_libraries(my_project
         ...  # lots of other libraries to link in
         scene_lab
+        flatbuffers
     )
 ~~~
 

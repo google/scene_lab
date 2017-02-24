@@ -74,7 +74,8 @@ upon so download the source using:
    * Discuss Scene Lab with other developers and users on the
      [Scene Lab Google Group][].
    * File issues on the [Scene Lab Issues Tracker][].
-   * Post your questions to [stackoverflow.com][] with a mention of **Scene Lab**.
+   * Post your questions to [stackoverflow.com][] with a mention of
+     **fpl scene-lab**.
 
   [Breadboard]: https://google.github.io/breadboard/
   [Build Configurations]: @ref scene_lab_build_config
@@ -92,10 +93,10 @@ upon so download the source using:
   [OS X]: http://www.apple.com/osx/
   [OpenGL]: https://www.opengl.org/
   [SDL]: https://www.libsdl.org/
-  [Scene Lab Google Group]: http://group.google.com/group/scene_lab
+  [Scene Lab Google Group]: http://groups.google.com/group/scene_lab
   [Scene Lab Issues Tracker]: http://github.com/google/scene_lab/issues
   [Scene Lab]: @ref scene_lab_overview
-  [stackoverflow.com]: http://www.stackoverflow.com
+  [stackoverflow.com]: http://stackoverflow.com/search?q=fpl+scene-lab
   [Using Scene Lab]: @ref scene_lab_using
   [WebP]: https://developers.google.com/speed/webp/?hl=en
   [Windows]: http://windows.microsoft.com/

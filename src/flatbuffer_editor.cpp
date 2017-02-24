@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_lab/flatbuffer_editor.h"
+#include <algorithm>
 #include <bitset>
 #include "flatbuffer_editor_config_generated.h"
 #include "fplbase/flatbuffer_utils.h"
 #include "fplbase/utilities.h"
-#include "scene_lab/flatbuffer_editor.h"
 
 namespace scene_lab {
 
@@ -26,8 +27,8 @@ using mathfu::vec2;
 using mathfu::vec4;
 
 // Default UI layout, override in Flatbuffers.
-static const int kDefaultUISize = 20;
-static const int kDefaultUISpacing = 4;
+static const float kDefaultUISize = 20.0f;
+static const float kDefaultUISpacing = 4.0f;
 static const int kDefaultBlankStringWidth = 10;
 static const float kDefaultBGColor[] = {0, 0, 0, 1};
 static const float kDefaultFGColor[] = {1, 1, 1, 1};
@@ -103,9 +104,9 @@ FlatbufferEditor::FlatbufferEditor(const FlatbufferEditorConfig* config,
 }
 
 flatui::Event FlatbufferEditor::TextButton(const char* text, const char* id,
-                                           int size) {
-  const float kMargin = 1;
-  float text_size = size - 2 * kMargin;
+                                           float size) {
+  const float kMargin = 1.0f;
+  float text_size = size - 2.0f * kMargin;
   flatui::StartGroup(flatui::kLayoutHorizontalTop, 0, id);
   flatui::SetMargin(flatui::Margin(kMargin));
   auto event = flatui::CheckEvent();
@@ -332,6 +333,12 @@ static std::string ConsumeNumber(const std::string& str) {
   return "";  // Everything was consumed!
 }
 
+struct compare_field_offsets {
+  bool operator()(const reflection::Field* a, const reflection::Field* b) {
+    return a->offset() < b->offset();
+  }
+};
+
 bool FlatbufferEditor::ParseStringIntoStruct(
     const std::string& struct_def, const reflection::Schema& schema,
     const reflection::Object& objectdef, flatbuffers::Struct* struct_ptr) {
@@ -341,7 +348,17 @@ bool FlatbufferEditor::ParseStringIntoStruct(
     return false;
   }
 
+  // Gather pointers to the struct fields, and put them in offset order.
+  std::vector<const reflection::Field*> fields_in_order;
+  fields_in_order.reserve(objectdef.fields()->size());
   for (auto sit = objectdef.fields()->begin(); sit != objectdef.fields()->end();
+       ++sit) {
+    fields_in_order.push_back(*sit);
+  }
+  std::sort(fields_in_order.begin(), fields_in_order.end(),
+            compare_field_offsets());
+
+  for (auto sit = fields_in_order.begin(); sit != fields_in_order.end();
        ++sit) {
     str = ConsumeWhitespace(str);
     const reflection::Field& fielddef = **sit;
@@ -393,10 +410,20 @@ bool FlatbufferEditor::ParseStringIntoStruct(
 std::string FlatbufferEditor::StructToString(
     const reflection::Schema& schema, const reflection::Object& objectdef,
     const flatbuffers::Struct& fbstruct, bool field_names_only) {
-  std::string output = kStructBegin;
+  // Gather pointers to the struct fields, and put them in offset order.
+  std::vector<const reflection::Field*> fields_in_order;
+  fields_in_order.reserve(objectdef.fields()->size());
   for (auto sit = objectdef.fields()->begin(); sit != objectdef.fields()->end();
        ++sit) {
-    if (sit != objectdef.fields()->begin()) {
+    fields_in_order.push_back(*sit);
+  }
+  std::sort(fields_in_order.begin(), fields_in_order.end(),
+            compare_field_offsets());
+
+  std::string output = kStructBegin;
+  for (auto sit = fields_in_order.begin(); sit != fields_in_order.end();
+       ++sit) {
+    if (sit != fields_in_order.begin()) {
       output += kStructSep;
     }
     const reflection::Field& fielddef = **sit;
@@ -487,9 +514,10 @@ bool FlatbufferEditor::VisitField(VisitMode mode, const std::string& name,
   if (IsDrawEdit(mode)) {
     vec2 edit_vec = vec2(0, 0);
     if (edit_fields_[id].length() == 0) {
-      edit_vec.x() = blank_field_width();
+      edit_vec.x = static_cast<float>(blank_field_width());
     }
-    if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), &edit_fields_[id])) {
+    if (flatui::Edit(ui_size(), edit_vec, edit_id.c_str(), nullptr,
+                     &edit_fields_[id])) {
       if (mode == kDrawEditAuto) {
         // In this mode, we track which field the user is editing; once they
         // stop editing it, we auto-commit.
@@ -904,8 +932,8 @@ bool FlatbufferEditor::VisitFlatbufferVector(VisitMode mode,
   if (VisitField(size_mode, fielddef.name()->str() + idx,
                  flatbuffers::NumToString(vec->size()), "size_t", "",
                  id + idx)) {
-    uoffset_t new_size =
-        flatbuffers::StringToInt(edit_fields_[id + idx].c_str());
+    uoffset_t new_size = static_cast<uoffset_t>(
+        flatbuffers::StringToInt(edit_fields_[id + idx].c_str()));
     flatbuffers::ResizeAnyVector(schema, new_size, vec, vec->size(),
                                  element_size, &flatbuffer_, &table_def_);
     if (IsDraw(mode)) flatui::EndGroup();  // id + idx + "-commit"

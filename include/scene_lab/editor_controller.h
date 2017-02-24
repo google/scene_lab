@@ -15,10 +15,10 @@
 #ifndef SCENE_LAB_EDITOR_CONTROLLER_H_
 #define SCENE_LAB_EDITOR_CONTROLLER_H_
 
-#include "corgi_component_library/camera_interface.h"
 #include "fplbase/input.h"
 #include "mathfu/constants.h"
 #include "mathfu/glsl_mappings.h"
+#include "scene_lab/entity_system_adapter.h"
 #include "scene_lab_config_generated.h"
 
 namespace scene_lab {
@@ -119,11 +119,13 @@ class EditorController {
     input_system_->SetRelativeMouseMode(false);
   }
 
-  /// Get the pointer position in the world, as a ray from the near to far
-  /// clipping plane. Returns true if the calculation succeeded.
-  bool GetMouseWorldRay(const corgi::CameraInterface& camera,
-                        const mathfu::vec2i& screen_size, mathfu::vec3* near,
-                        mathfu::vec3* far) const;
+  /// Get the position of a screen point in the world, as a ray from the camera
+  /// position with a direction.
+  bool ScreenPointToWorldRay(const GenericCamera& camera,
+                             const ViewportSettings& viewport,
+                             const mathfu::vec2& screen_point,
+                             const mathfu::vec2i& screen_size,
+                             mathfu::vec3* near, mathfu::vec3* dir) const;
 
   /// Is the mouse locked? If so, moving the mouse changes our facing. If not,
   /// moving the mouse moves the mouse pointer.

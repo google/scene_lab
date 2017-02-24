@@ -79,7 +79,8 @@ LOCAL_SRC_FILES := \
   src/main.cpp \
   $(DEPENDENCIES_FLATBUFFERS_DIR)/src/idl_parser.cpp \
   $(DEPENDENCIES_FLATBUFFERS_DIR)/src/idl_gen_text.cpp \
-  $(DEPENDENCIES_FLATBUFFERS_DIR)/src/reflection.cpp
+  $(DEPENDENCIES_FLATBUFFERS_DIR)/src/reflection.cpp \
+  $(DEPENDENCIES_FLATBUFFERS_DIR)/src/util.cpp
 
 SCENE_LAB_SAMPLE_SCHEMA_DIR := $(SCENE_LAB_SAMPLE_DIR)/schemas
 
@@ -171,5 +172,5 @@ $(call import-module,mathfu/jni)
 $(call import-module,motive/jni)
 $(call import-module,corgi/component_library/jni)
 $(call import-module,scene_lab/jni)
-$(call import-module,webp)
+$(call import-module,$(notdir $(DEPENDENCIES_WEBP_DIR)))
 

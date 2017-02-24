@@ -34,6 +34,15 @@ import shutil
 import subprocess
 import sys
 
+# Use PIL if it's available.
+# If PIL's not available, we'll search for ImageMagick or GraphicsMagick.
+# See Image class for details.
+PIL_AVAILABLE = True
+try:
+  import PIL.Image
+except ImportError:
+  PIL_AVAILABLE = False
+
 
 class DependencyPathError(Exception):
   """Thrown if a dependency isn't found.
@@ -200,6 +209,11 @@ class DefaultPathResolver(object):
       self.prebuilts_root = DefaultPathResolver.DEPENDENCIES_DIR
       self.third_party_root = DefaultPathResolver.DEPENDENCIES_DIR
       self.fpl_root = DefaultPathResolver.DEPENDENCIES_DIR
+    elif os.path.exists(os.path.join(self.project_root, os.path.pardir,
+                                     os.path.pardir, 'third_party')):
+      self.prebuilts_root = os.path.join(self.project_root, os.path.pardir)
+      self.third_party_root = self.prebuilts_root
+      self.fpl_root = self.prebuilts_root
     else:
       self.prebuilts_root = os.path.join(DefaultPathResolver.SOURCE_TREE_ROOT,
                                          'prebuilts')
@@ -516,6 +530,8 @@ class Image(object):
   @classmethod
   def resolve_tool_paths(cls):
     """Resolve paths to tools if they haven't been resolved already."""
+    if PIL_AVAILABLE:
+      return
     if not cls.CONVERT or not cls.IDENTIFY:
       graphics_magick = GRAPHICSMAGICK.resolve(raise_on_error=False)
       if cls.USE_GRAPHICSMAGICK and graphics_magick:
@@ -530,6 +546,8 @@ class Image(object):
   def set_environment(cls):
     """Initialize the environment to execute ImageMagick."""
     # If we're using imagemagick tools.
+    if PIL_AVAILABLE:
+      return
     if cls.USING_IMAGEMAGICK:
       platform_name = platform.system().lower()
       if platform_name == 'darwin':
@@ -567,6 +585,10 @@ class Image(object):
     Raises:
       BuildError if it's not possible to read the image.
     """
+    if PIL_AVAILABLE:
+      im = PIL.Image.open(filename)
+      return Image(filename, im.size, size_upper_bound)
+
     Image.resolve_tool_paths()
     identify_args = list(Image.IDENTIFY)
     identify_args.extend(['-format', '%w %h', filename])
@@ -718,13 +740,18 @@ def generate_mesh_binaries(mesh_pipeline, input_files, asset_roots,
           texture_formats, recenter, hierarchy)
 
 
-def convert_fbx_anim_to_flatbuffer_binary(anim_pipeline, fbx, repeat, target):
+def convert_fbx_anim_to_flatbuffer_binary(anim_pipeline, fbx, repeat, unit,
+                                          axes, target):
   """Run the anim_pipeline on the given fbx file.
 
   Args:
     anim_pipeline: Path to the anim_pipeline tool.
     fbx: The path to the fbx file to convert into a flatbuffer binary.
     repeat: Whether the animation should loop / repeat.
+    unit: What is translated to 1 unit in the output file. Can be 'cm', 'm',
+          'inches', etc., or can be None
+    axes: The target axis system in up|front|left format. Can be 'z+y+x' for
+          the standard z-up axis, or can be None, to stick with the fbx axes.
     target: The path of the flatbuffer binary to write to.
 
   Raises:
@@ -736,6 +763,11 @@ def convert_fbx_anim_to_flatbuffer_binary(anim_pipeline, fbx, repeat, target):
                      'anim_pipeline not found, unable to generate motive '
                      'animation files.')
   command = [anim_pipeline, '--details', '--out', target]
+
+  if unit is not None:
+    command.extend(['--unit', unit])
+  if axes is not None:
+    command.extend(['--axes', axes])
   if repeat == 0:
     command.append('--norepeat')
   elif repeat == 1:
@@ -837,8 +869,13 @@ def generate_anim_binaries(anim_pipeline, input_files, asset_roots,
     target = processed_file_path(fbx, asset_roots, target_directory,
                                  'motiveanim')[0]
     repeat = meta_value(fbx, meta, 'anim_meta', 'repeat')
+    unit_meta = meta_value(fbx, meta, 'anim_meta', 'unit')
+    root_bone = meta_value(fbx, meta, 'anim_meta', 'rootbone')
+    unit = 'cm' if unit_meta is None else unit_meta
+    axes = None if root_bone is 1 else 'z+y+x'
     if distutils.dep_util.newer_group([fbx, anim_pipeline], target):
-      convert_fbx_anim_to_flatbuffer_binary(anim_pipeline, fbx, repeat, target)
+      convert_fbx_anim_to_flatbuffer_binary(anim_pipeline, fbx, repeat, unit,
+                                            axes, target)
 
 
 def generate_png_textures(input_files, asset_roots, target_directory, meta,
@@ -1108,7 +1145,7 @@ def parser_add_arguments(parser, assets_path='', asset_meta=''):
   parser.add_argument('--flatc',
                       default=FLATC.resolve(raise_on_error=False),
                       help='Location of the flatbuffers compiler.')
-  parser.add_argument('--cwebp', default=CWEBP.resolve(),
+  parser.add_argument('--cwebp', default=CWEBP.resolve(raise_on_error=False),
                       help='Location of the webp compressor.')
   parser.add_argument('--anim-pipeline',
                       default=ANIM_PIPELINE.resolve(

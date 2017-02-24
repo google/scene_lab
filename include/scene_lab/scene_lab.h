@@ -20,29 +20,20 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "corgi/component_interface.h"
-#include "corgi/entity_manager.h"
-#include "corgi_component_library/camera_interface.h"
-#include "corgi_component_library/entity_factory.h"
-#include "corgi_component_library/meta.h"
-#include "corgi_component_library/physics.h"
-#include "corgi_component_library/rendermesh.h"
-#include "corgi_component_library/transform.h"
-#include "editor_components_generated.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/input.h"
 #include "fplbase/renderer.h"
 #include "fplbase/utilities.h"
-#include "mathfu/vector_3.h"
-#include "scene_lab/edit_options.h"
+#include "mathfu/vector.h"
 #include "scene_lab/editor_controller.h"
 #include "scene_lab/editor_gui.h"
+#include "scene_lab/entity_system_adapter.h"
 #include "scene_lab_config_generated.h"
 
 namespace scene_lab {
 
-typedef std::function<void(const corgi::EntityRef& entity)> EntityCallback;
+typedef std::function<void(const GenericEntityId& entity)> EntityCallback;
 typedef std::function<void()> EditorCallback;
 
 /// @file
@@ -53,19 +44,20 @@ class SceneLab {
   /// Call this function as soon as you have an entity manager and font
   /// manager. Consider giving Scene Lab a camera via SetCamera() as well.
   void Initialize(const SceneLabConfig* config,
-                  corgi::EntityManager* entity_manager,
+                  fplbase::AssetManager* asset_manager,
+                  fplbase::InputSystem* input, fplbase::Renderer* renderer,
                   flatui::FontManager* font_manager);
 
-  /// Give Scene Lab a camera that it can use. If you don't call this, it will
-  /// create its own BasicCamera instead.
-  ///
-  /// Scene Lab will take over ownership of `camera`.
-  void SetCamera(std::unique_ptr<corgi::CameraInterface> camera) {
-    camera_ = std::move(camera);
+  /// Set which entity system adapter to use.
+  void SetEntitySystemAdapter(std::unique_ptr<EntitySystemAdapter> adapter);
+
+  /// Accessor for entity system adapter, don't hold onto this pointer.
+  EntitySystemAdapter* entity_system_adapter() const {
+    return entity_system_adapter_.get();
   }
 
   /// While Scene Lab is active, you must call this once a frame, every frame.
-  void AdvanceFrame(corgi::WorldTime delta_time);
+  void AdvanceFrame(double delta_time_seconds);
 
   /// Render Scene Lab and its GUI; only call this when Scene Lab is active.
   ///
@@ -91,22 +83,22 @@ class SceneLab {
 
   /// When you activate the editor, you can pass in your game's camera so the
   /// user can seamlessly be positioned at the same place they were during the
-  /// game. Note that if you do not yet have a Scene Lab camera set when you
-  /// call this method, a BasicCamera will be created for you.
-  ///
-  /// You can also set the initial camera by calling GetCamera()->set_position()
-  /// and/or GetCamera()->set_facing().
-  void SetInitialCamera(const corgi::CameraInterface& initial_camera);
+  /// game. Call this function before Activate().
+  void SetInitialCamera(const GenericCamera& initial_camera);
 
   /// Get the Scene Lab camera, so you can render the scene properly
-  /// or change its position. If you do not have a camera, a
-  /// BasicCamera will be created for you.
-  corgi::CameraInterface* GetCamera();
+  /// or change its position.
+  void GetCamera(GenericCamera* camera);
 
   /// Highlight the specified entity, so that you can change its properties.
-  void SelectEntity(const corgi::EntityRef& entity_ref);
+  void SelectEntity(const GenericEntityId& entity);
+
+  /// Move the specified entity to directly in front of the camera.
+  void MoveEntityToCamera(const GenericEntityId& entity);
 
   /// Save the current positions and properties of all entities.
+  ///
+  /// Returns true if successful or false if it failed.
   ///
   /// If `to_disk` is true, save to .bin and .json files and update the entity
   /// factory's file cache. Otherwise, just update the file cache but don't
@@ -114,18 +106,12 @@ class SceneLab {
   ///
   /// If you are saving to disk, entities will be saved to the files they were
   /// initially loaded from.
-  void SaveScene(bool to_disk);
+  bool SaveScene(bool to_disk);
 
   /// Save the current positions and properties to disk.
   ///
   /// See SaveScene(bool to_disk) for more details.
   void SaveScene() { SaveScene(true); }
-
-  /// Save all the entities that were from a specific file to that file on disk.
-  ///
-  /// Called by SaveScene() when saving to disk, but you could always call
-  /// this directly.
-  void SaveEntitiesInFile(const std::string& filename);
 
   /// Request that Scene Lab exit.
   ///
@@ -144,17 +130,6 @@ class SceneLab {
   /// discarded, etc), or false if not. Once it returns true, you can safely
   /// deactivate the editor.
   bool IsReadyToExit();
-
-  /// Add a component to the list of components Scene Lab updates each frame.
-  ///
-  /// While Scene Lab is activated, you should no longer be calling
-  /// EntityManager::UpdateComponents(); you should let Scene Lab update only
-  /// the components it cares about. If you have any components you are sure you
-  /// also want updated while editing the scene, add them to the list by calling
-  /// this function.
-  void AddComponentToUpdate(corgi::ComponentId component_id) {
-    components_to_update_.push_back(component_id);
-  }
 
   /// Externally mark that some entities have been modified.
   ///
@@ -188,15 +163,21 @@ class SceneLab {
   void NotifyExitEditor() const;
 
   /// Call all 'EntityCreated' callbacks.
-  void NotifyCreateEntity(const corgi::EntityRef& entity) const;
+  void NotifyCreateEntity(const GenericEntityId& entity) const;
 
   /// Call all 'EntityUpdated' callbacks.
-  void NotifyUpdateEntity(const corgi::EntityRef& entity) const;
+  void NotifyUpdateEntity(const GenericEntityId& entity) const;
 
   /// Call all 'EntityDeleted' callbacks.
-  void NotifyDeleteEntity(const corgi::EntityRef& entity) const;
+  void NotifyDeleteEntity(const GenericEntityId& entity) const;
 
   const std::string& version() { return version_; }
+
+  /// Config accessor, so you can access config options.
+  const SceneLabConfig* config() { return config_; }
+
+  /// GUI accessor, so you can poke into the EditorGui.
+  EditorGui* gui() { return gui_.get(); }
 
   MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
 
@@ -233,17 +214,14 @@ class SceneLab {
 
   // return a global vector from camera coordinates relative to the horizontal
   // plane.
-  mathfu::vec3 GlobalFromHorizontal(float forward, float right, float up) const;
+  mathfu::vec3 GlobalFromHorizontal(float forward, float right, float up,
+                                    const mathfu::vec3& plane_normal) const;
 
   // get camera movement via W-A-S-D
   mathfu::vec3 GetMovement() const;
 
-  corgi::EntityRef DuplicateEntity(corgi::EntityRef& entity);
-  void DestroyEntity(corgi::EntityRef& entity);
-  void HighlightEntity(const corgi::EntityRef& entity, float tint);
-
   // returns true if the transform was modified
-  bool ModifyTransformBasedOnInput(corgi::TransformDef* transform);
+  bool ModifyTransformBasedOnInput(GenericTransform* transform);
 
   /// Find the intersection between a ray and a plane.
   /// Ensure ray_direction and plane_normal are both normalized.
@@ -272,9 +250,13 @@ class SceneLab {
   /// importing and exporting of entity data.
   void LoadSchemaFiles();
 
-  /// If you try to do anything that requires a camera but have not set one yet,
-  /// a default one will be created via this method.
-  void CreateDefaultCamera();
+  /// Actually write the binary data for a group of entities to the given file.
+  /// Also converts the Flatbuffers data to JSON if possible (i.e. if schemas
+  /// are laoded) and saves to text.
+  ///
+  /// Called by SaveScene() when saving to disk.
+  void WriteEntityFile(const std::string& filename,
+                       const std::vector<uint8_t>& data);
 
   /// Get a pointer to the file extension to use for binary files. Default is
   /// ".bin" but can be overridden in the scene lab config. The output does NOT
@@ -282,29 +264,21 @@ class SceneLab {
   const char* BinaryEntityFileExtension() const;
 
   const SceneLabConfig* config_;
+  std::unique_ptr<EntitySystemAdapter> entity_system_adapter_;
+
+  fplbase::AssetManager* asset_manager_;
   fplbase::Renderer* renderer_;
   fplbase::InputSystem* input_system_;
-  corgi::EntityManager* entity_manager_;
-  corgi::component_library::EntityFactory* entity_factory_;
   flatui::FontManager* font_manager_;
   // Which entity are we currently editing?
-  corgi::EntityRef selected_entity_;
+  GenericEntityId selected_entity_;
 
   InputMode input_mode_;
   MouseMode mouse_mode_;
 
-  // Temporary solution to let us cycle through all entities.
-  std::unique_ptr<corgi::EntityManager::EntityStorageContainer::Iterator>
-      entity_cycler_;
-
-  // For storing the FlatBuffers schema we use for exporting.
-  std::string schema_data_;
-  std::string schema_text_;
-
-  std::vector<corgi::ComponentId> components_to_update_;
   std::unique_ptr<EditorController> controller_;
   std::unique_ptr<EditorGui> gui_;
-  std::unique_ptr<corgi::CameraInterface> camera_;
+  GenericCamera initial_camera_;
 
   // Camera angles, projected onto the horizontal plane, as defined by the
   // camera's `up()` direction.
@@ -317,8 +291,7 @@ class SceneLab {
   mathfu::vec3 drag_prev_intersect_;  // Previous intersection point
   mathfu::vec3 drag_orig_scale_;      // Object scale when we started dragging.
 
-  float rendermesh_culling_distance_squared_;
-
+  bool initial_camera_set_;
   bool exit_requested_;
   bool exit_ready_;
   bool entities_modified_;

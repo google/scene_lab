@@ -83,9 +83,15 @@ bool Game::Initialize(const char* const binary_directory) {
   SetupComponents();
 
   scene_lab_->Initialize(scene_lab::GetSceneLabConfig(config_.c_str()),
-                         &entity_manager_, &font_manager_);
-  scene_lab_->GetCamera()->set_position(
-      mathfu::vec3(0.0f, 0.0f, kStartingHeight));
+                         &asset_manager_, &input_, &renderer_, &font_manager_);
+
+  std::unique_ptr<scene_lab_corgi::CorgiAdapter> adapter(
+      new scene_lab_corgi::CorgiAdapter(scene_lab_.get(), &entity_manager_));
+  scene_lab_->SetEntitySystemAdapter(std::move(adapter));
+
+  scene_lab::GenericCamera camera;
+  camera.position = mathfu::vec3(0.0f, 0.0f, kStartingHeight);
+  scene_lab_->SetInitialCamera(camera);
 
   in_editor_ = false;
 
@@ -154,7 +160,7 @@ bool Game::Update(corgi::WorldTime delta_time) {
 void Game::Render() {
   renderer_.AdvanceFrame(input_.minimized(), input_.Time());
 
-  corgi::CameraInterface* camera = scene_lab_->GetCamera();
+  corgi::CameraInterface* camera = corgi_adapter()->GetCorgiCamera();
   camera->set_viewport_resolution(mathfu::vec2(renderer_.window_size()));
 
   mathfu::mat4 camera_transform = camera->GetTransformMatrix();
@@ -217,12 +223,6 @@ void Game::LoadNewAssets() {
   }
 }
 
-void Game::SetComponentType(corgi::ComponentId component_id, size_t enum_id) {
-  entity_factory_->SetComponentType(component_id,
-                                    static_cast<unsigned int>(enum_id),
-                                    EnumNamesComponentDataUnion()[enum_id]);
-}
-
 void Game::SetupComponents() {
   common_services_component_.Initialize(&asset_manager_, entity_factory_.get(),
                                         nullptr, &input_, &renderer_);
@@ -230,23 +230,29 @@ void Game::SetupComponents() {
   physics_component_.set_gravity(-30.0);
   physics_component_.set_max_steps(5);
 
-  SetComponentType(
+  entity_factory_->SetComponentType(
       entity_manager_.RegisterComponent(&common_services_component_),
-      ComponentDataUnion_CommonServicesDef);
+      ComponentDataUnion_corgi_CommonServicesDef, "CommonServicesDef");
 
-  SetComponentType(entity_manager_.RegisterComponent(&render_mesh_component_),
-                   ComponentDataUnion_RenderMeshDef);
-  SetComponentType(entity_manager_.RegisterComponent(&physics_component_),
-                   ComponentDataUnion_PhysicsDef);
-  SetComponentType(entity_manager_.RegisterComponent(&meta_component_),
-                   ComponentDataUnion_MetaDef);
-  SetComponentType(entity_manager_.RegisterComponent(&edit_options_component_),
-                   ComponentDataUnion_EditOptionsDef);
-  SetComponentType(entity_manager_.RegisterComponent(&animation_component_),
-                   ComponentDataUnion_AnimationDef);
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&render_mesh_component_),
+      ComponentDataUnion_corgi_RenderMeshDef, "RenderMeshDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&physics_component_),
+      ComponentDataUnion_corgi_PhysicsDef, "PhysicsDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&meta_component_),
+      ComponentDataUnion_corgi_MetaDef, "MetaDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&edit_options_component_),
+      ComponentDataUnion_scene_lab_EditOptionsDef, "EditOptionsDef");
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&animation_component_),
+      ComponentDataUnion_corgi_AnimationDef, "AnimationDef");
   // Make sure you register TransformComponent after any components that use it.
-  SetComponentType(entity_manager_.RegisterComponent(&transform_component_),
-                   ComponentDataUnion_TransformDef);
+  entity_factory_->SetComponentType(
+      entity_manager_.RegisterComponent(&transform_component_),
+      ComponentDataUnion_corgi_TransformDef, "TransformDef");
 
   scene_lab_->AddComponentToUpdate(
       corgi::component_library::TransformComponent::GetComponentId());

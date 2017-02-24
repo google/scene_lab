@@ -16,6 +16,7 @@
 #define GAME_H_
 
 #include <unordered_map>
+#include "corgi/entity_manager.h"
 #include "corgi_component_library/animation.h"
 #include "corgi_component_library/common_services.h"
 #include "corgi_component_library/entity_factory.h"
@@ -23,7 +24,6 @@
 #include "corgi_component_library/physics.h"
 #include "corgi_component_library/rendermesh.h"
 #include "corgi_component_library/transform.h"
-#include "corgi/entity_manager.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatui/font_manager.h"
 #include "fplbase/asset_manager.h"
@@ -32,7 +32,8 @@
 #include "fplbase/utilities.h"
 #include "mathfu/glsl_mappings.h"
 #include "pindrop/pindrop.h"
-#include "scene_lab/edit_options.h"
+#include "scene_lab/corgi/corgi_adapter.h"
+#include "scene_lab/corgi/edit_options.h"
 #include "scene_lab/scene_lab.h"
 #include "scene_lab/util.h"
 
@@ -80,14 +81,13 @@ class Game {
   /// a different list of components in your game, you can override this method.
   virtual void SetupComponents();
 
-  /// Set the component type for each component based on the enum. If you are
-  /// using a different Flatbuffers enum definition, you should override this
-  /// method to refer to the enum names you use.
-  virtual void SetComponentType(corgi::ComponentId component_id,
-                                size_t enum_id);
-
   /// @endcond
  private:
+  scene_lab_corgi::CorgiAdapter* corgi_adapter() {
+    return static_cast<scene_lab_corgi::CorgiAdapter*>(
+        scene_lab_->entity_system_adapter());
+  }
+
   // Binary configuration.
   std::string config_;
 
@@ -121,7 +121,7 @@ class Game {
   corgi::component_library::PhysicsComponent physics_component_;
   corgi::component_library::RenderMeshComponent render_mesh_component_;
   corgi::component_library::TransformComponent transform_component_;
-  scene_lab::EditOptionsComponent edit_options_component_;
+  scene_lab_corgi::EditOptionsComponent edit_options_component_;
 
   bool in_editor_;
 };

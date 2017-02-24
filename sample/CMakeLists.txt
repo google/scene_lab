@@ -172,9 +172,6 @@ set(scene_lab_sample_SRCS
     src/game.cpp
     src/game.h
     src/main.cpp
-    # For outputting flatbuffer files as json.
-    ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
-    ${dependencies_flatbuffers_dir}/src/idl_gen_text.cpp
     )
 
 if(scene_lab_build_cwebp)
@@ -183,15 +180,15 @@ if(scene_lab_build_cwebp)
 endif()
 
 add_custom_target(scene_lab_sample_assets
-  COMMAND python scripts/build_assets.py
+  COMMAND python ${dependencies_scene_lab_dir}/sample/scripts/build_assets.py
   --flatc $<TARGET_FILE:flatc>
   ${cwebp_option}
-  --output ${CMAKE_SOURCE_DIR}/assets
-  --copy_tree ${dependencies_flatui_dir}/assets ${CMAKE_SOURCE_DIR}/assets
+  --output ${CMAKE_BINARY_DIR}/assets
+  --copy_tree ${dependencies_flatui_dir}/assets ${CMAKE_BINARY_DIR}/assets
   DEPENDS flatc ${cwebp_depends})
 
 set(scene_lab_sample_flatbuffers_generated_includes_dir
-   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include)
+   ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 file(GLOB_RECURSE scene_lab_sample_flatbuffers_schemas
                   ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)
@@ -211,8 +208,8 @@ build_flatbuffers("${scene_lab_sample_flatbuffers_schemas}"
                   "scene_lab_sample_generated_includes"
                   "${scene_lab_sample_flatbuffers_dependencies}"
                   "${scene_lab_sample_flatbuffers_generated_includes_dir}"
-                  "${CMAKE_SOURCE_DIR}/assets/flatbufferschemas"
-                  "${CMAKE_SOURCE_DIR}/assets/flatbufferschemas")
+                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/flatbufferschemas"
+                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/flatbufferschemas")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
@@ -238,9 +235,11 @@ endif()
 # Compiler flags.
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
-  # We need to ignore a bunch of different warnings because of the Bullet headers.
-  # This will go away if we ever fix PhysicsComponent to stop exposing Bullet.
-  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355 /wd4127 /wd4244 /wd4512 /wd4800")
+  # C4127: conditional expression is constant
+  # C4577: 'noexcept' used with no exception handling mode specified.
+  set(C_FLAGS_WARNINGS "/W4 /WX /wd4127 /wd4577")
+  set(CMAKE_CXX_FLAGS "/MP")
+  add_definitions(-DNOMINMAX -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNINGS)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)

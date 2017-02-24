@@ -3,23 +3,25 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/skybox.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "CycleOnly"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": 0,
@@ -43,17 +45,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/ground.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -83,13 +87,13 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "Ground Physics"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -100,
@@ -113,17 +117,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube2.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -154,19 +160,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$bd25-7c51-2a75-2697"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -1.280664,
@@ -190,17 +196,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -231,19 +239,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$9749-1c1b-d053-9605"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": 0.247575,
@@ -267,17 +275,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -308,19 +318,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$52bc-01e3-c78e-e368"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -0.463252,
@@ -344,17 +354,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube4.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -385,19 +397,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$ab3b-8576-5dae-4a59"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -1.411669,
@@ -421,17 +433,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube3.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -462,19 +476,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$c17c-3710-0aee-d688"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": 0.353684,
@@ -498,17 +512,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube4.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -539,19 +555,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$2b4a-2c27-ac70-8ca6"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -0.722542,
@@ -575,17 +591,19 @@
     {
       "component_list": [
         {
-          "data_type": "RenderMeshDef",
+          "data_type": "corgi_RenderMeshDef",
           "data": {
             "source_file": "meshes/cube.fplmesh",
-            "shader": "shaders/textured",
+            "shaders": [
+              "shaders/textured"
+            ],
             "render_pass": [
               "Opaque"
             ]
           }
         },
         {
-          "data_type": "PhysicsDef",
+          "data_type": "corgi_PhysicsDef",
           "data": {
             "shapes": [
               {
@@ -616,19 +634,19 @@
           }
         },
         {
-          "data_type": "MetaDef",
+          "data_type": "corgi_MetaDef",
           "data": {
             "entity_id": "$e332-a52b-01ad-736a"
           }
         },
         {
-          "data_type": "EditOptionsDef",
+          "data_type": "scene_lab_EditOptionsDef",
           "data": {
             "selection_option": "Any"
           }
         },
         {
-          "data_type": "TransformDef",
+          "data_type": "corgi_TransformDef",
           "data": {
             "position": {
               "x": -0.506335,

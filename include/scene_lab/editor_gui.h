@@ -20,11 +20,10 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include "corgi_component_library/entity_factory.h"
-#include "corgi/entity_manager.h"
 #include "flatui/flatui.h"
 #include "fplbase/asset_manager.h"
 #include "fplbase/renderer.h"
+#include "scene_lab/entity_system_adapter.h"
 #include "scene_lab/flatbuffer_editor.h"
 #include "scene_lab_config_generated.h"
 
@@ -43,8 +42,9 @@ class EditorGui {
   /// present the data. EditorGui will load its own font (specified in the
   /// config) into an existing FontManager.
   EditorGui(const SceneLabConfig* config, SceneLab* scene_lab,
-            corgi::EntityManager* entity_manager,
-            flatui::FontManager* font_manager, const std::string* schema_data);
+            fplbase::AssetManager* asset_manager,
+            fplbase::InputSystem* input_system, fplbase::Renderer* renderer,
+            flatui::FontManager* font_manager);
 
   /// Turn on the GUI. This should be called when Scene Lab is activated.
   void Activate();
@@ -92,9 +92,9 @@ class EditorGui {
   bool lock_camera_height() const { return lock_camera_height_; }
 
   /// Choose which entity we are currently editing.
-  void SetEditEntity(corgi::EntityRef& entity);
+  void SetEditEntity(const GenericEntityId& entity);
   /// Get the entity we are currently editing.
-  corgi::EntityRef edit_entity() const { return edit_entity_; }
+  GenericEntityId edit_entity() const { return edit_entity_; }
 
   /// Clear all cached or modified data that we have for the edit entity. Call
   /// this if you change any entity data externally, so we can reload data
@@ -123,7 +123,7 @@ class EditorGui {
 
   /// "Entity Updated" callback for Scene Lab; if the entity is updated
   /// externally, we reload its data by calling ClearEntityData().
-  void EntityUpdated(corgi::EntityRef entity);
+  void EntityUpdated(const GenericEntityId& entity);
 
   /// Does the user want you to show the current entity's physics?
   bool show_physics() const { return show_physics_; }
@@ -135,6 +135,11 @@ class EditorGui {
 
   const std::string& menu_title_string() { return menu_title_string_; }
   void set_menu_title_string(const std::string& s) { menu_title_string_ = s; }
+
+  /// Set whether to expand the given component's data.
+  void SetShowComponentDataView(const GenericComponentId& component, bool b) {
+    components_to_show_[component] = b;
+  }
 
   MATHFU_DEFINE_CLASS_SIMD_AWARE_NEW_DELETE
 
@@ -165,16 +170,12 @@ class EditorGui {
   };
   enum WindowState { kNormal, kMaximized };
 
-  static const int kVirtualResolution = 1000;
   static const int kToolbarHeight = 30;
-  static const int kSpacing = 3;
-  static const int kBlankEditWidth = 20;
   static const int kIndent = 3;
   static const int kFontSize = 18;
-  static const int kButtonMargin = 5;
 
   /// Commit only the requested component flatbuffer to the entity.
-  void CommitComponentData(corgi::ComponentId id);
+  void CommitComponentData(const GenericComponentId& component);
 
   /// Send an EntityUpdated event to the current entity.
   void SendUpdateEvent();
@@ -189,8 +190,10 @@ class EditorGui {
   void DrawEntityListUI();
   /// Draw an interface for changing editor settings.
   void DrawSettingsUI();
+  /// Draw an interface for choosing a prototype from a list.
+  void DrawPrototypeListUI();
   /// Draw a list of all of the component data that this entity has.
-  void DrawEntityComponent(corgi::ComponentId id);
+  void DrawEntityComponent(const GenericComponentId& component);
   /// Draw a list of the entity's parent and children, if any.
   void DrawEntityFamily();
 
@@ -203,39 +206,42 @@ class EditorGui {
   void FinishDrawEditView();
 
   /// Create a text button; call this inside a gui::Run.
-  flatui::Event TextButton(const char* text, const char* id, int size);
+  flatui::Event TextButton(const char* text, const char* id, float size);
 
   /// Show a button that, if you click on it, selects an entity.
-  void EntityButton(const corgi::EntityRef& entity, int size);
+  void EntityButton(const GenericEntityId& entity, float size);
 
   /// Get the virtual resolution (for FlatUI) of the whole screen.
   void GetVirtualResolution(mathfu::vec2* resolution_output);
 
+  /// Get SceneLab's entity system adapter. Convenience function.
+  EntitySystemAdapter* entity_system_adapter();
+
   const SceneLabConfig* config_;
   SceneLab* scene_lab_;
-  corgi::EntityManager* entity_manager_;
-  flatui::FontManager* font_manager_;
-  const std::string* schema_data_;
-
   fplbase::AssetManager* asset_manager_;
-  corgi::component_library::EntityFactory* entity_factory_;
   fplbase::InputSystem* input_system_;
   fplbase::Renderer* renderer_;
+  flatui::FontManager* font_manager_;
 
   // Which entity we are editing right now.
-  corgi::EntityRef edit_entity_;
+  GenericEntityId edit_entity_;
   // We're changing which entity to select; this will take effect at the
   // end of rendering.
-  corgi::EntityRef changed_edit_entity_;
-  std::unordered_map<corgi::ComponentId, std::unique_ptr<FlatbufferEditor>>
+  GenericEntityId changed_edit_entity_;
+  std::unordered_map<GenericComponentId, std::unique_ptr<FlatbufferEditor>>
       component_guis_;
-  corgi::ComponentId auto_commit_component_;
-  corgi::ComponentId auto_revert_component_;
-  corgi::ComponentId auto_recreate_component_;
+  GenericComponentId auto_commit_component_;
+  GenericComponentId auto_revert_component_;
+  GenericComponentId auto_recreate_component_;
 
-  std::vector<bool> components_to_show_;  // Components to display on screen.
+  std::unordered_map<GenericComponentId, bool>
+      components_to_show_;  // Components to display on screen.
+  std::vector<GenericComponentId> component_list_;
+  std::vector<std::string> prototype_list_;  // Currently available protoypes.
 
   std::string entity_list_filter_;
+  std::string prototype_list_filter_;
   std::string menu_title_string_;
 
   mathfu::vec4 bg_edit_ui_color_;

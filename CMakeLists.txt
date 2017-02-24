@@ -22,21 +22,26 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
 # Scene Lab source files.
+# TODO: Separate out corgi_adapter and edit_options from the rest of Scene Lab.
 set(scene_lab_SRCS
     include/scene_lab/basic_camera.h
-    include/scene_lab/edit_options.h
     include/scene_lab/editor_controller.h
     include/scene_lab/editor_gui.h
+    include/scene_lab/entity_system_adapter.h
     include/scene_lab/flatbuffer_editor.h
     include/scene_lab/scene_lab.h
     include/scene_lab/util.h
+    include/scene_lab/corgi/corgi_adapter.h
+    include/scene_lab/corgi/edit_options.h
     src/basic_camera.cpp
-    src/edit_options.cpp
     src/editor_controller.cpp
     src/editor_gui.cpp
+    src/entity_system_adapter.cpp
     src/flatbuffer_editor.cpp
     src/scene_lab.cpp
     src/util.cpp
+    src/corgi/corgi_adapter.cpp
+    src/corgi/edit_options.cpp
     )
 
 # Compile the game with the debug flag
@@ -45,50 +50,18 @@ set(scene_lab_DEBUG ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 get_directory_property(scene_lab_has_parent PARENT_DIRECTORY)
 
-# Directory which contains the source for 3rd party libraries.
-if(NOT DEFINED third_party_root)
-  get_filename_component(
-    third_party_root "${CMAKE_CURRENT_LIST_DIR}/../../../../external"
-    REALPATH)
-endif()
+# Call fplutil to get locations of dependencies and set common build settings.
+include("cmake/find_fplutil.cmake")
+include("${fplutil_dir}/buildutil/cmake_common.txt")
+set_common_build_variables()
 
-# Directory which contains source for FPL libraries.
-if(NOT DEFINED fpl_root)
-  get_filename_component(
-      fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../libs" REALPATH)
+# Additional compiler flags.
+if(APPLE)
+  # These additional flags are needed because of Bullet's btSolverBody.h and
+  # btConvexHullShape.h causing warnings with the Apple build
+  set(CMAKE_CXX_FLAGS
+     "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers -Wno-overloaded-virtual")
 endif()
-
-# If the dependencies directory exists, assume this is the root directory for
-# all libraries required by this project.
-if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${CMAKE_CURRENT_LIST_DIR}/dependencies")
-  if(EXISTS "${dependencies_root}")
-    set(third_party_root "${dependencies_root}")
-    set(fpl_root "${dependencies_root}")
-  endif()
-endif()
-
-set(dependencies_gtest_dir "${fpl_root}/googletest"
-    CACHE PATH "Directory containing the GoogleTest library.")
-set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
-    CACHE PATH "Directory containing the Flatbuffers library.")
-set(dependencies_fplutil_dir "${fpl_root}/fplutil"
-    CACHE PATH "Directory containing the fplutil library.")
-set(dependencies_breadboard_dir "${fpl_root}/breadboard"
-    CACHE PATH "Directory containing the breadboard library.")
-set(dependencies_fplbase_dir "${fpl_root}/fplbase"
-    CACHE PATH "Directory containing the FPLBase library.")
-set(dependencies_corgi_dir "${fpl_root}/corgi"
-    CACHE PATH "Directory containing the CORGI library.")
-set(dependencies_flatui_dir "${fpl_root}/flatui"
-    CACHE PATH "Directory containing the FlatUI library.")
-set(dependencies_mathfu_dir "${fpl_root}/mathfu"
-    CACHE PATH "Directory containing the MathFu library.")
-set(dependencies_bulletphysics_distr_dir "${third_party_root}/bulletphysics"
-    CACHE PATH "Directory containing the Bullet Physics distribution.")
-set(dependencies_corgi_component_library_dir
-    "${dependencies_corgi_dir}/component_library"
-    CACHE PATH "Directory containing the CORGI component library")
 
 set(scene_lab_standalone_mode OFF)
 if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
@@ -98,8 +71,8 @@ else()
   message(STATUS "Scene Lab library: not building sample game")
 endif()
 
-option(scene_lab_build_sample "Build a sample game for Scene Lab"
-       ${scene_lab_standalone_mode})
+# The sample build is currently broken.
+option(scene_lab_build_sample "Build a sample game for Scene Lab" OFF)
 
 option(scene_lab_build_cwebp "Build cwebp for Scene Lab from source." OFF)
 
@@ -158,7 +131,7 @@ if(scene_lab_standalone_mode)
 endif()
 
 set(scene_lab_flatbuffers_generated_includes_dir
-   ${CMAKE_SOURCE_DIR}/${CMAKE_FILES_DIRECTORY}/include/scene_lab)
+    ${CMAKE_CURRENT_BINARY_DIR}/include/scene_lab)
 
 file(GLOB_RECURSE scene_lab_flatbuffers_schemas
      ${CMAKE_CURRENT_LIST_DIR}/schemas/*.fbs)
@@ -202,32 +175,6 @@ include_directories(${dependencies_pindrop_dir}/include)
 
 # SDL includes.
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
-
-# Detect clang
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANGXX 1)
-endif()
-
-# Compiler flags.
-set(C_FLAGS_WARNINGS "")
-if(MSVC)
-  # We need to ignore a bunch of different warnings because of the Bullet headers.
-  # This will go away if we ever fix PhysicsComponent to stop exposing Bullet.
-  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355 /wd4127 /wd4244 /wd4512 /wd4800")
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
-       CMAKE_COMPILER_IS_CLANGXX)
-  add_definitions(-g)
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra")
-endif()
-if(APPLE)
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers -Wno-overloaded-virtual")
-  # These additional flags are needed because of Bullet's btSolverBody.h and
-  # btConvexHullShape.h causing warnings with the Apple build
-endif()
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 add_library(scene_lab ${scene_lab_SRCS})
 add_dependencies(scene_lab scene_lab_generated_includes)
