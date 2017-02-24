@@ -200,23 +200,18 @@ $(document).ready(function(){initNavTree('scene_lab_integration_guide.html','');
 </div><!-- fragment --><p>And add Scene Lab's include directories to your include directories:</p>
 <div class="fragment"><div class="line">include_directories(${SCENE_LAB_FLATBUFFERS_GENERATED_INCLUDES_DIR})</div>
 <div class="line">include_directories(${SCENE_LAB_DIR}/include)</div>
-</div><!-- fragment --><p>If you'd like to output your world's FlatBuffers files as JSON files, you will need to include the FlatBuffers parser in your project:</p>
-<div class="fragment"><div class="line">set(my_project_SRCS</div>
-<div class="line">    ...  # lots of other source files</div>
-<div class="line">    ${dependencies_flatbuffers_dir}/src/idl_parser.cpp</div>
-<div class="line">    ${dependencies_flatbuffers_dir}/src/idl_gen_text.cpp</div>
-<div class="line">)</div>
-</div><!-- fragment --><p>And finally, link <a class="el" href="namespacescene__lab.html" title="Utility functions that might be useful if you are using Scene Lab. ">scene_lab</a> into your project.</p>
+</div><!-- fragment --><p>And finally, link <a class="el" href="namespacescene__lab.html" title="Utility functions that might be useful if you are using Scene Lab. ">scene_lab</a> into your project. If you'd like to output your world's FlatBuffers files as JSON files, you will need to link the flatbuffers library, too. Note that <a class="el" href="namespacescene__lab.html" title="Utility functions that might be useful if you are using Scene Lab. ">scene_lab</a> needs to come before flatbuffers to support single pass linkers like gcc.</p>
 <div class="fragment"><div class="line">target_link_libraries(my_project</div>
 <div class="line">    ...  # lots of other libraries to link in</div>
 <div class="line">    scene_lab</div>
+<div class="line">    flatbuffers</div>
 <div class="line">)</div>
 </div><!-- fragment --><h2>Prerequisites</h2>
 <p>Scene Lab is designed to be integrated into a game built using <a href="https://google.github.io/corgi/">CORGI</a> and <a href="https://google.github.io/flatbuffers/">FlatBuffers</a>. In order to take full advantage of Scene Lab's in-engine world editing capabilities, you should be using CORGI's included component library as the basis for your entities. Specifically you will need to use the <a href="https://google.github.io/corgi/transform_component.html">TransformComponent</a>, <a href="https://google.github.io/corgi/render_mesh_component.html">RenderMeshComponent</a>, and <a href="https://google.github.io/corgi/physics_component.html">PhysicsComponent</a> (to be able to click on entities via ray-casting), as well as <a href="https://google.github.io/corgi/meta_component.html">MetaComponent</a> for keeping track of entity IDs and prototypes.</p>
 <p>You must also use a version of <a href="https://google.github.io/corgi/entity_factory.html">EntityFactory</a> that supports prototypes. The entity factory included with CORGI's component library is a good place to start.</p>
 <p>Note: If you roll your own custom replacement for the RenderMeshComponent, PhysicsComponent, TransformComponent, or MetaComponent, you may be able to adapt Scene Lab to use them, but that is outside the scope of this integration guide.</p>
 <h2>Using the SceneLab class</h2>
-<p>To integrate the editor, instantiate a <a class="el" href="classscene__lab_1_1_scene_lab.html">SceneLab</a> object, then call <a class="el" href="classscene__lab_1_1_scene_lab.html#a1843894a086c62baeb8c890d85a6f9a6">Initialize()</a>. You will also need provide a camera for the editor to use, via some subclass of <code>CameraInterface</code> of your game’s choosing; instantiate this and then pass it along via <a class="el" href="classscene__lab_1_1_scene_lab.html#ad530912584b269aba83d0a7cb4dead38">SetCamera()</a>. SceneLab will take ownership of it.</p>
+<p>To integrate the editor, instantiate a <a class="el" href="classscene__lab_1_1_scene_lab.html">SceneLab</a> object, then call <a class="el" href="classscene__lab_1_1_scene_lab.html#ae01ca8cae0e3bad6b2327c0f4a9f7616">Initialize()</a>. You will also need provide a camera for the editor to use, via some subclass of <code>CameraInterface</code> of your game’s choosing; instantiate this and then pass it along via SetCamera(). SceneLab will take ownership of it.</p>
 <div class="fragment"><div class="line"><span class="comment">// Set up prerequisites.</span></div>
 <div class="line"><span class="keyword">const</span> SceneLabConfig* scene_lab_config = ...  <span class="comment">// Get the SceneLabConfig</span></div>
 <div class="line">                                              <span class="comment">// Flatbuffer contents.</span></div>
@@ -232,7 +227,7 @@ $(document).ready(function(){initNavTree('scene_lab_integration_guide.html','');
 <div class="line">my_scene_lab_camera.reset(<span class="keyword">new</span> MyCamera());</div>
 <div class="line">... <span class="comment">// Set up my_camera however you want.</span></div>
 <div class="line">scene_lab-&gt;SetCamera(std::move(my_scene_lab_camera));</div>
-</div><!-- fragment --><p>When you are in edit mode, most <a href="https://google.github.io/corgi/">CORGI</a> components will not be updated; however, you probably want to update the <code>TransformComponent</code> and maybe others depending on your game. To set these up ahead of time before entering edit mode, call <a class="el" href="classscene__lab_1_1_scene_lab.html#a4481f0b00efdd27a49cc387d22752c83">AddComponentToUpdate()</a> multiple times, once for each component you want to update (including Transform).</p>
+</div><!-- fragment --><p>When you are in edit mode, most <a href="https://google.github.io/corgi/">CORGI</a> components will not be updated; however, you probably want to update the <code>TransformComponent</code> and maybe others depending on your game. To set these up ahead of time before entering edit mode, call AddComponentToUpdate() multiple times, once for each component you want to update (including Transform).</p>
 <div class="fragment"><div class="line"><span class="comment">// Continue to update Transform and RenderMesh while Scene Lab is active.</span></div>
 <div class="line">scene_lab-&gt;AddComponentToUpdate(</div>
 <div class="line">    component_library::TransformComponent::GetComponentId());</div>
@@ -247,7 +242,7 @@ $(document).ready(function(){initNavTree('scene_lab_integration_guide.html','');
 <div class="line">    <span class="comment">// Enter Scene Lab.</span></div>
 <div class="line">    scene_lab-&gt;Activate();</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>While the editor is in use, you must call <a class="el" href="classscene__lab_1_1_scene_lab.html#a59919e652de7adb338dbd8bd4f80c4a3">AdvanceFrame()</a> each frame (which will take care of updating the required components). After rendering the world each frame, call <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a>, which will draw the editor GUI overlay.</p>
+</div><!-- fragment --><p>While the editor is in use, you must call <a class="el" href="classscene__lab_1_1_scene_lab.html#a42d9a3e1fffb658c8b28eb672c91091a">AdvanceFrame()</a> each frame (which will take care of updating the required components). After rendering the world each frame, call <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a>, which will draw the editor GUI overlay.</p>
 <div class="fragment"><div class="line"><span class="keywordflow">while</span> (...) {  <span class="comment">// Every frame.</span></div>
 <div class="line">    <span class="comment">// Update Scene Lab&#39;s state, UI, etc.</span></div>
 <div class="line">    scene_lab-&gt;AdvanceFrame(delta_time);</div>
@@ -267,7 +262,7 @@ $(document).ready(function(){initNavTree('scene_lab_integration_guide.html','');
 <div class="line"></div>
 <div class="line">    <span class="comment">// Wait until next frame...</span></div>
 <div class="line">}</div>
-</div><!-- fragment --><p>You can save the current state of the world at any time by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a3d8b59884e0abc1a310c0621274ca771">SaveScene()</a>. When you are finished using the editor, call <a class="el" href="classscene__lab_1_1_scene_lab.html#a37d40a9cafafc3c6756f811373bb7355">Deactivate()</a>, and stop calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a59919e652de7adb338dbd8bd4f80c4a3">AdvanceFrame()</a> and <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a> for now. You can re-enter the editor at any time by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a5d77684a5d28695ae512b7a9cdd7102d">Activate()</a> and resuming calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a59919e652de7adb338dbd8bd4f80c4a3">AdvanceFrame()</a> and <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a> each frame.</p>
+</div><!-- fragment --><p>You can save the current state of the world at any time by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a677ef25d776f2393e3d2f85069a58000">SaveScene()</a>. When you are finished using the editor, call <a class="el" href="classscene__lab_1_1_scene_lab.html#a37d40a9cafafc3c6756f811373bb7355">Deactivate()</a>, and stop calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a42d9a3e1fffb658c8b28eb672c91091a">AdvanceFrame()</a> and <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a> for now. You can re-enter the editor at any time by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a5d77684a5d28695ae512b7a9cdd7102d">Activate()</a> and resuming calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a42d9a3e1fffb658c8b28eb672c91091a">AdvanceFrame()</a> and <a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render()</a> each frame.</p>
 <div class="fragment"><div class="line"><span class="comment">// Did the user press a key indicating they want to save?</span></div>
 <div class="line"><span class="keywordflow">if</span> (...) {</div>
 <div class="line">    scene_lab-&gt;SaveScene();</div>

@@ -210,9 +210,9 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_editor_gui.html','
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acad3fda2d19e3543914ad64e1a1418e4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#acad3fda2d19e3543914ad64e1a1418e4">EditorGui</a> (const SceneLabConfig *config, <a class="el" href="classscene__lab_1_1_scene_lab.html">SceneLab</a> *scene_lab, corgi::EntityManager *entity_manager, flatui::FontManager *font_manager, const std::string *schema_data)</td></tr>
-<tr class="memdesc:acad3fda2d19e3543914ad64e1a1418e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the user interface.  <a href="#acad3fda2d19e3543914ad64e1a1418e4">More...</a><br/></td></tr>
-<tr class="separator:acad3fda2d19e3543914ad64e1a1418e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba820563856a713fac1e93d5237f1f3f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#aba820563856a713fac1e93d5237f1f3f">EditorGui</a> (const SceneLabConfig *config, <a class="el" href="classscene__lab_1_1_scene_lab.html">SceneLab</a> *scene_lab, fplbase::AssetManager *asset_manager, fplbase::InputSystem *input_system, fplbase::Renderer *renderer, flatui::FontManager *font_manager)</td></tr>
+<tr class="memdesc:aba820563856a713fac1e93d5237f1f3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the user interface.  <a href="#aba820563856a713fac1e93d5237f1f3f">More...</a><br/></td></tr>
+<tr class="separator:aba820563856a713fac1e93d5237f1f3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9dc6a5c14b5563bfee8cf13a41311e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9dc6a5c14b5563bfee8cf13a41311e5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#af9dc6a5c14b5563bfee8cf13a41311e5">Activate</a> ()</td></tr>
 <tr class="memdesc:af9dc6a5c14b5563bfee8cf13a41311e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn on the GUI. This should be called when Scene Lab is activated. <br/></td></tr>
@@ -246,14 +246,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a8e86a63fd25c6c958e045665c45c7c26">lock_camera_height</a> () const </td></tr>
 <tr class="memdesc:a8e86a63fd25c6c958e045665c45c7c26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Should camera movement in Scene Lab be parallel to the ground, so your camera's height doesn't change unless you want it to? <br/></td></tr>
 <tr class="separator:a8e86a63fd25c6c958e045665c45c7c26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a123e35a774ac632805b635c53677276d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a123e35a774ac632805b635c53677276d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a123e35a774ac632805b635c53677276d">SetEditEntity</a> (corgi::EntityRef &amp;entity)</td></tr>
-<tr class="memdesc:a123e35a774ac632805b635c53677276d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choose which entity we are currently editing. <br/></td></tr>
-<tr class="separator:a123e35a774ac632805b635c53677276d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83c9d5d6d5bc920876f24d2d131a8c9b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a83c9d5d6d5bc920876f24d2d131a8c9b"></a>
-corgi::EntityRef&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b">edit_entity</a> () const </td></tr>
-<tr class="memdesc:a83c9d5d6d5bc920876f24d2d131a8c9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the entity we are currently editing. <br/></td></tr>
-<tr class="separator:a83c9d5d6d5bc920876f24d2d131a8c9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9b8d85f24b594aef652a5f1981d39df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9b8d85f24b594aef652a5f1981d39df"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#ad9b8d85f24b594aef652a5f1981d39df">SetEditEntity</a> (const GenericEntityId &amp;entity)</td></tr>
+<tr class="memdesc:ad9b8d85f24b594aef652a5f1981d39df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Choose which entity we are currently editing. <br/></td></tr>
+<tr class="separator:ad9b8d85f24b594aef652a5f1981d39df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa8b09b9082aae43c54ed023ac5e4dde"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa8b09b9082aae43c54ed023ac5e4dde"></a>
+GenericEntityId&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#aaa8b09b9082aae43c54ed023ac5e4dde">edit_entity</a> () const </td></tr>
+<tr class="memdesc:aaa8b09b9082aae43c54ed023ac5e4dde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the entity we are currently editing. <br/></td></tr>
+<tr class="separator:aaa8b09b9082aae43c54ed023ac5e4dde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d3852fc2b09102fb94ead9ef0299a20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20">ClearEntityData</a> ()</td></tr>
 <tr class="memdesc:a1d3852fc2b09102fb94ead9ef0299a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear all cached or modified data that we have for the edit entity.  <a href="#a1d3852fc2b09102fb94ead9ef0299a20">More...</a><br/></td></tr>
 <tr class="separator:a1d3852fc2b09102fb94ead9ef0299a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -271,9 +271,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287">EntityModified</a> () const </td></tr>
 <tr class="memdesc:a477698681363dd78b8ca108beb4ab287"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has the entity's flatbuffer been modified? <br/></td></tr>
 <tr class="separator:a477698681363dd78b8ca108beb4ab287"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a607f4177f20f03bf3062302cbced2c34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a607f4177f20f03bf3062302cbced2c34">EntityUpdated</a> (corgi::EntityRef entity)</td></tr>
-<tr class="memdesc:a607f4177f20f03bf3062302cbced2c34"><td class="mdescLeft">&#160;</td><td class="mdescRight">"Entity Updated" callback for Scene Lab; if the entity is updated externally, we reload its data by calling <a class="el" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20" title="Clear all cached or modified data that we have for the edit entity. ">ClearEntityData()</a>.  <a href="#a607f4177f20f03bf3062302cbced2c34">More...</a><br/></td></tr>
-<tr class="separator:a607f4177f20f03bf3062302cbced2c34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee4287d42323f87946e4533b9f94fab5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#aee4287d42323f87946e4533b9f94fab5">EntityUpdated</a> (const GenericEntityId &amp;entity)</td></tr>
+<tr class="memdesc:aee4287d42323f87946e4533b9f94fab5"><td class="mdescLeft">&#160;</td><td class="mdescRight">"Entity Updated" callback for Scene Lab; if the entity is updated externally, we reload its data by calling <a class="el" href="classscene__lab_1_1_editor_gui.html#a1d3852fc2b09102fb94ead9ef0299a20" title="Clear all cached or modified data that we have for the edit entity. ">ClearEntityData()</a>.  <a href="#aee4287d42323f87946e4533b9f94fab5">More...</a><br/></td></tr>
+<tr class="separator:aee4287d42323f87946e4533b9f94fab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c5689c697555777a17e5129b4b08edf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c5689c697555777a17e5129b4b08edf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf">show_physics</a> () const </td></tr>
 <tr class="memdesc:a6c5689c697555777a17e5129b4b08edf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does the user want you to show the current entity's physics? <br/></td></tr>
@@ -292,9 +292,13 @@ const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>me
 <tr class="memitem:aae2fe376e63f1d882eef3d7cd934ab76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae2fe376e63f1d882eef3d7cd934ab76"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_menu_title_string</b> (const std::string &amp;s)</td></tr>
 <tr class="separator:aae2fe376e63f1d882eef3d7cd934ab76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27492442a9ba89ebad6ac27b7c772970"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27492442a9ba89ebad6ac27b7c772970"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_gui.html#a27492442a9ba89ebad6ac27b7c772970">SetShowComponentDataView</a> (const GenericComponentId &amp;component, bool b)</td></tr>
+<tr class="memdesc:a27492442a9ba89ebad6ac27b7c772970"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set whether to expand the given component's data. <br/></td></tr>
+<tr class="separator:a27492442a9ba89ebad6ac27b7c772970"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="acad3fda2d19e3543914ad64e1a1418e4"></a>
+<a class="anchor" id="aba820563856a713fac1e93d5237f1f3f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -313,20 +317,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_menu_title_string
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">corgi::EntityManager *&#160;</td>
-          <td class="paramname"><em>entity_manager</em>, </td>
+          <td class="paramtype">fplbase::AssetManager *&#160;</td>
+          <td class="paramname"><em>asset_manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fplbase::InputSystem *&#160;</td>
+          <td class="paramname"><em>input_system</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fplbase::Renderer *&#160;</td>
+          <td class="paramname"><em>renderer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">flatui::FontManager *&#160;</td>
-          <td class="paramname"><em>font_manager</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string *&#160;</td>
-          <td class="paramname"><em>schema_data</em>&#160;</td>
+          <td class="paramname"><em>font_manager</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -433,14 +443,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_menu_title_string
 
 </div>
 </div>
-<a class="anchor" id="a607f4177f20f03bf3062302cbced2c34"></a>
+<a class="anchor" id="aee4287d42323f87946e4533b9f94fab5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void scene_lab::EditorGui::EntityUpdated </td>
           <td>(</td>
-          <td class="paramtype">corgi::EntityRef&#160;</td>
+          <td class="paramtype">const GenericEntityId &amp;&#160;</td>
           <td class="paramname"><em>entity</em></td><td>)</td>
           <td></td>
         </tr>

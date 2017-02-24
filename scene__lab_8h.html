@@ -210,24 +210,15 @@ $(document).ready(function(){initNavTree('scene__lab_8h.html','');});
 <code>#include &lt;memory&gt;</code><br/>
 <code>#include &lt;string&gt;</code><br/>
 <code>#include &lt;vector&gt;</code><br/>
-<code>#include &quot;corgi/component_interface.h&quot;</code><br/>
-<code>#include &quot;corgi/entity_manager.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/camera_interface.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/entity_factory.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/meta.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/physics.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/rendermesh.h&quot;</code><br/>
-<code>#include &quot;corgi_component_library/transform.h&quot;</code><br/>
-<code>#include &quot;editor_components_generated.h&quot;</code><br/>
 <code>#include &quot;flatui/flatui.h&quot;</code><br/>
 <code>#include &quot;fplbase/asset_manager.h&quot;</code><br/>
 <code>#include &quot;fplbase/input.h&quot;</code><br/>
 <code>#include &quot;fplbase/renderer.h&quot;</code><br/>
 <code>#include &quot;fplbase/utilities.h&quot;</code><br/>
-<code>#include &quot;mathfu/vector_3.h&quot;</code><br/>
-<code>#include &quot;scene_lab/edit_options.h&quot;</code><br/>
+<code>#include &quot;mathfu/vector.h&quot;</code><br/>
 <code>#include &quot;<a class="el" href="editor__controller_8h_source.html">scene_lab/editor_controller.h</a>&quot;</code><br/>
 <code>#include &quot;<a class="el" href="editor__gui_8h_source.html">scene_lab/editor_gui.h</a>&quot;</code><br/>
+<code>#include &quot;scene_lab/entity_system_adapter.h&quot;</code><br/>
 <code>#include &quot;scene_lab_config_generated.h&quot;</code><br/>
 </div>
 <p><a href="scene__lab_8h_source.html">Go to the source code of this file.</a></p>
@@ -245,10 +236,10 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a05ee74ccf2714de9a4c41c984f0dcbc8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a05ee74ccf2714de9a4c41c984f0dcbc8"></a>
+<tr class="memitem:a0ffaa4dd50a866a65d4dedc2d906b6ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ffaa4dd50a866a65d4dedc2d906b6ad"></a>
 typedef std::function&lt; void(const <br class="typebreak"/>
-corgi::EntityRef &amp;entity)&gt;&#160;</td><td class="memItemRight" valign="bottom"><b>scene_lab::EntityCallback</b></td></tr>
-<tr class="separator:a05ee74ccf2714de9a4c41c984f0dcbc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+GenericEntityId &amp;entity)&gt;&#160;</td><td class="memItemRight" valign="bottom"><b>scene_lab::EntityCallback</b></td></tr>
+<tr class="separator:a0ffaa4dd50a866a65d4dedc2d906b6ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac861561e85a05b657c374fc48b772dab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac861561e85a05b657c374fc48b772dab"></a>
 typedef std::function&lt; void()&gt;&#160;</td><td class="memItemRight" valign="bottom"><b>scene_lab::EditorCallback</b></td></tr>
 <tr class="separator:ac861561e85a05b657c374fc48b772dab"><td class="memSeparator" colspan="2">&#160;</td></tr>

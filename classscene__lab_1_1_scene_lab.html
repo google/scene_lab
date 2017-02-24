@@ -211,16 +211,21 @@ $(document).ready(function(){initNavTree('classscene__lab_1_1_scene_lab.html',''
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1843894a086c62baeb8c890d85a6f9a6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a1843894a086c62baeb8c890d85a6f9a6">Initialize</a> (const SceneLabConfig *config, corgi::EntityManager *entity_manager, flatui::FontManager *font_manager)</td></tr>
-<tr class="memdesc:a1843894a086c62baeb8c890d85a6f9a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize Scene Lab once, when starting your game.  <a href="#a1843894a086c62baeb8c890d85a6f9a6">More...</a><br/></td></tr>
-<tr class="separator:a1843894a086c62baeb8c890d85a6f9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad530912584b269aba83d0a7cb4dead38"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ad530912584b269aba83d0a7cb4dead38">SetCamera</a> (std::unique_ptr&lt; corgi::CameraInterface &gt; camera)</td></tr>
-<tr class="memdesc:ad530912584b269aba83d0a7cb4dead38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Give Scene Lab a camera that it can use.  <a href="#ad530912584b269aba83d0a7cb4dead38">More...</a><br/></td></tr>
-<tr class="separator:ad530912584b269aba83d0a7cb4dead38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59919e652de7adb338dbd8bd4f80c4a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59919e652de7adb338dbd8bd4f80c4a3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a59919e652de7adb338dbd8bd4f80c4a3">AdvanceFrame</a> (corgi::WorldTime delta_time)</td></tr>
-<tr class="memdesc:a59919e652de7adb338dbd8bd4f80c4a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">While Scene Lab is active, you must call this once a frame, every frame. <br/></td></tr>
-<tr class="separator:a59919e652de7adb338dbd8bd4f80c4a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae01ca8cae0e3bad6b2327c0f4a9f7616"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ae01ca8cae0e3bad6b2327c0f4a9f7616">Initialize</a> (const SceneLabConfig *<a class="el" href="classscene__lab_1_1_scene_lab.html#a47696fe2963f575920ba268bf60d749b">config</a>, fplbase::AssetManager *asset_manager, fplbase::InputSystem *input, fplbase::Renderer *renderer, flatui::FontManager *font_manager)</td></tr>
+<tr class="memdesc:ae01ca8cae0e3bad6b2327c0f4a9f7616"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize Scene Lab once, when starting your game.  <a href="#ae01ca8cae0e3bad6b2327c0f4a9f7616">More...</a><br/></td></tr>
+<tr class="separator:ae01ca8cae0e3bad6b2327c0f4a9f7616"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbaf5270c8a14553e270191fe9172f26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adbaf5270c8a14553e270191fe9172f26"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#adbaf5270c8a14553e270191fe9172f26">SetEntitySystemAdapter</a> (std::unique_ptr&lt; EntitySystemAdapter &gt; adapter)</td></tr>
+<tr class="memdesc:adbaf5270c8a14553e270191fe9172f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set which entity system adapter to use. <br/></td></tr>
+<tr class="separator:adbaf5270c8a14553e270191fe9172f26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66db47d3e969d633014a635bcca377be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66db47d3e969d633014a635bcca377be"></a>
+EntitySystemAdapter *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a66db47d3e969d633014a635bcca377be">entity_system_adapter</a> () const </td></tr>
+<tr class="memdesc:a66db47d3e969d633014a635bcca377be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accessor for entity system adapter, don't hold onto this pointer. <br/></td></tr>
+<tr class="separator:a66db47d3e969d633014a635bcca377be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42d9a3e1fffb658c8b28eb672c91091a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a42d9a3e1fffb658c8b28eb672c91091a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a42d9a3e1fffb658c8b28eb672c91091a">AdvanceFrame</a> (double delta_time_seconds)</td></tr>
+<tr class="memdesc:a42d9a3e1fffb658c8b28eb672c91091a"><td class="mdescLeft">&#160;</td><td class="mdescRight">While Scene Lab is active, you must call this once a frame, every frame. <br/></td></tr>
+<tr class="separator:a42d9a3e1fffb658c8b28eb672c91091a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af31941600ed8738b28116142b8b0b2d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#af31941600ed8738b28116142b8b0b2d5">Render</a> (fplbase::Renderer *renderer)</td></tr>
 <tr class="memdesc:af31941600ed8738b28116142b8b0b2d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Render Scene Lab and its GUI; only call this when Scene Lab is active.  <a href="#af31941600ed8738b28116142b8b0b2d5">More...</a><br/></td></tr>
 <tr class="separator:af31941600ed8738b28116142b8b0b2d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -230,25 +235,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a37d40a9cafafc3c6756f811373bb7355"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a37d40a9cafafc3c6756f811373bb7355">Deactivate</a> ()</td></tr>
 <tr class="memdesc:a37d40a9cafafc3c6756f811373bb7355"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immediately deactivate Scene Lab.  <a href="#a37d40a9cafafc3c6756f811373bb7355">More...</a><br/></td></tr>
 <tr class="separator:a37d40a9cafafc3c6756f811373bb7355"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec5cc75fd13dbb415780520af9ddb906"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#aec5cc75fd13dbb415780520af9ddb906">SetInitialCamera</a> (const corgi::CameraInterface &amp;initial_camera)</td></tr>
-<tr class="memdesc:aec5cc75fd13dbb415780520af9ddb906"><td class="mdescLeft">&#160;</td><td class="mdescRight">When you activate the editor, you can pass in your game's camera so the user can seamlessly be positioned at the same place they were during the game.  <a href="#aec5cc75fd13dbb415780520af9ddb906">More...</a><br/></td></tr>
-<tr class="separator:aec5cc75fd13dbb415780520af9ddb906"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a898098f8e9c84ab00d103619b8e2d6cb"><td class="memItemLeft" align="right" valign="top">corgi::CameraInterface *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb">GetCamera</a> ()</td></tr>
-<tr class="memdesc:a898098f8e9c84ab00d103619b8e2d6cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Scene Lab camera, so you can render the scene properly or change its position.  <a href="#a898098f8e9c84ab00d103619b8e2d6cb">More...</a><br/></td></tr>
-<tr class="separator:a898098f8e9c84ab00d103619b8e2d6cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d68d7769bcbce5075665083ed1fdda9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5d68d7769bcbce5075665083ed1fdda9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a5d68d7769bcbce5075665083ed1fdda9">SelectEntity</a> (const corgi::EntityRef &amp;entity_ref)</td></tr>
-<tr class="memdesc:a5d68d7769bcbce5075665083ed1fdda9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight the specified entity, so that you can change its properties. <br/></td></tr>
-<tr class="separator:a5d68d7769bcbce5075665083ed1fdda9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d8b59884e0abc1a310c0621274ca771"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a3d8b59884e0abc1a310c0621274ca771">SaveScene</a> (bool to_disk)</td></tr>
-<tr class="memdesc:a3d8b59884e0abc1a310c0621274ca771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the current positions and properties of all entities.  <a href="#a3d8b59884e0abc1a310c0621274ca771">More...</a><br/></td></tr>
-<tr class="separator:a3d8b59884e0abc1a310c0621274ca771"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73eecd998b060055c6a67b0c506f322e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a73eecd998b060055c6a67b0c506f322e">SetInitialCamera</a> (const GenericCamera &amp;initial_camera)</td></tr>
+<tr class="memdesc:a73eecd998b060055c6a67b0c506f322e"><td class="mdescLeft">&#160;</td><td class="mdescRight">When you activate the editor, you can pass in your game's camera so the user can seamlessly be positioned at the same place they were during the game.  <a href="#a73eecd998b060055c6a67b0c506f322e">More...</a><br/></td></tr>
+<tr class="separator:a73eecd998b060055c6a67b0c506f322e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13961aea920326fb65986564f6202c18"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a13961aea920326fb65986564f6202c18">GetCamera</a> (GenericCamera *camera)</td></tr>
+<tr class="memdesc:a13961aea920326fb65986564f6202c18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Scene Lab camera, so you can render the scene properly or change its position.  <a href="#a13961aea920326fb65986564f6202c18">More...</a><br/></td></tr>
+<tr class="separator:a13961aea920326fb65986564f6202c18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6af68c1f4461cd69e97693603d5eb65b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6af68c1f4461cd69e97693603d5eb65b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a6af68c1f4461cd69e97693603d5eb65b">SelectEntity</a> (const GenericEntityId &amp;entity)</td></tr>
+<tr class="memdesc:a6af68c1f4461cd69e97693603d5eb65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight the specified entity, so that you can change its properties. <br/></td></tr>
+<tr class="separator:a6af68c1f4461cd69e97693603d5eb65b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67004be1865d40202c31f60f2b24c792"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67004be1865d40202c31f60f2b24c792"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a67004be1865d40202c31f60f2b24c792">MoveEntityToCamera</a> (const GenericEntityId &amp;entity)</td></tr>
+<tr class="memdesc:a67004be1865d40202c31f60f2b24c792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move the specified entity to directly in front of the camera. <br/></td></tr>
+<tr class="separator:a67004be1865d40202c31f60f2b24c792"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a677ef25d776f2393e3d2f85069a58000"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a677ef25d776f2393e3d2f85069a58000">SaveScene</a> (bool to_disk)</td></tr>
+<tr class="memdesc:a677ef25d776f2393e3d2f85069a58000"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the current positions and properties of all entities.  <a href="#a677ef25d776f2393e3d2f85069a58000">More...</a><br/></td></tr>
+<tr class="separator:a677ef25d776f2393e3d2f85069a58000"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ab0e0ebddbd9348bd38a803331c8a96"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a5ab0e0ebddbd9348bd38a803331c8a96">SaveScene</a> ()</td></tr>
 <tr class="memdesc:a5ab0e0ebddbd9348bd38a803331c8a96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save the current positions and properties to disk.  <a href="#a5ab0e0ebddbd9348bd38a803331c8a96">More...</a><br/></td></tr>
 <tr class="separator:a5ab0e0ebddbd9348bd38a803331c8a96"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8728121446ccdd27a9a8802cdb496dab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a8728121446ccdd27a9a8802cdb496dab">SaveEntitiesInFile</a> (const std::string &amp;filename)</td></tr>
-<tr class="memdesc:a8728121446ccdd27a9a8802cdb496dab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save all the entities that were from a specific file to that file on disk.  <a href="#a8728121446ccdd27a9a8802cdb496dab">More...</a><br/></td></tr>
-<tr class="separator:a8728121446ccdd27a9a8802cdb496dab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9b5d5516d7b88d6f810e10b1b095fcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#aa9b5d5516d7b88d6f810e10b1b095fcd">RequestExit</a> ()</td></tr>
 <tr class="memdesc:aa9b5d5516d7b88d6f810e10b1b095fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request that Scene Lab exit.  <a href="#aa9b5d5516d7b88d6f810e10b1b095fcd">More...</a><br/></td></tr>
 <tr class="separator:aa9b5d5516d7b88d6f810e10b1b095fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -259,9 +265,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a14c1a8000a0fb81ba0d045ac4f071a74"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a14c1a8000a0fb81ba0d045ac4f071a74">IsReadyToExit</a> ()</td></tr>
 <tr class="memdesc:a14c1a8000a0fb81ba0d045ac4f071a74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if we are ready to exit Scene Lab (everything is saved or discarded, etc), or false if not.  <a href="#a14c1a8000a0fb81ba0d045ac4f071a74">More...</a><br/></td></tr>
 <tr class="separator:a14c1a8000a0fb81ba0d045ac4f071a74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4481f0b00efdd27a49cc387d22752c83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a4481f0b00efdd27a49cc387d22752c83">AddComponentToUpdate</a> (corgi::ComponentId component_id)</td></tr>
-<tr class="memdesc:a4481f0b00efdd27a49cc387d22752c83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a component to the list of components Scene Lab updates each frame.  <a href="#a4481f0b00efdd27a49cc387d22752c83">More...</a><br/></td></tr>
-<tr class="separator:a4481f0b00efdd27a49cc387d22752c83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec9ef0546980eec11f938c527dae595b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#aec9ef0546980eec11f938c527dae595b">set_entities_modified</a> (bool b)</td></tr>
 <tr class="memdesc:aec9ef0546980eec11f938c527dae595b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Externally mark that some entities have been modified.  <a href="#aec9ef0546980eec11f938c527dae595b">More...</a><br/></td></tr>
 <tr class="separator:aec9ef0546980eec11f938c527dae595b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -297,21 +300,29 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ad7a67c95797bea3cd029cd6becdd979d">NotifyExitEditor</a> () const </td></tr>
 <tr class="memdesc:ad7a67c95797bea3cd029cd6becdd979d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EditorExit' callbacks. <br/></td></tr>
 <tr class="separator:ad7a67c95797bea3cd029cd6becdd979d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab52abad550dafbbac62d9a0cc5bafc62"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab52abad550dafbbac62d9a0cc5bafc62"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ab52abad550dafbbac62d9a0cc5bafc62">NotifyCreateEntity</a> (const corgi::EntityRef &amp;entity) const </td></tr>
-<tr class="memdesc:ab52abad550dafbbac62d9a0cc5bafc62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityCreated' callbacks. <br/></td></tr>
-<tr class="separator:ab52abad550dafbbac62d9a0cc5bafc62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ba974526e6a7a9cb7106ba537e55832"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ba974526e6a7a9cb7106ba537e55832"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a1ba974526e6a7a9cb7106ba537e55832">NotifyUpdateEntity</a> (const corgi::EntityRef &amp;entity) const </td></tr>
-<tr class="memdesc:a1ba974526e6a7a9cb7106ba537e55832"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityUpdated' callbacks. <br/></td></tr>
-<tr class="separator:a1ba974526e6a7a9cb7106ba537e55832"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab283f0360b92c6443e65dd8e3ef28767"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab283f0360b92c6443e65dd8e3ef28767"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ab283f0360b92c6443e65dd8e3ef28767">NotifyDeleteEntity</a> (const corgi::EntityRef &amp;entity) const </td></tr>
-<tr class="memdesc:ab283f0360b92c6443e65dd8e3ef28767"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityDeleted' callbacks. <br/></td></tr>
-<tr class="separator:ab283f0360b92c6443e65dd8e3ef28767"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef3650f65d36911a613a030749c3a6ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef3650f65d36911a613a030749c3a6ac"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#aef3650f65d36911a613a030749c3a6ac">NotifyCreateEntity</a> (const GenericEntityId &amp;entity) const </td></tr>
+<tr class="memdesc:aef3650f65d36911a613a030749c3a6ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityCreated' callbacks. <br/></td></tr>
+<tr class="separator:aef3650f65d36911a613a030749c3a6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46546cb5306778429a7b6d9959b5bf35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46546cb5306778429a7b6d9959b5bf35"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a46546cb5306778429a7b6d9959b5bf35">NotifyUpdateEntity</a> (const GenericEntityId &amp;entity) const </td></tr>
+<tr class="memdesc:a46546cb5306778429a7b6d9959b5bf35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityUpdated' callbacks. <br/></td></tr>
+<tr class="separator:a46546cb5306778429a7b6d9959b5bf35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf911d10028512fe257eb8058e304454"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf911d10028512fe257eb8058e304454"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#acf911d10028512fe257eb8058e304454">NotifyDeleteEntity</a> (const GenericEntityId &amp;entity) const </td></tr>
+<tr class="memdesc:acf911d10028512fe257eb8058e304454"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call all 'EntityDeleted' callbacks. <br/></td></tr>
+<tr class="separator:acf911d10028512fe257eb8058e304454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3695e68b4fa5400fdf938c574ed2dafb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3695e68b4fa5400fdf938c574ed2dafb"></a>
 const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> ()</td></tr>
 <tr class="separator:a3695e68b4fa5400fdf938c574ed2dafb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47696fe2963f575920ba268bf60d749b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47696fe2963f575920ba268bf60d749b"></a>
+const SceneLabConfig *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#a47696fe2963f575920ba268bf60d749b">config</a> ()</td></tr>
+<tr class="memdesc:a47696fe2963f575920ba268bf60d749b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config accessor, so you can access config options. <br/></td></tr>
+<tr class="separator:a47696fe2963f575920ba268bf60d749b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0d4b92b9f207079eec534fe03202815"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0d4b92b9f207079eec534fe03202815"></a>
+<a class="el" href="classscene__lab_1_1_editor_gui.html">EditorGui</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_scene_lab.html#ae0d4b92b9f207079eec534fe03202815">gui</a> ()</td></tr>
+<tr class="memdesc:ae0d4b92b9f207079eec534fe03202815"><td class="mdescLeft">&#160;</td><td class="mdescRight">GUI accessor, so you can poke into the <a class="el" href="classscene__lab_1_1_editor_gui.html">EditorGui</a>. <br/></td></tr>
+<tr class="separator:ae0d4b92b9f207079eec534fe03202815"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -338,33 +349,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 
 </div>
 </div>
-<a class="anchor" id="a4481f0b00efdd27a49cc387d22752c83"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void scene_lab::SceneLab::AddComponentToUpdate </td>
-          <td>(</td>
-          <td class="paramtype">corgi::ComponentId&#160;</td>
-          <td class="paramname"><em>component_id</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Add a component to the list of components Scene Lab updates each frame. </p>
-<p>While Scene Lab is activated, you should no longer be calling EntityManager::UpdateComponents(); you should let Scene Lab update only the components it cares about. If you have any components you are sure you also want updated while editing the scene, add them to the list by calling this function. </p>
-
-</div>
-</div>
 <a class="anchor" id="a37d40a9cafafc3c6756f811373bb7355"></a>
 <div class="memitem">
 <div class="memproto">
@@ -383,25 +367,25 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 
 </div>
 </div>
-<a class="anchor" id="a898098f8e9c84ab00d103619b8e2d6cb"></a>
+<a class="anchor" id="a13961aea920326fb65986564f6202c18"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">corgi::CameraInterface* scene_lab::SceneLab::GetCamera </td>
+          <td class="memname">void scene_lab::SceneLab::GetCamera </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">GenericCamera *&#160;</td>
+          <td class="paramname"><em>camera</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Get the Scene Lab camera, so you can render the scene properly or change its position. </p>
-<p>If you do not have a camera, a <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> will be created for you. </p>
 
 </div>
 </div>
-<a class="anchor" id="a1843894a086c62baeb8c890d85a6f9a6"></a>
+<a class="anchor" id="ae01ca8cae0e3bad6b2327c0f4a9f7616"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -414,8 +398,20 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">corgi::EntityManager *&#160;</td>
-          <td class="paramname"><em>entity_manager</em>, </td>
+          <td class="paramtype">fplbase::AssetManager *&#160;</td>
+          <td class="paramname"><em>asset_manager</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fplbase::InputSystem *&#160;</td>
+          <td class="paramname"><em>input</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fplbase::Renderer *&#160;</td>
+          <td class="paramname"><em>renderer</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -432,7 +428,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Initialize Scene Lab once, when starting your game. </p>
-<p>Call this function as soon as you have an entity manager and font manager. Consider giving Scene Lab a camera via <a class="el" href="classscene__lab_1_1_scene_lab.html#ad530912584b269aba83d0a7cb4dead38" title="Give Scene Lab a camera that it can use. ">SetCamera()</a> as well. </p>
+<p>Call this function as soon as you have an entity manager and font manager. Consider giving Scene Lab a camera via SetCamera() as well. </p>
 
 </div>
 </div>
@@ -469,7 +465,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Render Scene Lab and its GUI; only call this when Scene Lab is active. </p>
-<p>While Scene Lab is running, you are still responsible for rendering your own game world. Call <a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a> to get the camera you should use for rendering.</p>
+<p>While Scene Lab is running, you are still responsible for rendering your own game world. Call <a class="el" href="classscene__lab_1_1_scene_lab.html#a13961aea920326fb65986564f6202c18" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a> to get the camera you should use for rendering.</p>
 <p>Warning: if you are actively using FlatUI elsewhere in your code while Scene Lab is running, you will need to modify this function to not render the GUI here, and call <a class="el" href="classscene__lab_1_1_editor_gui.html#ac22e738fdfa99d1eb64d87b88ec9834f" title="Prepare to draw the GUI. ">EditorGui::StartRender()</a>, <a class="el" href="classscene__lab_1_1_editor_gui.html#a978082bc7afb3703e0ec03326bc63ca3" title="Either call Render() above, or call the following sequence if you are using FlatUI elsewhere: ...">EditorGui::DrawGui()</a>, and <a class="el" href="classscene__lab_1_1_editor_gui.html#a0d9a9ce8b6b3483181cb92210ae40fd2" title="Finish drawing the GUI, and update input. ">EditorGui::FinishRender()</a> yourself. </p>
 
 </div>
@@ -493,31 +489,12 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 
 </div>
 </div>
-<a class="anchor" id="a8728121446ccdd27a9a8802cdb496dab"></a>
+<a class="anchor" id="a677ef25d776f2393e3d2f85069a58000"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void scene_lab::SceneLab::SaveEntitiesInFile </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>filename</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Save all the entities that were from a specific file to that file on disk. </p>
-<p>Called by <a class="el" href="classscene__lab_1_1_scene_lab.html#a5ab0e0ebddbd9348bd38a803331c8a96" title="Save the current positions and properties to disk. ">SaveScene()</a> when saving to disk, but you could always call this directly. </p>
-
-</div>
-</div>
-<a class="anchor" id="a3d8b59884e0abc1a310c0621274ca771"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void scene_lab::SceneLab::SaveScene </td>
+          <td class="memname">bool scene_lab::SceneLab::SaveScene </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>to_disk</em></td><td>)</td>
@@ -527,6 +504,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Save the current positions and properties of all entities. </p>
+<p>Returns true if successful or false if it failed.</p>
 <p>If <code>to_disk</code> is true, save to .bin and .json files and update the entity factory's file cache. Otherwise, just update the file cache but don't physically save the files to disk.</p>
 <p>If you are saving to disk, entities will be saved to the files they were initially loaded from. </p>
 
@@ -554,7 +532,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>Save the current positions and properties to disk. </p>
-<p>See <a class="el" href="classscene__lab_1_1_scene_lab.html#a3d8b59884e0abc1a310c0621274ca771" title="Save the current positions and properties of all entities. ">SaveScene(bool to_disk)</a> for more details. </p>
+<p>See <a class="el" href="classscene__lab_1_1_scene_lab.html#a677ef25d776f2393e3d2f85069a58000" title="Save the current positions and properties of all entities. ">SaveScene(bool to_disk)</a> for more details. </p>
 
 </div>
 </div>
@@ -585,42 +563,14 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 
 </div>
 </div>
-<a class="anchor" id="ad530912584b269aba83d0a7cb4dead38"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void scene_lab::SceneLab::SetCamera </td>
-          <td>(</td>
-          <td class="paramtype">std::unique_ptr&lt; corgi::CameraInterface &gt;&#160;</td>
-          <td class="paramname"><em>camera</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Give Scene Lab a camera that it can use. </p>
-<p>If you don't call this, it will create its own <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> instead.</p>
-<p>Scene Lab will take over ownership of <code>camera</code>. </p>
-
-</div>
-</div>
-<a class="anchor" id="aec5cc75fd13dbb415780520af9ddb906"></a>
+<a class="anchor" id="a73eecd998b060055c6a67b0c506f322e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void scene_lab::SceneLab::SetInitialCamera </td>
           <td>(</td>
-          <td class="paramtype">const corgi::CameraInterface &amp;&#160;</td>
+          <td class="paramtype">const GenericCamera &amp;&#160;</td>
           <td class="paramname"><em>initial_camera</em></td><td>)</td>
           <td></td>
         </tr>
@@ -628,8 +578,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>version_</b></
 </div><div class="memdoc">
 
 <p>When you activate the editor, you can pass in your game's camera so the user can seamlessly be positioned at the same place they were during the game. </p>
-<p>Note that if you do not yet have a Scene Lab camera set when you call this method, a <a class="el" href="classscene__lab_1_1_basic_camera.html">BasicCamera</a> will be created for you.</p>
-<p>You can also set the initial camera by calling <a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a>-&gt;set_position() and/or <a class="el" href="classscene__lab_1_1_scene_lab.html#a898098f8e9c84ab00d103619b8e2d6cb" title="Get the Scene Lab camera, so you can render the scene properly or change its position. ">GetCamera()</a>-&gt;set_facing(). </p>
+<p>Call this function before <a class="el" href="classscene__lab_1_1_scene_lab.html#a5d77684a5d28695ae512b7a9cdd7102d" title="Activate Scene Lab. ">Activate()</a>. </p>
 
 </div>
 </div>

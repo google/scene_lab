@@ -1,6 +1,6 @@
 var classscene__lab_1_1_editor_gui =
 [
-    [ "EditorGui", "classscene__lab_1_1_editor_gui.html#acad3fda2d19e3543914ad64e1a1418e4", null ],
+    [ "EditorGui", "classscene__lab_1_1_editor_gui.html#aba820563856a713fac1e93d5237f1f3f", null ],
     [ "Activate", "classscene__lab_1_1_editor_gui.html#af9dc6a5c14b5563bfee8cf13a41311e5", null ],
     [ "CanDeselectEntity", "classscene__lab_1_1_editor_gui.html#acdc2b5cc63ba420b6d69d26f99b4fc9a", null ],
     [ "CanExit", "classscene__lab_1_1_editor_gui.html#a83607c97ae3d07ffd4efe5272f18af9f", null ],
@@ -8,9 +8,9 @@ var classscene__lab_1_1_editor_gui =
     [ "CommitEntityData", "classscene__lab_1_1_editor_gui.html#ab0a3ff0d109590df034c2c84363d7d28", null ],
     [ "Deactivate", "classscene__lab_1_1_editor_gui.html#a450f10c10ce7601083a75d8a3d3b0149", null ],
     [ "DrawGui", "classscene__lab_1_1_editor_gui.html#a978082bc7afb3703e0ec03326bc63ca3", null ],
-    [ "edit_entity", "classscene__lab_1_1_editor_gui.html#a83c9d5d6d5bc920876f24d2d131a8c9b", null ],
+    [ "edit_entity", "classscene__lab_1_1_editor_gui.html#aaa8b09b9082aae43c54ed023ac5e4dde", null ],
     [ "EntityModified", "classscene__lab_1_1_editor_gui.html#a477698681363dd78b8ca108beb4ab287", null ],
-    [ "EntityUpdated", "classscene__lab_1_1_editor_gui.html#a607f4177f20f03bf3062302cbced2c34", null ],
+    [ "EntityUpdated", "classscene__lab_1_1_editor_gui.html#aee4287d42323f87946e4533b9f94fab5", null ],
     [ "FinishRender", "classscene__lab_1_1_editor_gui.html#a0d9a9ce8b6b3483181cb92210ae40fd2", null ],
     [ "InputCaptured", "classscene__lab_1_1_editor_gui.html#a39afa24d4939ba051b85963b74c51503", null ],
     [ "keyboard_in_use", "classscene__lab_1_1_editor_gui.html#a1c18eb5bcdfffe80a25d5a1ca7b9a03f", null ],
@@ -21,7 +21,8 @@ var classscene__lab_1_1_editor_gui =
     [ "Render", "classscene__lab_1_1_editor_gui.html#aadcf896d86e480aa447c8a7c980dfd4e", null ],
     [ "set_menu_title_string", "classscene__lab_1_1_editor_gui.html#aae2fe376e63f1d882eef3d7cd934ab76", null ],
     [ "set_mouse_mode_index", "classscene__lab_1_1_editor_gui.html#a68701475d59ee01b7ff6ed5f751c6ee2", null ],
-    [ "SetEditEntity", "classscene__lab_1_1_editor_gui.html#a123e35a774ac632805b635c53677276d", null ],
+    [ "SetEditEntity", "classscene__lab_1_1_editor_gui.html#ad9b8d85f24b594aef652a5f1981d39df", null ],
+    [ "SetShowComponentDataView", "classscene__lab_1_1_editor_gui.html#a27492442a9ba89ebad6ac27b7c772970", null ],
     [ "show_physics", "classscene__lab_1_1_editor_gui.html#a6c5689c697555777a17e5129b4b08edf", null ],
     [ "StartRender", "classscene__lab_1_1_editor_gui.html#ac22e738fdfa99d1eb64d87b88ec9834f", null ]
 ];

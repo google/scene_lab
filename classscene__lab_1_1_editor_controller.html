@@ -265,9 +265,9 @@ mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:ac2778d8e920646188dbc180a8609f0cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_controller.html#ac2778d8e920646188dbc180a8609f0cc">UnlockMouse</a> ()</td></tr>
 <tr class="memdesc:ac2778d8e920646188dbc180a8609f0cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop locking the mouse to the middle of the screen; it will no longer update facing, but will update pointer location instead.  <a href="#ac2778d8e920646188dbc180a8609f0cc">More...</a><br/></td></tr>
 <tr class="separator:ac2778d8e920646188dbc180a8609f0cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62ae3e6a3844ac64c5fcce386a91aab4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_controller.html#a62ae3e6a3844ac64c5fcce386a91aab4">GetMouseWorldRay</a> (const corgi::CameraInterface &amp;camera, const mathfu::vec2i &amp;screen_size, mathfu::vec3 *near, mathfu::vec3 *far) const </td></tr>
-<tr class="memdesc:a62ae3e6a3844ac64c5fcce386a91aab4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the pointer position in the world, as a ray from the near to far clipping plane.  <a href="#a62ae3e6a3844ac64c5fcce386a91aab4">More...</a><br/></td></tr>
-<tr class="separator:a62ae3e6a3844ac64c5fcce386a91aab4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a705d0c03d0cb5485af800b0e44f9783c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_controller.html#a705d0c03d0cb5485af800b0e44f9783c">ScreenPointToWorldRay</a> (const GenericCamera &amp;camera, const ViewportSettings &amp;viewport, const mathfu::vec2 &amp;screen_point, const mathfu::vec2i &amp;screen_size, mathfu::vec3 *near, mathfu::vec3 *dir) const </td></tr>
+<tr class="memdesc:a705d0c03d0cb5485af800b0e44f9783c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the position of a screen point in the world, as a ray from the camera position with a direction.  <a href="#a705d0c03d0cb5485af800b0e44f9783c">More...</a><br/></td></tr>
+<tr class="separator:a705d0c03d0cb5485af800b0e44f9783c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a864a8f1ae893682076323a4fb2a831e9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscene__lab_1_1_editor_controller.html#a864a8f1ae893682076323a4fb2a831e9">mouse_locked</a> () const </td></tr>
 <tr class="memdesc:a864a8f1ae893682076323a4fb2a831e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the mouse locked? If so, moving the mouse changes our facing.  <a href="#a864a8f1ae893682076323a4fb2a831e9">More...</a><br/></td></tr>
 <tr class="separator:a864a8f1ae893682076323a4fb2a831e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -382,47 +382,6 @@ static const int&#160;</td><td class="memItemRight" valign="bottom"><b>kNumButto
 
 <p>Get the direction we are facing. </p>
 <p>If the mouse is locked, then moving it will cause your facing to change like in a first-person shooter. </p>
-
-</div>
-</div>
-<a class="anchor" id="a62ae3e6a3844ac64c5fcce386a91aab4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool scene_lab::EditorController::GetMouseWorldRay </td>
-          <td>(</td>
-          <td class="paramtype">const corgi::CameraInterface &amp;&#160;</td>
-          <td class="paramname"><em>camera</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const mathfu::vec2i &amp;&#160;</td>
-          <td class="paramname"><em>screen_size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">mathfu::vec3 *&#160;</td>
-          <td class="paramname"><em>near</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">mathfu::vec3 *&#160;</td>
-          <td class="paramname"><em>far</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get the pointer position in the world, as a ray from the near to far clipping plane. </p>
-<p>Returns true if the calculation succeeded. </p>
 
 </div>
 </div>
@@ -579,6 +538,58 @@ static const int&#160;</td><td class="memItemRight" valign="bottom"><b>kNumButto
 
 <p>Is the mouse locked? If so, moving the mouse changes our facing. </p>
 <p>If not, moving the mouse moves the mouse pointer. </p>
+
+</div>
+</div>
+<a class="anchor" id="a705d0c03d0cb5485af800b0e44f9783c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scene_lab::EditorController::ScreenPointToWorldRay </td>
+          <td>(</td>
+          <td class="paramtype">const GenericCamera &amp;&#160;</td>
+          <td class="paramname"><em>camera</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ViewportSettings &amp;&#160;</td>
+          <td class="paramname"><em>viewport</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const mathfu::vec2 &amp;&#160;</td>
+          <td class="paramname"><em>screen_point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const mathfu::vec2i &amp;&#160;</td>
+          <td class="paramname"><em>screen_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">mathfu::vec3 *&#160;</td>
+          <td class="paramname"><em>near</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">mathfu::vec3 *&#160;</td>
+          <td class="paramname"><em>dir</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the position of a screen point in the world, as a ray from the camera position with a direction. </p>
 
 </div>
 </div>
